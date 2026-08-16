@@ -484,7 +484,7 @@ end
 local function safeReadFile(p) if not readfile then return nil end; local ok, d = pcall(readfile, p); return ok and d or nil end
 
 local function loadFile(fileInfo)
-    local isRbxl = fileInfo.ftype == "RBXL"
+    local isRbxl = (fileInfo.ftype == "RBXL" or fileInfo.ftype == "RBXLX")
     local data = safeReadFile(fileInfo.path)
     if not data or #data == 0 then return false, "readfile gagal" end
 
@@ -513,11 +513,18 @@ end
 -- ═══════════════════════════════════════════════════════════════════════
 local function safeListFiles(p) if not listfiles then return nil end; local ok, f = pcall(listfiles, p); return ok and f or nil end
 local function getFileName(p) return p:match("([^/]+)$") or p end
-local function getFileType(n) 
-    n = n:lower(); 
-    if n:match("%.rbxl") or n:match("%.rbxlx") then return "RBXL" 
-    elseif n:match("%.rbxm") or n:match("%.rbxmx") then return "RBXM" end; 
-    return nil 
+local function getFileType(n)
+    n = tostring(n or ""):lower()
+    if n:match("%.rbxlx$") then
+        return "RBXLX"
+    elseif n:match("%.rbxl$") then
+        return "RBXL"
+    elseif n:match("%.rbxmx$") then
+        return "RBXMX"
+    elseif n:match("%.rbxm$") then
+        return "RBXM"
+    end
+    return nil
 end
 local function looksFolder(p) return not getFileName(p):match("%.[%a%d]+") end
 
@@ -530,7 +537,7 @@ local SCAN_PATHS = {
 }
 
 local function scanDeep(folder, depth, results, seen)
-    if depth > 4 or seen[folder] then return end
+    if depth > 20 or seen[folder] then return end
     seen[folder] = true
     local list = safeListFiles(folder)
     if not list then return end
@@ -1112,6 +1119,11 @@ CloseClick.Size = UDim2.new(1, 0, 1, 0)
 CloseClick.BackgroundTransparency = 1
 CloseClick.Text = ""
 
+-- FIX: CLOSE BUTTON MUST RECEIVE THE CLICK/TOUCH
+CloseClick.MouseButton1Click:Connect(function()
+    Main.Visible = false
+end)
+
 -- MINIMIZE BUTTON WITH VECTOR MINIMIZE ICON
 local MinBtn = Instance.new("Frame", TitleBar)
 MinBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -1488,7 +1500,7 @@ local function buildFileCard(fileInfo)
     cardStroke.Thickness = 1
     cardStroke.Color = Color3.fromRGB(70, 42, 100)
 
-    local isRbxl = fileInfo.ftype == "RBXL"
+    local isRbxl = (fileInfo.ftype == "RBXL" or fileInfo.ftype == "RBXLX")
 
     local typeBadge = Instance.new("Frame", card)
     typeBadge.Size = UDim2.new(0, 48, 0, 16); typeBadge.Position = UDim2.new(0, 6, 0, 6)
@@ -1650,18 +1662,29 @@ ScanClick.MouseButton1Click:Connect(function()
 
     task.spawn(function()
         local foundFiles = scanAll()
-        local rbxmCount, rbxlCount = 0, 0
+        local rbxmCount, rbxmxCount, rbxlCount, rbxlxCount = 0, 0, 0, 0
         for _, f in ipairs(foundFiles) do
-            if f.ftype == "RBXL" then rbxlCount += 1 else rbxmCount += 1 end
+            if f.ftype == "RBXL" then
+                rbxlCount += 1
+            elseif f.ftype == "RBXLX" then
+                rbxlxCount += 1
+            elseif f.ftype == "RBXMX" then
+                rbxmxCount += 1
+            else
+                rbxmCount += 1
+            end
             buildFileCard(f)
         end
 
-        StatsText.Text = string.format("Ready | RBXM: %d | RBXL: %d", rbxmCount, rbxlCount)
+        StatsText.Text = string.format(
+            "Ready | RBXM: %d | RBXMX: %d | RBXL: %d | RBXLX: %d",
+            rbxmCount, rbxmxCount, rbxlCount, rbxlxCount
+        )
         ScanText.Text = "SCAN FILES"
         ScanIcon.Image = ICONS.SEARCH
 
         if #foundFiles == 0 then
-            EmptyLabel.Text = "Tidak ada file RBXM/RBXL terdeteksi.\nPeriksa folder workspace yang dipakai Studio Lite."
+            EmptyLabel.Text = "Tidak ada file RBXM/RBXMX/RBXL/RBXLX terdeteksi.\nPeriksa folder workspace yang dipakai Studio Lite."
         else
             notify("Scan Selesai", #foundFiles .. " file terdeteksi", Color3.fromRGB(220, 220, 230))
         end
