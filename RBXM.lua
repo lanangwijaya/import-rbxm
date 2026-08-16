@@ -1920,6 +1920,42 @@ end
 PublishApiKey = makePublishBox2(PublishPanel, 120, "API Key (x-api-key)", 30)
 PublishApiKey.TextEditable = true
 
+-- NANG API KEY PERSISTENCE
+-- Menyimpan API Key secara lokal agar tidak hilang setelah UI/script dijalankan ulang.
+-- Catatan: ini penyimpanan lokal, bukan Roblox DataStore.
+local NANG_APIKEY_FILE = "NANG_PublishApiKey.txt"
+
+local function loadNangApiKey()
+    if type(readfile) ~= "function" then return "" end
+    local ok, data = pcall(function() return readfile(NANG_APIKEY_FILE) end)
+    if ok and type(data) == "string" then
+        return data:gsub("^%s+", ""):gsub("%s+$", "")
+    end
+    return ""
+end
+
+local function saveNangApiKey(value)
+    if type(writefile) ~= "function" then return false end
+    value = tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if value == "" then return false end
+    local ok = pcall(function()
+        writefile(NANG_APIKEY_FILE, value)
+    end)
+    return ok
+end
+
+local savedNangApiKey = loadNangApiKey()
+if savedNangApiKey ~= "" then
+    PublishApiKey.Text = savedNangApiKey
+end
+
+PublishApiKey.FocusLost:Connect(function()
+    local value = tostring(PublishApiKey.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if value ~= "" then
+        saveNangApiKey(value)
+    end
+end)
+
 local CurrentInfo = Instance.new("Frame", PublishPanel)
 CurrentInfo.Size = UDim2.new(1, -28, 0, 104)
 CurrentInfo.Position = UDim2.new(0, 14, 0, 158)
@@ -2044,41 +2080,144 @@ local function resolveUniverseFromPlaceId(placeId)
     return tostring(uid), nil
 end
 
-local function detectCurrentMap()
-    local placeIdNum = tonumber(game.PlaceId) or 0
-    local gameIdNum = tonumber(game.GameId) or 0
-    local placeId = placeIdNum > 0 and tostring(placeIdNum) or "-"
-    local universeId = gameIdNum > 0 and tostring(gameIdNum) or nil
-    local placeName = tostring(game.Name or "Current Map")
+local function _nangReadNumericMeta(root, names)
+    if not root then return nil end
+    local wanted = {}
+    for _, n in ipairs(names) do wanted[string.lower(n)] = true end
 
-    -- Prefer DataModel.GameId. If the environment reports 0, resolve the
-    -- current PlaceId through Roblox's public place->universe endpoint.
-    local resolveNote = "Map terdeteksi otomatis"
-    if not universeId and placeIdNum > 0 then
-        local resolved, err = resolveUniverseFromPlaceId(placeIdNum)
-        if resolved then
-            universeId = resolved
-        else
-            resolveNote = err or "Universe ID belum dapat dideteksi"
+    local function check(inst)
+        if not inst then return nil end
+
+        -- Attributes are the safest metadata channel when Studio Lite exposes them.
+        for _, n in ipairs(names) do
+            local ok, v = pcall(function() return inst:GetAttribute(n) end)
+            if ok and v ~= nil then
+                local num = tonumber(tostring(v):match("%d+"))
+                if num and num > 0 then return num end
+            end
+        end
+
+        -- Also support NumberValue / IntValue / StringValue metadata objects.
+        for _, child in ipairs(inst:GetChildren()) do
+            local lname = string.lower(child.Name)
+            if wanted[lname] then
+                local ok, v = pcall(function() return child.Value end)
+                if ok and v ~= nil then
+                    local num = tonumber(tostring(v):match("%d+"))
+                    if num and num > 0 then return num end
+                end
+            end
+        end
+        return nil
+    end
+
+    local direct = check(root)
+    if direct then return direct end
+
+    -- Only inspect metadata containers. Do NOT use game.GameId/game.PlaceId here,
+    -- because Studio Lite can expose its own host/template IDs.
+    for _, d in ipairs(root:GetDescendants()) do
+        local lname = string.lower(d.Name)
+        if wanted[lname] then
+            local ok, v = pcall(function()
+                return d:IsA("ValueBase") and d.Value or d:GetAttribute("Value")
+            end)
+            if ok and v ~= nil then
+                local num = tonumber(tostring(v):match("%d+"))
+                if num and num > 0 then return num end
+            end
+        end
+    end
+    return nil
+end
+
+local function _nangReadMapName()
+    local candidates = {
+        function() return workspace:GetAttribute("MapName") end,
+        function() return workspace:GetAttribute("PlaceName") end,
+        function() return workspace:GetAttribute("ExperienceName") end,
+        function() return game:GetAttribute("MapName") end,
+        function() return game:GetAttribute("PlaceName") end,
+    }
+    for _, fn in ipairs(candidates) do
+        local ok, v = pcall(fn)
+        if ok and type(v) == "string" and v:gsub("%s+", "") ~= "" then
+            return v
+        end
+    end
+    return nil
+end
+
+local function detectCurrentMap()
+    -- IMPORTANT:
+    -- In Studio Lite, game.GameId/game.PlaceId may belong to Studio Lite's
+    -- host/template. Never use those values as the user's target map.
+    local isStudioLite = slFolder ~= nil
+
+    local universeId, placeId
+    local placeName = _nangReadMapName() or "Map Saat Ini"
+
+    if isStudioLite then
+        -- Look only for IDs explicitly exposed as metadata by Studio Lite.
+        universeId = _nangReadNumericMeta(slFolder, {
+            "UniverseId", "UniverseID", "GameId", "GameID", "ExperienceId",
+            "ExperienceID", "TargetUniverseId", "TargetGameId"
+        })
+        placeId = _nangReadNumericMeta(slFolder, {
+            "PlaceId", "PlaceID", "TargetPlaceId", "TargetPlaceID"
+        })
+
+        -- Some builds may expose metadata on Workspace instead.
+        universeId = universeId or _nangReadNumericMeta(workspace, {
+            "UniverseId", "UniverseID", "GameId", "GameID", "ExperienceId",
+            "ExperienceID", "TargetUniverseId", "TargetGameId"
+        })
+        placeId = placeId or _nangReadNumericMeta(workspace, {
+            "PlaceId", "PlaceID", "TargetPlaceId", "TargetPlaceID"
+        })
+
+        -- If Studio Lite does not expose target metadata, returning its own
+        -- DataModel IDs would publish to the wrong experience. Fail safely.
+        if not universeId or not placeId then
+            CurrentMapText.Text =
+                "Nama: " .. placeName ..
+                "\nUniverse: -" ..
+                "\nPlace: -" ..
+                "\nStatus: Studio Lite tidak menyediakan ID map target."
+            return "-", "-", placeName
+        end
+    else
+        local placeIdNum = tonumber(game.PlaceId) or 0
+        local gameIdNum = tonumber(game.GameId) or 0
+
+        if placeIdNum > 0 then
+            placeId = tostring(placeIdNum)
+            pcall(function()
+                local info = game:GetService("MarketplaceService"):GetProductInfo(placeIdNum)
+                if type(info) == "table" and info.Name then
+                    placeName = tostring(info.Name)
+                end
+            end)
+        end
+
+        if gameIdNum > 0 then
+            universeId = tostring(gameIdNum)
+        elseif placeIdNum > 0 then
+            local resolved = resolveUniverseFromPlaceId(placeIdNum)
+            if resolved then universeId = resolved end
         end
     end
 
-    -- GetProductInfo is only used for the display name and is never allowed
-    -- to break publishing/detection.
-    if placeIdNum > 0 then
-        pcall(function()
-            local info = game:GetService("MarketplaceService"):GetProductInfo(placeIdNum)
-            if type(info) == "table" and info.Name then
-                placeName = tostring(info.Name)
-            end
-        end)
-    end
+    universeId = universeId and tostring(universeId) or "-"
+    placeId = placeId and tostring(placeId) or "-"
 
-    universeId = universeId or "-"
-    CurrentMapText.Text = "Nama: " .. placeName
-        .. "\nUniverse: " .. universeId
-        .. "\nPlace: " .. placeId
-        .. "\nStatus: " .. resolveNote
+    CurrentMapText.Text =
+        "Nama: " .. placeName ..
+        "\nUniverse: " .. universeId ..
+        "\nPlace: " .. placeId ..
+        "\nStatus: " .. ((universeId ~= "-" and placeId ~= "-") and
+            "ID target berhasil dideteksi" or "ID target belum tersedia")
+
     return universeId, placeId, placeName
 end
 
@@ -2125,6 +2264,9 @@ PublishBtn.MouseButton1Click:Connect(function()
 
     task.spawn(function()
         local apiKey = tostring(PublishApiKey.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
+        if apiKey ~= "" then
+            saveNangApiKey(apiKey)
+        end
         local universeId, placeId, mapName
 
         if apiKey == "" then
