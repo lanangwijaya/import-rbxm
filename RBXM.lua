@@ -569,6 +569,135 @@ local function insertToolboxModel(value)
     return true,inserted.Name
 end
 
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- CREATOR STORE MODEL SEARCH
+-- ═══════════════════════════════════════════════════════════════════════
+local Scroll, EmptyFrame, notify
+local CREATOR_STORE_SEARCH = {
+    "https://apis.roblox.com/toolbox-service/v1/marketplace/10",
+    "https://apis.roproxy.com/toolbox-service/v1/marketplace/10",
+    "https://apis.rotunnel.com/toolbox-service/v1/marketplace/10"
+}
+
+local function searchCreatorModels(keyword, pageNumber)
+    keyword = tostring(keyword or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if keyword == "" then return false, "Masukkan nama model yang ingin dicari." end
+    pageNumber = math.max(0, tonumber(pageNumber) or 0)
+
+    local query = "?limit=30&pageNumber=" .. tostring(pageNumber)
+        .. "&keyword=" .. HttpService:UrlEncode(keyword)
+        .. "&includeOnlyVerifiedCreators=false"
+
+    local lastError = "Tidak ada respons dari Creator Store."
+    for _, base in ipairs(CREATOR_STORE_SEARCH) do
+        local body, status = httpRequest(base .. query, "GET")
+        if body and (not status or (status >= 200 and status < 300)) then
+            local ok, data = pcall(function() return HttpService:JSONDecode(body) end)
+            if ok and type(data) == "table" and type(data.data) == "table" then
+                local results = {}
+                for _, item in ipairs(data.data) do
+                    local id = tonumber(item.id or item.assetId or item.AssetId)
+                    if id then
+                        table.insert(results, {
+                            id = id,
+                            name = tostring(item.name or item.Name or ("Model " .. id)),
+                            creator = tostring(item.creatorName or item.CreatorName or item.creator or "Creator Store")
+                        })
+                    end
+                end
+                return true, results, data.nextPageCursor
+            end
+            lastError = "Format respons Creator Store tidak dikenali."
+        elseif status then
+            lastError = "Creator Store HTTP " .. tostring(status)
+        end
+    end
+    return false, lastError
+end
+
+local function clearScrollCards()
+    for _, c in ipairs(Scroll:GetChildren()) do
+        if c:IsA("Frame") and c ~= EmptyFrame then c:Destroy() end
+    end
+end
+
+local function buildModelResultCard(info)
+    EmptyFrame.Visible = false
+
+    local card = Instance.new("Frame", Scroll)
+    card.Size = UDim2.new(1, 0, 0, 58)
+    card.BackgroundColor3 = Color3.fromRGB(24, 18, 42)
+    card.BorderSizePixel = 0
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
+
+    local stroke = Instance.new("UIStroke", card)
+    stroke.Thickness = 1
+    stroke.Color = Color3.fromRGB(70, 42, 100)
+
+    local thumb = Instance.new("ImageLabel", card)
+    thumb.Size = UDim2.new(0, 44, 0, 44)
+    thumb.Position = UDim2.new(0, 6, 0.5, -22)
+    thumb.BackgroundColor3 = Color3.fromRGB(15, 12, 28)
+    thumb.BorderSizePixel = 0
+    thumb.Image = "rbxthumb://type=Asset&id=" .. tostring(info.id) .. "&w=150&h=150"
+    thumb.ScaleType = Enum.ScaleType.Crop
+    Instance.new("UICorner", thumb).CornerRadius = UDim.new(0, 5)
+
+    local name = Instance.new("TextLabel", card)
+    name.Size = UDim2.new(1, -142, 0, 18)
+    name.Position = UDim2.new(0, 58, 0, 7)
+    name.BackgroundTransparency = 1
+    name.Text = tostring(info.name)
+    name.TextColor3 = Color3.fromRGB(225, 215, 240)
+    name.Font = Enum.Font.GothamBold
+    name.TextSize = 9
+    name.TextXAlignment = Enum.TextXAlignment.Left
+    name.TextTruncate = Enum.TextTruncate.AtEnd
+
+    local creator = Instance.new("TextLabel", card)
+    creator.Size = UDim2.new(1, -142, 0, 13)
+    creator.Position = UDim2.new(0, 58, 0, 26)
+    creator.BackgroundTransparency = 1
+    creator.Text = "ID: " .. tostring(info.id) .. "  •  " .. tostring(info.creator)
+    creator.TextColor3 = Color3.fromRGB(135, 115, 165)
+    creator.Font = Enum.Font.Gotham
+    creator.TextSize = 7
+    creator.TextXAlignment = Enum.TextXAlignment.Left
+    creator.TextTruncate = Enum.TextTruncate.AtEnd
+
+    local insert = Instance.new("TextButton", card)
+    insert.Size = UDim2.new(0, 66, 0, 26)
+    insert.Position = UDim2.new(1, -72, 0.5, -13)
+    insert.BackgroundColor3 = Color3.fromRGB(18, 58, 27)
+    insert.BorderSizePixel = 0
+    insert.Text = "INSERT"
+    insert.TextColor3 = Color3.fromRGB(190, 255, 180)
+    insert.Font = Enum.Font.GothamBold
+    insert.TextSize = 8
+    Instance.new("UICorner", insert).CornerRadius = UDim.new(0, 5)
+
+    insert.MouseButton1Click:Connect(function()
+        if insert.Text == "LOAD..." then return end
+        insert.Text = "LOAD..."
+        task.spawn(function()
+            local ok, msg = insertToolboxModel(tostring(info.id))
+            if ok then
+                insert.Text = "DONE"
+                insert.BackgroundColor3 = Color3.fromRGB(70, 150, 78)
+                notify("Creator Store", tostring(info.name) .. " berhasil diinsert.", Color3.fromRGB(120, 230, 135))
+            else
+                insert.Text = "FAIL"
+                insert.BackgroundColor3 = Color3.fromRGB(150, 45, 45)
+                notify("Insert Gagal", tostring(msg), Color3.fromRGB(240, 90, 90))
+            end
+            task.wait(1.5)
+            insert.Text = "INSERT"
+            insert.BackgroundColor3 = Color3.fromRGB(18, 58, 27)
+        end)
+    end)
+end
+
 -- ═══════════════════════════════════════════════════════════════════════
 -- DESTROY OLD UI
 -- ═══════════════════════════════════════════════════════════════════════
@@ -1084,6 +1213,7 @@ ToolboxBox.PlaceholderColor3=Color3.fromRGB(125,110,150)
 ToolboxBox.Font=Enum.Font.Gotham
 ToolboxBox.TextSize=10
 Instance.new("UICorner",ToolboxBox).CornerRadius=UDim.new(0,6)
+
 local ToolboxInsert=Instance.new("TextButton",Content)
 ToolboxInsert.Size=UDim2.new(0,78,0,30)
 ToolboxInsert.Position=UDim2.new(1,-84,0,42)
@@ -1094,19 +1224,46 @@ ToolboxInsert.TextColor3=Color3.fromRGB(190,255,180)
 ToolboxInsert.Font=Enum.Font.GothamBold
 ToolboxInsert.TextSize=9
 Instance.new("UICorner",ToolboxInsert).CornerRadius=UDim.new(0,6)
+
+local SearchModelBox=Instance.new("TextBox",Content)
+SearchModelBox.Size=UDim2.new(1,-92,0,30)
+SearchModelBox.Position=UDim2.new(0,6,0,78)
+SearchModelBox.BackgroundColor3=Color3.fromRGB(25,19,45)
+SearchModelBox.BorderSizePixel=0
+SearchModelBox.ClearTextOnFocus=false
+SearchModelBox.PlaceholderText="Cari model di Creator Store..."
+SearchModelBox.Text=""
+SearchModelBox.TextColor3=Color3.fromRGB(225,215,240)
+SearchModelBox.PlaceholderColor3=Color3.fromRGB(145,125,175)
+SearchModelBox.Font=Enum.Font.Gotham
+SearchModelBox.TextSize=10
+Instance.new("UICorner",SearchModelBox).CornerRadius=UDim.new(0,6)
+
+local SearchModelBtn=Instance.new("TextButton",Content)
+SearchModelBtn.Size=UDim2.new(0,78,0,30)
+SearchModelBtn.Position=UDim2.new(1,-84,0,78)
+SearchModelBtn.BackgroundColor3=Color3.fromRGB(82,45,145)
+SearchModelBtn.BorderSizePixel=0
+SearchModelBtn.Text="CARI MODEL"
+SearchModelBtn.TextColor3=Color3.fromRGB(245,235,255)
+SearchModelBtn.Font=Enum.Font.GothamBold
+SearchModelBtn.TextSize=8
+Instance.new("UICorner",SearchModelBtn).CornerRadius=UDim.new(0,6)
+
 local ToolboxHint=Instance.new("TextLabel",Content)
-ToolboxHint.Size=UDim2.new(1,-12,0,18)
-ToolboxHint.Position=UDim2.new(0,6,0,74)
+ToolboxHint.Size=UDim2.new(1,-12,0,16)
+ToolboxHint.Position=UDim2.new(0,6,0,112)
 ToolboxHint.BackgroundTransparency=1
-ToolboxHint.Text="TOOLBOX  •  Masukkan ID model dari Toolbox Roblox"
-ToolboxHint.TextColor3=Color3.fromRGB(125,105,155)
+ToolboxHint.Text="CREATOR STORE  •  Cari model berdasarkan nama lalu tekan INSERT"
+ToolboxHint.TextColor3=Color3.fromRGB(145,120,175)
 ToolboxHint.Font=Enum.Font.Gotham
-ToolboxHint.TextSize=8
+ToolboxHint.TextSize=7
+ToolboxHint.TextXAlignment=Enum.TextXAlignment.Left
 
 -- SCROLL LIST
-local Scroll = Instance.new("ScrollingFrame", Content)
-Scroll.Size = UDim2.new(1, -12, 1, -126)
-Scroll.Position = UDim2.new(0, 6, 0, 96)
+Scroll = Instance.new("ScrollingFrame", Content)
+Scroll.Size = UDim2.new(1, -12, 1, -136)
+Scroll.Position = UDim2.new(0, 6, 0, 132)
 Scroll.BackgroundTransparency = 1
 Scroll.ScrollBarThickness = 3
 Scroll.ScrollBarImageColor3 = Color3.fromRGB(160, 95, 225)
@@ -1117,7 +1274,7 @@ Layout.Padding = UDim.new(0, 5)
 Layout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- EMPTY STATE FRAME WITH VECTOR FOLDER ICON
-local EmptyFrame = Instance.new("Frame", Scroll)
+EmptyFrame = Instance.new("Frame", Scroll)
 EmptyFrame.Size = UDim2.new(1, 0, 0, 100)
 EmptyFrame.BackgroundTransparency = 1
 
@@ -1132,7 +1289,7 @@ local EmptyLabel = Instance.new("TextLabel", EmptyFrame)
 EmptyLabel.Size = UDim2.new(1, -20, 0, 36)
 EmptyLabel.Position = UDim2.new(0, 10, 0, 48)
 EmptyLabel.BackgroundTransparency = 1
-EmptyLabel.Text = "Belum ada file terdeteksi.\nTekan 'SCAN FILES' untuk mencari file RBXM/RBXL."
+EmptyLabel.Text = "Belum ada hasil.\nCari model di Creator Store atau tekan 'SCAN FILES'."
 EmptyLabel.TextColor3 = Color3.fromRGB(170, 150, 195)
 EmptyLabel.Font = Enum.Font.Gotham
 EmptyLabel.TextSize = 10
@@ -1157,7 +1314,7 @@ StatsText.TextSize = 9
 StatsText.TextXAlignment = Enum.TextXAlignment.Left
 
 -- NOTIFICATION SYSTEM WITH VECTOR BELL ICON
-local function notify(title, msg, color)
+notify = function(title, msg, color)
     color = color or Color3.fromRGB(220, 200, 235)
     local notif = Instance.new("Frame", UI)
     notif.Size = UDim2.new(0, 220, 0, 42)
@@ -1310,6 +1467,52 @@ local function buildFileCard(fileInfo)
     end)
 end
 
+
+local creatorPage = 0
+local creatorSearching = false
+
+local function runCreatorSearch()
+    if creatorSearching then return end
+    local keyword = SearchModelBox.Text
+    if tostring(keyword):gsub("%s+","") == "" then
+        notify("Creator Store", "Ketik nama model terlebih dahulu.", Color3.fromRGB(240, 180, 80))
+        return
+    end
+
+    creatorSearching = true
+    creatorPage = 0
+    SearchModelBtn.Text = "MENCARI..."
+    clearScrollCards()
+    EmptyFrame.Visible = true
+    EmptyLabel.Text = "Mencari model di Creator Store..."
+
+    task.spawn(function()
+        local ok, results, err = searchCreatorModels(keyword, creatorPage)
+        if ok then
+            EmptyFrame.Visible = (#results == 0)
+            if #results == 0 then
+                EmptyLabel.Text = "Model tidak ditemukan.\nCoba kata kunci lain."
+            else
+                for _, info in ipairs(results) do
+                    buildModelResultCard(info)
+                end
+                StatsText.Text = string.format("Status: Creator Store  |  %d model", #results)
+                notify("Creator Store", #results .. " model ditemukan.", Color3.fromRGB(190, 150, 245))
+            end
+        else
+            EmptyFrame.Visible = true
+            EmptyLabel.Text = "Pencarian gagal.\n" .. tostring(err)
+            notify("Creator Store Gagal", tostring(results), Color3.fromRGB(240, 90, 90))
+        end
+        SearchModelBtn.Text = "CARI MODEL"
+        creatorSearching = false
+    end)
+end
+
+SearchModelBtn.MouseButton1Click:Connect(runCreatorSearch)
+SearchModelBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then runCreatorSearch() end
+end)
 
 ToolboxInsert.MouseButton1Click:Connect(function()
     if ToolboxInsert.Text=="LOAD..." then return end
