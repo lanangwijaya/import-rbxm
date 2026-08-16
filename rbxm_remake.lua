@@ -9,7 +9,7 @@
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 -- ═══════════════════════════════════════════════════════════════════════
--- WHITELIST GATE — LANGZ PAID SCRIPT
+-- WHITELIST GATE — SCRIPT
 -- ═══════════════════════════════════════════════════════════════════════
 local _WHITELIST = {
     -- Masukkan UserId yang boleh akses di sini
