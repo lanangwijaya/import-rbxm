@@ -483,31 +483,249 @@ end
 
 local function safeReadFile(p) if not readfile then return nil end; local ok, d = pcall(readfile, p); return ok and d or nil end
 
+-- ═══════════════════════════════════════════════════════════════════════
+-- RBXLX XML IMPORTER
+-- Reads RBXLX XML text from a Studio Lite file-like Instance/StringValue
+-- and creates the common map objects directly in Workspace.
+-- Scripts/unsupported service objects are intentionally skipped.
+-- ═══════════════════════════════════════════════════════════════════════
+local function xmlUnescape(s)
+    s = tostring(s or "")
+    s = s:gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", '"')
+         :gsub("&apos;", "'"):gsub("&amp;", "&")
+    s = s:gsub("&#x([%x]+);", function(h) return utf8.char(tonumber(h,16)) end)
+         :gsub("&#(%d+);", function(n) return utf8.char(tonumber(n)) end)
+    return s
+end
+
+local function xmlTagValue(block, tag, name)
+    local pat = '<' .. tag .. '%s+name="' .. name:gsub("(%W)","%%%1") .. '"[^>]*>(.-)</' .. tag .. '>'
+    local v = block:match(pat)
+    return v and xmlUnescape(v) or nil
+end
+
+local function xmlNum(block, tag, name)
+    local v = xmlTagValue(block, tag, name)
+    return v and tonumber(v) or nil
+end
+
+local function xmlVec3(block, name)
+    local v = block:match('<Vector3%s+name="'..name:gsub("(%W)","%%%1")..'"[^>]*>(.-)</Vector3>')
+    if not v then return nil end
+    local x = tonumber(v:match("<X>(.-)</X>"))
+    local y = tonumber(v:match("<Y>(.-)</Y>"))
+    local z = tonumber(v:match("<Z>(.-)</Z>"))
+    if x and y and z then return Vector3.new(x,y,z) end
+end
+
+local function xmlColor3(block, name)
+    local v = block:match('<Color3%s+name="'..name:gsub("(%W)","%%%1")..'"[^>]*>(.-)</Color3>')
+    if not v then return nil end
+    local r = tonumber(v:match("<R>(.-)</R>"))
+    local g = tonumber(v:match("<G>(.-)</G>"))
+    local b = tonumber(v:match("<B>(.-)</B>"))
+    if r and g and b then
+        if r <= 1 and g <= 1 and b <= 1 then return Color3.new(r,g,b) end
+        return Color3.fromRGB(r,g,b)
+    end
+end
+
+local function xmlCFrame(block, name)
+    local v = block:match('<CoordinateFrame%s+name="'..name:gsub("(%W)","%%%1")..'"[^>]*>(.-)</CoordinateFrame>')
+    if not v then return nil end
+    local function n(k) return tonumber(v:match("<"..k..">(.-)</"..k..">")) end
+    local x,y,z = n("X"),n("Y"),n("Z")
+    local r00,r01,r02 = n("R00"),n("R01"),n("R02")
+    local r10,r11,r12 = n("R10"),n("R11"),n("R12")
+    local r20,r21,r22 = n("R20"),n("R21"),n("R22")
+    if x and y and z and r00 and r01 and r02 and r10 and r11 and r12 and r20 and r21 and r22 then
+        local pos = Vector3.new(x,y,z)
+        local right = Vector3.new(r00,r10,r20)
+        local up = Vector3.new(r01,r11,r21)
+        local back = Vector3.new(r02,r12,r22)
+        return CFrame.fromMatrix(pos, right, up, back)
+    end
+end
+
+local XML_CLASS_MAP = {
+    Model=true, Folder=true, Part=true, MeshPart=true, WedgePart=true,
+    CornerWedgePart=true, TrussPart=true, SpawnLocation=true, Seat=true,
+    VehicleSeat=true, UnionOperation=true, NegateOperation=true,
+    IntersectOperation=true, PartOperation=true, Attachment=true,
+    Decal=true, Texture=true, PointLight=true, SpotLight=true, SurfaceLight=true,
+    Sound=true, ParticleEmitter=true, Beam=true, Trail=true,
+    StringValue=true, BoolValue=true, IntValue=true, NumberValue=true,
+    ObjectValue=true, Vector3Value=true, CFrameValue=true,
+}
+
+local function makeRBXLXObject(className, block)
+    if not XML_CLASS_MAP[className] then return nil end
+    local ok, obj = pcall(Instance.new, className)
+    if not ok or not obj then return nil end
+
+    local name = xmlTagValue(block, "string", "Name")
+    if name and name ~= "" then pcall(function() obj.Name = name end) end
+
+    if obj:IsA("BasePart") then
+        local size = xmlVec3(block, "size") or xmlVec3(block, "Size")
+        if size then pcall(function() obj.Size = size end) end
+        local cf = xmlCFrame(block, "CFrame") or xmlCFrame(block, "CoordinateFrame")
+        if cf then pcall(function() obj.CFrame = cf end) end
+        local color = xmlColor3(block, "Color")
+        if color then pcall(function() obj.Color = color end) end
+        local material = xmlTagValue(block, "token", "Material")
+        if material then pcall(function() obj.Material = Enum.Material[material] end) end
+        local anchored = xmlTagValue(block, "bool", "Anchored")
+        if anchored then pcall(function() obj.Anchored = anchored == "true" end) end
+        local collide = xmlTagValue(block, "bool", "CanCollide")
+        if collide then pcall(function() obj.CanCollide = collide == "true" end) end
+        local transparency = xmlNum(block, "float", "Transparency")
+        if transparency then pcall(function() obj.Transparency = transparency end) end
+    elseif obj:IsA("Decal") or obj:IsA("Texture") then
+        local tex = xmlTagValue(block, "Content", "Texture")
+        if tex then pcall(function() obj.Texture = tex end) end
+    elseif obj:IsA("StringValue") then
+        local v = xmlTagValue(block, "string", "Value")
+        if v then obj.Value = v end
+    elseif obj:IsA("BoolValue") then
+        local v = xmlTagValue(block, "bool", "Value")
+        if v then obj.Value = (v == "true") end
+    elseif obj:IsA("IntValue") then
+        local v = xmlTagValue(block, "int", "Value")
+        if v then obj.Value = tonumber(v) or 0 end
+    elseif obj:IsA("NumberValue") then
+        local v = xmlTagValue(block, "double", "Value") or xmlTagValue(block, "float", "Value")
+        if v then obj.Value = tonumber(v) or 0 end
+    elseif obj:IsA("Vector3Value") then
+        local v = xmlVec3(block, "Value")
+        if v then obj.Value = v end
+    end
+
+    return obj
+end
+
+local function parseRBXLXXML(xml)
+    if type(xml) ~= "string" or #xml < 20 then return false, "RBXLX kosong/tidak valid" end
+    if not xml:find("<roblox", 1, true) then return false, "Header RBXLX tidak ditemukan" end
+
+    local root = Instance.new("Folder")
+    root.Name = "NANG_Imported_RBXLX"
+    local stack = {root}
+    local count = 0
+
+    local pos = 1
+    while true do
+        local a,b,tag,attrs = xml:find("<(Item)(.-)>", pos)
+        local ca,cb = xml:find("</Item>", pos)
+        if not a and not ca then break end
+
+        if ca and (not a or ca < a) then
+            if #stack > 1 then table.remove(stack) end
+            pos = cb + 1
+        else
+            local className = attrs:match('class%s*=%s*"([^"]+)"') or attrs:match("class%s*=%s*'([^']+)'")
+            local nextItem = xml:find("<Item", b + 1, true) or (#xml + 1)
+            local closeItem = xml:find("</Item>", b + 1, true) or (#xml + 1)
+            local blockEnd = math.min(nextItem, closeItem)
+
+            -- Property text until the next nested Item / closing Item.
+            local block = xml:sub(b + 1, blockEnd - 1)
+            local obj = className and makeRBXLXObject(className, block) or nil
+
+            if obj then
+                obj.Parent = stack[#stack]
+                count += 1
+                table.insert(stack, obj)
+            else
+                -- Keep the XML hierarchy moving for unsupported classes without
+                -- creating dangerous service/script instances.
+                table.insert(stack, stack[#stack])
+            end
+            pos = b + 1
+        end
+    end
+
+    -- The parser above intentionally only creates supported map objects.
+    -- Flatten the imported root if it has exactly one useful child.
+    if count == 0 then
+        root:Destroy()
+        return false, "Tidak ada objek map yang didukung di RBXLX"
+    end
+
+    root.Parent = workspace
+    pcall(function() ApplyStudioLiteProperties(root); LoadAssetsToSLServer(root) end)
+    return true, count .. " object(s) imported"
+end
+
+local function getInstanceFileText(inst)
+    if not inst then return nil end
+    local candidates = {
+        function() return inst:IsA("StringValue") and inst.Value or nil end,
+        function() return inst:IsA("TextBox") and inst.Text or nil end,
+        function() return inst:IsA("TextLabel") and inst.Text or nil end,
+    }
+    for _, fn in ipairs(candidates) do
+        local ok,v = pcall(fn)
+        if ok and type(v) == "string" and v:find("<roblox",1,true) then return v end
+    end
+    for _, d in ipairs(inst:GetDescendants()) do
+        local ok,v = pcall(function()
+            if d:IsA("StringValue") then return d.Value end
+            if d:IsA("TextBox") then return d.Text end
+            if d:IsA("TextLabel") then return d.Text end
+        end)
+        if ok and type(v) == "string" and v:find("<roblox",1,true) then return v end
+    end
+    return nil
+end
+
+
 local function loadFile(fileInfo)
-    local isRbxl = (fileInfo.ftype == "RBXL" or fileInfo.ftype == "RBXLX")
+    local isRbxlx = (fileInfo.ftype == "RBXLX")
+    local isRbxl = (fileInfo.ftype == "RBXL")
+
+    -- Studio Lite may expose the file itself as an Instance/StringValue.
+    -- If the XML content is accessible, import the actual objects.
+    if fileInfo.instance then
+        if isRbxlx then
+            local xml = getInstanceFileText(fileInfo.instance)
+            if xml then
+                return parseRBXLXXML(xml)
+            end
+        end
+        return false, "File terdeteksi, tetapi isi " .. tostring(fileInfo.ftype) .. " tidak bisa dibaca oleh Lua di environment ini."
+    end
+
     local data = safeReadFile(fileInfo.path)
-    if not data or #data == 0 then return false, "readfile gagal" end
+    if not data or #data == 0 then
+        return false, "Environment tidak mendukung pembacaan file ini."
+    end
+
+    if isRbxlx then
+        return parseRBXLXXML(data)
+    end
 
     local sourceMap = {}
-    if not isRbxl then
-        local ok, sources, err = pcall(parseRBXMForSources, data)
-        if ok and sources then sourceMap = sources end
-    end
+    local ok, sources = pcall(parseRBXMForSources, data)
+    if ok and sources then sourceMap = sources end
 
     if getcustomasset then
         local ok1, aid = pcall(getcustomasset, fileInfo.path)
         if ok1 and aid then
             local ok2, objs = pcall(function() return game:GetObjects(aid) end)
-            if ok2 and objs and #objs > 0 then return true, insertObjects(objs, isRbxl, sourceMap) .. " object(s) loaded" end
+            if ok2 and objs and #objs > 0 then
+                return true, insertObjects(objs, isRbxl, sourceMap) .. " object(s) loaded"
+            end
         end
     end
 
     local ok3, o3 = pcall(function() return game:GetObjects("rbxasset://" .. fileInfo.path) end)
-    if ok3 and o3 and #o3 > 0 then return true, insertObjects(o3, isRbxl, sourceMap) .. " object(s) loaded" end
+    if ok3 and o3 and #o3 > 0 then
+        return true, insertObjects(o3, isRbxl, sourceMap) .. " object(s) loaded"
+    end
 
-    return false, "Semua metode load gagal"
+    return false, "File berhasil dibaca tetapi metode insert tidak tersedia."
 end
-
 -- ═══════════════════════════════════════════════════════════════════════
 -- FILE SCANNER
 -- ═══════════════════════════════════════════════════════════════════════
@@ -549,11 +767,48 @@ local function scanDeep(folder, depth, results, seen)
     end
 end
 
-local function scanAll()
-    local results, seen = {}, {}; 
-    for _, p in ipairs(SCAN_PATHS) do 
-        if safeListFiles(p) then scanDeep(p, 0, results, seen) end 
+local function scanInstanceFiles()
+    local results = {}
+    local seen = {}
+
+    local function add(obj)
+        if not obj or not obj:IsA("Instance") then return end
+        local name = tostring(obj.Name or "")
+        local ftype = getFileType(name)
+        if ftype and not seen[obj] then
+            seen[obj] = true
+            table.insert(results, {
+                name = name,
+                path = obj:GetFullName(),
+                ftype = ftype,
+                folder = obj.Parent,
+                instance = obj,
+                source = nil,
+            })
+        end
     end
+
+    pcall(function()
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            add(obj)
+        end
+    end)
+
+    return results
+end
+
+local function scanAll()
+    local results = scanInstanceFiles()
+
+    if #results == 0 and listfiles then
+        local seen = {}
+        for _, p in ipairs(SCAN_PATHS) do
+            if safeListFiles(p) then
+                scanDeep(p, 0, results, seen)
+            end
+        end
+    end
+
     return results
 end
 
@@ -1115,13 +1370,32 @@ CloseIcon.TextXAlignment = Enum.TextXAlignment.Center
 CloseIcon.TextYAlignment = Enum.TextYAlignment.Center
 
 local CloseClick = Instance.new("TextButton", CloseBtn)
+CloseClick.Name = "CloseClick"
 CloseClick.Size = UDim2.new(1, 0, 1, 0)
+CloseClick.Position = UDim2.new(0, 0, 0, 0)
 CloseClick.BackgroundTransparency = 1
+CloseClick.BorderSizePixel = 0
 CloseClick.Text = ""
+CloseClick.AutoButtonColor = false
+CloseClick.Active = true
+CloseClick.ZIndex = 50
+CloseBtn.ZIndex = 50
+CloseIcon.ZIndex = 51
 
--- FIX: CLOSE BUTTON MUST RECEIVE THE CLICK/TOUCH
-CloseClick.MouseButton1Click:Connect(function()
+local closeBusy = false
+local function closeMain()
+    if closeBusy then return end
+    closeBusy = true
     Main.Visible = false
+    task.delay(0.15, function() closeBusy = false end)
+end
+
+CloseClick.Activated:Connect(closeMain)
+CloseClick.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+        closeMain()
+    end
 end)
 
 -- MINIMIZE BUTTON WITH VECTOR MINIMIZE ICON
@@ -1231,7 +1505,7 @@ local function makeMenuButton(label, icon)
     return b, i, t
 end
 
-local MenuRBXM, MenuRBXMIcon, MenuRBXMText = makeMenuButton("RBXM", ICONS.FILE)
+local MenuRBXM, MenuRBXMIcon, MenuRBXMText = makeMenuButton("FILES", ICONS.FILE)
 local MenuToolbox, MenuToolboxIcon, MenuToolboxText = makeMenuButton("TOOLBOX", ICONS.PACKAGE)
 
 local ActiveMenu = "rbxm"
@@ -1365,7 +1639,7 @@ local function showMenu(menu)
     if isRBXM then
         Scroll.Position = UDim2.new(0, 6, 0, 42)
         Scroll.Size = UDim2.new(1, -12, 1, -48)
-        EmptyLabel.Text = "Belum ada file.\nTekan 'SCAN FILES' untuk mencari RBXM dan RBXL."
+        EmptyLabel.Text = "Belum ada file.\nTekan 'SCAN FILES' untuk mencari RBXM, RBXMX, RBXL, dan RBXLX."
     elseif isToolbox then
         Scroll.Position = UDim2.new(0, 6, 0, 132)
         Scroll.Size = UDim2.new(1, -12, 1, -138)
@@ -1566,8 +1840,10 @@ local function buildFileCard(fileInfo)
     insertBtn.MouseEnter:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 100, 42)}):Play() end)
     insertBtn.MouseLeave:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 58, 27)}):Play() end)
 
-    insertBtn.MouseButton1Click:Connect(function()
-        if insertText.Text == "LOADING" then return end
+    local insertBusy = false
+    local function doFileImport()
+        if insertBusy or insertText.Text == "LOADING" then return end
+        insertBusy = true
         insertText.Text = "LOADING"; insertIcon.Image = ICONS.REFRESH
         insertFrame.BackgroundColor3 = Color3.fromRGB(20, 76, 30)
 
@@ -1588,6 +1864,12 @@ local function buildFileCard(fileInfo)
             insertText.Text = isRbxl and "IMPORT" or "INSERT"; insertIcon.Image = ICONS.DOWNLOAD
             insertFrame.BackgroundColor3 = Color3.fromRGB(18, 58, 27)
         end)
+    end
+    insertBtn.Activated:Connect(doFileImport)
+    insertBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            doFileImport()
+        end
     end)
 end
 
