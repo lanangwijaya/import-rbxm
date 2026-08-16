@@ -9,12 +9,12 @@
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 -- ═══════════════════════════════════════════════════════════════════════
--- WHITELIST GATE 
+-- WHITELIST GATE — LANGZ PAID SCRIPT
 -- ═══════════════════════════════════════════════════════════════════════
 local _WHITELIST = {
     -- Masukkan UserId yang boleh akses di sini
     8236629801,
-    10370966620,
+    10370966620
 }
 
 local _userId = game:GetService("Players").LocalPlayer.UserId
@@ -544,6 +544,31 @@ local function scanAll()
     return results
 end
 
+
+-- TOOLBOX MODEL INSERT
+local function extractAssetId(value)
+    value=tostring(value or '')
+    return tonumber(value:match('(%d+)'))
+end
+local function insertToolboxModel(value)
+    local assetId=extractAssetId(value)
+    if not assetId then return false,'Asset ID tidak valid' end
+    local inserted
+    local ok,result=pcall(function() return InsertService:LoadAsset(assetId) end)
+    if ok and result then inserted=result end
+    if not inserted and game.GetObjects then
+        local ok2,result2=pcall(function() return game:GetObjects('rbxassetid://'..assetId) end)
+        if ok2 and result2 and #result2>0 then
+            inserted=Instance.new('Folder'); inserted.Name='Toolbox_'..assetId; inserted.Parent=workspace
+            for _,obj in ipairs(result2) do obj.Parent=inserted end
+        end
+    end
+    if not inserted then return false,'Model gagal dimuat. Pastikan Asset ID model publik/diizinkan.' end
+    if inserted.Parent==nil then inserted.Parent=workspace end
+    pcall(function() injectAllScripts(inserted,{}); ApplyStudioLiteProperties(inserted); LoadAssetsToSLServer(inserted) end)
+    return true,inserted.Name
+end
+
 -- ═══════════════════════════════════════════════════════════════════════
 -- DESTROY OLD UI
 -- ═══════════════════════════════════════════════════════════════════════
@@ -878,7 +903,7 @@ end)
 -- MAIN CONTAINER
 local Main = Instance.new("Frame", UI)
 Main.Name = "MainFrame"
-Main.Size = UDim2.new(0, 320, 0, 360)
+Main.Size = UDim2.new(0, 320, 0, 410)
 Main.Position = UDim2.new(0.5, -160, 0.5, -180)
 Main.BackgroundColor3 = Color3.fromRGB(12, 10, 24)
 Main.BackgroundTransparency = 0.05
@@ -924,7 +949,7 @@ local TitleText = Instance.new("TextLabel", TitleBar)
 TitleText.Size = UDim2.new(1, -90, 1, 0)
 TitleText.Position = UDim2.new(0, 34, 0, 0)
 TitleText.BackgroundTransparency = 1
-TitleText.Text = "NANG RBXM  •  IMPORTER"
+TitleText.Text = "NANG RBXM  •  IMPORTER + TOOLBOX"
 TitleText.TextColor3 = Color3.fromRGB(245, 235, 255)
 TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 12
@@ -999,7 +1024,7 @@ ToggleBtn.MouseButton1Click:Connect(toggleMain)
 
 -- CONTENT AREA
 local Content = Instance.new("Frame", Main)
-Content.Size = UDim2.new(1, -16, 1, -74)
+Content.Size = UDim2.new(1, -16, 1, -124)
 Content.Position = UDim2.new(0, 8, 0, 42)
 Content.BackgroundColor3 = Color3.fromRGB(18, 14, 34)
 Content.BorderSizePixel = 0
@@ -1046,10 +1071,42 @@ ScanClick.Size = UDim2.new(1, 0, 1, 0)
 ScanClick.BackgroundTransparency = 1
 ScanClick.Text = ""
 
+local ToolboxBox=Instance.new("TextBox",Content)
+ToolboxBox.Size=UDim2.new(1,-92,0,30)
+ToolboxBox.Position=UDim2.new(0,6,0,42)
+ToolboxBox.BackgroundColor3=Color3.fromRGB(25,19,45)
+ToolboxBox.BorderSizePixel=0
+ToolboxBox.ClearTextOnFocus=false
+ToolboxBox.PlaceholderText="Toolbox Asset ID / URL..."
+ToolboxBox.Text=""
+ToolboxBox.TextColor3=Color3.fromRGB(225,215,240)
+ToolboxBox.PlaceholderColor3=Color3.fromRGB(125,110,150)
+ToolboxBox.Font=Enum.Font.Gotham
+ToolboxBox.TextSize=10
+Instance.new("UICorner",ToolboxBox).CornerRadius=UDim.new(0,6)
+local ToolboxInsert=Instance.new("TextButton",Content)
+ToolboxInsert.Size=UDim2.new(0,78,0,30)
+ToolboxInsert.Position=UDim2.new(1,-84,0,42)
+ToolboxInsert.BackgroundColor3=Color3.fromRGB(18,58,27)
+ToolboxInsert.BorderSizePixel=0
+ToolboxInsert.Text="INSERT"
+ToolboxInsert.TextColor3=Color3.fromRGB(190,255,180)
+ToolboxInsert.Font=Enum.Font.GothamBold
+ToolboxInsert.TextSize=9
+Instance.new("UICorner",ToolboxInsert).CornerRadius=UDim.new(0,6)
+local ToolboxHint=Instance.new("TextLabel",Content)
+ToolboxHint.Size=UDim2.new(1,-12,0,18)
+ToolboxHint.Position=UDim2.new(0,6,0,74)
+ToolboxHint.BackgroundTransparency=1
+ToolboxHint.Text="TOOLBOX  •  Masukkan ID model dari Toolbox Roblox"
+ToolboxHint.TextColor3=Color3.fromRGB(125,105,155)
+ToolboxHint.Font=Enum.Font.Gotham
+ToolboxHint.TextSize=8
+
 -- SCROLL LIST
 local Scroll = Instance.new("ScrollingFrame", Content)
-Scroll.Size = UDim2.new(1, -12, 1, -48)
-Scroll.Position = UDim2.new(0, 6, 0, 42)
+Scroll.Size = UDim2.new(1, -12, 1, -126)
+Scroll.Position = UDim2.new(0, 6, 0, 96)
 Scroll.BackgroundTransparency = 1
 Scroll.ScrollBarThickness = 3
 Scroll.ScrollBarImageColor3 = Color3.fromRGB(160, 95, 225)
@@ -1253,6 +1310,18 @@ local function buildFileCard(fileInfo)
     end)
 end
 
+
+ToolboxInsert.MouseButton1Click:Connect(function()
+    if ToolboxInsert.Text=="LOAD..." then return end
+    ToolboxInsert.Text="LOAD..."
+    task.spawn(function()
+        local ok,msg=insertToolboxModel(ToolboxBox.Text)
+        if ok then notify("Toolbox","Model berhasil diinsert: "..tostring(msg),Color3.fromRGB(120,230,135)); ToolboxInsert.Text="DONE" else notify("Toolbox Gagal",tostring(msg),Color3.fromRGB(240,90,90)); ToolboxInsert.Text="FAIL" end
+        task.wait(1.5)
+        ToolboxInsert.Text="INSERT"
+    end)
+end)
+
 -- SCAN LOGIC
 ScanClick.MouseButton1Click:Connect(function()
     ScanText.Text = "SCANNING..."
@@ -1298,7 +1367,7 @@ MinClick.MouseButton1Click:Connect(function()
     else
         Content.Visible = true
         StatsBar.Visible = true
-        Main.Size = UDim2.new(0, 320, 0, 360)
+        Main.Size = UDim2.new(0, 320, 0, 410)
     end
 end)
 
