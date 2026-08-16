@@ -2017,26 +2017,68 @@ PublishStatus.ZIndex = 51
 local publishMethod = "current"
 local publishing = false
 
+-- Resolve Universe ID directly from the current Place ID when GameId is
+-- unavailable/0 (common in some Studio/editor environments). Roblox exposes
+-- this endpoint without requiring a user cookie.
+local function resolveUniverseFromPlaceId(placeId)
+    placeId = tostring(placeId or ""):match("%d+")
+    if not placeId or placeId == "0" then
+        return nil, "Place ID kosong."
+    end
+
+    local url = "https://apis.roblox.com/universes/v1/places/" .. placeId .. "/universe"
+    local body, status = openCloudRequest(url, "GET", { ["Accept"] = "application/json" }, nil)
+    if not body or status < 200 or status >= 300 then
+        return nil, "Gagal mengambil Universe ID dari Place ID. HTTP " .. tostring(status or 0)
+    end
+
+    local ok, data = pcall(function() return HttpService:JSONDecode(body) end)
+    if not ok or type(data) ~= "table" then
+        return nil, "Respons Universe ID tidak valid."
+    end
+
+    local uid = tonumber(data.universeId or data.UniverseId or data.id)
+    if not uid or uid <= 0 then
+        return nil, "Universe ID tidak ditemukan dari Place ID."
+    end
+    return tostring(uid), nil
+end
+
 local function detectCurrentMap()
-    local universeId = tostring(game.GameId or 0)
-    local placeId = tostring(game.PlaceId or 0)
+    local placeIdNum = tonumber(game.PlaceId) or 0
+    local gameIdNum = tonumber(game.GameId) or 0
+    local placeId = placeIdNum > 0 and tostring(placeIdNum) or "-"
+    local universeId = gameIdNum > 0 and tostring(gameIdNum) or nil
     local placeName = tostring(game.Name or "Current Map")
 
-    -- GetProductInfo can fail in some executor/client environments; never let
-    -- that break the Publish UI.
-    pcall(function()
-        local info = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
-        if type(info) == "table" and info.Name then
-            placeName = tostring(info.Name)
+    -- Prefer DataModel.GameId. If the environment reports 0, resolve the
+    -- current PlaceId through Roblox's public place->universe endpoint.
+    local resolveNote = "Map terdeteksi otomatis"
+    if not universeId and placeIdNum > 0 then
+        local resolved, err = resolveUniverseFromPlaceId(placeIdNum)
+        if resolved then
+            universeId = resolved
+        else
+            resolveNote = err or "Universe ID belum dapat dideteksi"
         end
-    end)
+    end
 
-    if universeId == "0" then universeId = "-" end
-    if placeId == "0" then placeId = "-" end
+    -- GetProductInfo is only used for the display name and is never allowed
+    -- to break publishing/detection.
+    if placeIdNum > 0 then
+        pcall(function()
+            local info = game:GetService("MarketplaceService"):GetProductInfo(placeIdNum)
+            if type(info) == "table" and info.Name then
+                placeName = tostring(info.Name)
+            end
+        end)
+    end
+
+    universeId = universeId or "-"
     CurrentMapText.Text = "Nama: " .. placeName
         .. "\nUniverse: " .. universeId
         .. "\nPlace: " .. placeId
-        .. "\nStatus: Map terdeteksi otomatis"
+        .. "\nStatus: " .. resolveNote
     return universeId, placeId, placeName
 end
 
