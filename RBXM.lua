@@ -9,7 +9,7 @@
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 -- ═══════════════════════════════════════════════════════════════════════
--- WHITELIST GATE
+-- WHITELIST GATE — LANGZ PAID SCRIPT
 -- ═══════════════════════════════════════════════════════════════════════
 local _WHITELIST = {
     -- Masukkan UserId yang boleh akses di sini
@@ -573,7 +573,7 @@ end
 -- ═══════════════════════════════════════════════════════════════════════
 -- CREATOR STORE MODEL SEARCH
 -- ═══════════════════════════════════════════════════════════════════════
-local Scroll, EmptyFrame, notify
+local Scroll, EmptyFrame, EmptyLabel, StatsBar, PublishPanel, notify
 local CREATOR_STORE_SEARCH = {
     "https://apis.roblox.com/toolbox-service/v1/marketplace/10",
     "https://apis.roproxy.com/toolbox-service/v1/marketplace/10",
@@ -1412,7 +1412,7 @@ EmptyIcon.BackgroundTransparency = 1
 EmptyIcon.Image = ICONS.FOLDER
 EmptyIcon.ImageColor3 = Color3.fromRGB(170, 100, 235)
 
-local EmptyLabel = Instance.new("TextLabel", EmptyFrame)
+EmptyLabel = Instance.new("TextLabel", EmptyFrame)
 EmptyLabel.Size = UDim2.new(1, -20, 0, 36)
 EmptyLabel.Position = UDim2.new(0, 10, 0, 48)
 EmptyLabel.BackgroundTransparency = 1
@@ -1423,7 +1423,7 @@ EmptyLabel.TextSize = 10
 EmptyLabel.TextWrapped = true
 
 -- STATS BAR
-local StatsBar = Instance.new("Frame", Main)
+StatsBar = Instance.new("Frame", Main)
 StatsBar.Size = UDim2.new(1, -16, 0, 22)
 StatsBar.Position = UDim2.new(0, 8, 1, -26)
 StatsBar.BackgroundColor3 = Color3.fromRGB(18, 14, 34)
@@ -1816,7 +1816,7 @@ PublishOpenBtn.TextSize = 8
 Instance.new("UICorner", PublishOpenBtn).CornerRadius = UDim.new(0, 5)
 PublishOpenBtn.Visible = false
 
-local PublishPanel = Instance.new("Frame", UI)
+PublishPanel = Instance.new("Frame", UI)
 PublishPanel.Name = "InstantPublishPanel"
 PublishPanel.Size = UDim2.new(0, 330, 0, 430)
 PublishPanel.Position = UDim2.new(0.5, -165, 0.5, -215)
@@ -2020,7 +2020,17 @@ local publishing = false
 local function detectCurrentMap()
     local universeId = tostring(game.GameId or 0)
     local placeId = tostring(game.PlaceId or 0)
-    local placeName = tostring(game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name or game.Name)
+    local placeName = tostring(game.Name or "Current Map")
+
+    -- GetProductInfo can fail in some executor/client environments; never let
+    -- that break the Publish UI.
+    pcall(function()
+        local info = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
+        if type(info) == "table" and info.Name then
+            placeName = tostring(info.Name)
+        end
+    end)
+
     if universeId == "0" then universeId = "-" end
     if placeId == "0" then placeId = "-" end
     CurrentMapText.Text = "Nama: " .. placeName
@@ -2131,7 +2141,12 @@ PublishBtn.MouseButton1Click:Connect(function()
         PublishStatus.Text = "Mengunggah map ke Roblox..."
         local body, status = publishPlaceBinary(apiKey, universeId, placeId, placeBytes)
         if not status or status < 200 or status >= 300 then
-            PublishStatus.Text = "Publish gagal. HTTP " .. tostring(status) .. "\n" .. tostring(body or "")
+            local detail = tostring(body or "Tidak ada response body")
+            local okErr, errData = pcall(function() return HttpService:JSONDecode(detail) end)
+            if okErr and type(errData) == "table" then
+                detail = tostring(errData.message or errData.error or detail)
+            end
+            PublishStatus.Text = "Publish gagal. HTTP " .. tostring(status or 0) .. "\n" .. detail
             PublishStatus.TextColor3 = Color3.fromRGB(240, 110, 110)
             PublishBtn.Text = publishMethod == "current" and "PUBLISH MAP SAAT INI" or "PUBLISH MAP KOMUNITAS"
             publishing = false
