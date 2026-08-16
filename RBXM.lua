@@ -548,57 +548,251 @@ local function xmlCFrame(block, name)
 end
 
 local XML_CLASS_MAP = {
+    -- Build / geometry
     Model=true, Folder=true, Part=true, MeshPart=true, WedgePart=true,
     CornerWedgePart=true, TrussPart=true, SpawnLocation=true, Seat=true,
     VehicleSeat=true, UnionOperation=true, NegateOperation=true,
-    IntersectOperation=true, PartOperation=true, Attachment=true,
-    Decal=true, Texture=true, PointLight=true, SpotLight=true, SurfaceLight=true,
-    Sound=true, ParticleEmitter=true, Beam=true, Trail=true,
+    IntersectOperation=true, PartOperation=true,
+    Terrain=true,
+
+    -- Attachments / visual / effects
+    Attachment=true, Bone=true, Decal=true, Texture=true, SurfaceAppearance=true,
+    SpecialMesh=true, PointLight=true, SpotLight=true, SurfaceLight=true,
+    ParticleEmitter=true, Beam=true, Trail=true, Smoke=true, Fire=true, Sparkles=true,
+
+    -- Audio
+    Sound=true,
+
+    -- Constraints
+    WeldConstraint=true, Weld=true, Motor6D=true, ManualWeld=true,
+    RopeConstraint=true, RodConstraint=true, SpringConstraint=true,
+    BallSocketConstraint=true, HingeConstraint=true, CylindricalConstraint=true,
+    PrismaticConstraint=true, AlignPosition=true, AlignOrientation=true,
+
+    -- Common values
     StringValue=true, BoolValue=true, IntValue=true, NumberValue=true,
-    ObjectValue=true, Vector3Value=true, CFrameValue=true,
+    ObjectValue=true, Vector3Value=true, CFrameValue=true, Color3Value=true,
+    BrickColorValue=true,
 }
+
+-- Robust RBXLX helpers. RBXLX stores Enum tokens as numeric values in many
+-- Studio versions, so resolve both numeric enum values and enum names.
+local function xmlContent(block, name)
+    local raw = xmlTagValue(block, "Content", name)
+    if not raw then return nil end
+    local url = raw:match("<url>(.-)</url>")
+    return xmlUnescape(url or raw)
+end
+
+local function xmlBrickColor(block, name)
+    local v = xmlTagValue(block, "BrickColor", name)
+    return v and tonumber(v) or nil
+end
+
+local function xmlToken(block, name)
+    return xmlTagValue(block, "token", name)
+end
+
+local function xmlEnum(enumType, value)
+    if value == nil then return nil end
+    local sv = tostring(value)
+    local ok, items = pcall(function() return enumType:GetEnumItems() end)
+    if ok then
+        for _, item in ipairs(items) do
+            if tostring(item.Value) == sv or tostring(item.Name) == sv then
+                return item
+            end
+        end
+    end
+    return nil
+end
+
+local function setIf(obj, prop, value)
+    if value == nil then return end
+    pcall(function() obj[prop] = value end)
+end
+
+local function setBool(obj, block, prop)
+    local v = xmlTagValue(block, "bool", prop)
+    if v ~= nil then setIf(obj, prop, v == "true") end
+end
+
+local function setFloat(obj, block, prop)
+    local v = xmlNum(block, "float", prop)
+    if v ~= nil then setIf(obj, prop, v) end
+end
+
+local function setDouble(obj, block, prop)
+    local v = xmlNum(block, "double", prop)
+    if v ~= nil then setIf(obj, prop, v) end
+end
+
+local function setVector(obj, block, prop)
+    local v = xmlVec3(block, prop)
+    if v then setIf(obj, prop, v) end
+end
+
+local function setCFrame(obj, block, prop)
+    local v = xmlCFrame(block, prop)
+    if v then setIf(obj, prop, v) end
+end
+
+local function setContent(obj, block, prop)
+    local v = xmlContent(block, prop)
+    if v then setIf(obj, prop, v) end
+end
+
+local function setMaterial(obj, block)
+    local raw = xmlToken(block, "Material")
+    if raw then
+        local e = xmlEnum(Enum.Material, raw)
+        if e then setIf(obj, "Material", e) end
+    end
+end
+
+local function setEnumProperty(obj, block, enumType, prop)
+    local raw = xmlToken(block, prop)
+    if raw then
+        local e = xmlEnum(enumType, raw)
+        if e then setIf(obj, prop, e) end
+    end
+end
 
 local function makeRBXLXObject(className, block)
     if not XML_CLASS_MAP[className] then return nil end
+
     local ok, obj = pcall(Instance.new, className)
     if not ok or not obj then return nil end
 
-    local name = xmlTagValue(block, "string", "Name")
-    if name and name ~= "" then pcall(function() obj.Name = name end) end
+    setIf(obj, "Name", xmlTagValue(block, "string", "Name"))
 
+    -- Common BasePart build properties
     if obj:IsA("BasePart") then
-        local size = xmlVec3(block, "size") or xmlVec3(block, "Size")
-        if size then pcall(function() obj.Size = size end) end
-        local cf = xmlCFrame(block, "CFrame") or xmlCFrame(block, "CoordinateFrame")
-        if cf then pcall(function() obj.CFrame = cf end) end
+        setVector(obj, block, "size")
+        setVector(obj, block, "Size")
+        setCFrame(obj, block, "CFrame")
+        setCFrame(obj, block, "CoordinateFrame")
+
         local color = xmlColor3(block, "Color")
-        if color then pcall(function() obj.Color = color end) end
-        local material = xmlTagValue(block, "token", "Material")
-        if material then pcall(function() obj.Material = Enum.Material[material] end) end
-        local anchored = xmlTagValue(block, "bool", "Anchored")
-        if anchored then pcall(function() obj.Anchored = anchored == "true" end) end
-        local collide = xmlTagValue(block, "bool", "CanCollide")
-        if collide then pcall(function() obj.CanCollide = collide == "true" end) end
-        local transparency = xmlNum(block, "float", "Transparency")
-        if transparency then pcall(function() obj.Transparency = transparency end) end
-    elseif obj:IsA("Decal") or obj:IsA("Texture") then
-        local tex = xmlTagValue(block, "Content", "Texture")
-        if tex then pcall(function() obj.Texture = tex end) end
-    elseif obj:IsA("StringValue") then
-        local v = xmlTagValue(block, "string", "Value")
-        if v then obj.Value = v end
+        if color then setIf(obj, "Color", color) end
+
+        setMaterial(obj, block)
+        setBool(obj, block, "Anchored")
+        setBool(obj, block, "CanCollide")
+        setBool(obj, block, "CanTouch")
+        setBool(obj, block, "CanQuery")
+        setBool(obj, block, "Massless")
+        setBool(obj, block, "CastShadow")
+        setFloat(obj, block, "Transparency")
+        setFloat(obj, block, "Reflectance")
+        setFloat(obj, block, "Elasticity")
+        setFloat(obj, block, "Friction")
+
+        local bc = xmlBrickColor(block, "BrickColor")
+        if bc then pcall(function() obj.BrickColor = BrickColor.new(bc) end) end
+
+        if obj:IsA("MeshPart") then
+            setContent(obj, block, "MeshId")
+            setContent(obj, block, "TextureID")
+            setContent(obj, block, "TextureContent")
+            setFloat(obj, block, "DoubleSided")
+            setFloat(obj, block, "RenderFidelity")
+        end
+    end
+
+    -- Decal / Texture
+    if obj:IsA("Decal") or obj:IsA("Texture") then
+        setContent(obj, block, "Texture")
+        setFloat(obj, block, "Transparency")
+        setFloat(obj, block, "StudsPerTileU")
+        setFloat(obj, block, "StudsPerTileV")
+        setFloat(obj, block, "OffsetStudsU")
+        setFloat(obj, block, "OffsetStudsV")
+        setEnumProperty(obj, block, Enum.NormalId, "Face")
+    end
+
+    -- SurfaceAppearance
+    if obj:IsA("SurfaceAppearance") then
+        for _, prop in ipairs({"ColorMap","MetalnessMap","NormalMap","RoughnessMap"}) do
+            setContent(obj, block, prop)
+        end
+        setFloat(obj, block, "AlphaMode")
+    end
+
+    -- SpecialMesh
+    if obj:IsA("SpecialMesh") then
+        setContent(obj, block, "MeshId")
+        setContent(obj, block, "TextureId")
+        setVector(obj, block, "Scale")
+        setVector(obj, block, "Offset")
+        setEnumProperty(obj, block, Enum.MeshType, "MeshType")
+        local vc = xmlColor3(block, "VertexColor")
+        if vc then setIf(obj, "VertexColor", vc) end
+    end
+
+    -- Attachments / Bones
+    if obj:IsA("Attachment") then
+        setVector(obj, block, "Position")
+        setVector(obj, block, "Orientation")
+        setFloat(obj, block, "Visible")
+    end
+
+    -- Lights / effects
+    if obj:IsA("Light") then
+        local c = xmlColor3(block, "Color")
+        if c then setIf(obj, "Color", c) end
+        setBool(obj, block, "Enabled")
+        setFloat(obj, block, "Brightness")
+        setFloat(obj, block, "Range")
+        setBool(obj, block, "Shadows")
+    end
+
+    if obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
+        setFloat(obj, block, "Angle")
+        setEnumProperty(obj, block, Enum.NormalId, "Face")
+    end
+
+    if obj:IsA("ParticleEmitter") then
+        local c = xmlColor3(block, "Color")
+        if c then setIf(obj, "Color", ColorSequence.new(c)) end
+        setContent(obj, block, "Texture")
+        setBool(obj, block, "Enabled")
+        setFloat(obj, block, "Lifetime")
+        setFloat(obj, block, "Rate")
+        setFloat(obj, block, "Speed")
+        setFloat(obj, block, "Rotation")
+        setFloat(obj, block, "RotSpeed")
+        setFloat(obj, block, "LightEmission")
+        setFloat(obj, block, "LightInfluence")
+    end
+
+    if obj:IsA("Sound") then
+        setContent(obj, block, "SoundId")
+        setFloat(obj, block, "Volume")
+        setFloat(obj, block, "PlaybackSpeed")
+        setBool(obj, block, "Looped")
+        setBool(obj, block, "Playing")
+    end
+
+    -- Values
+    if obj:IsA("StringValue") then
+        setIf(obj, "Value", xmlTagValue(block, "string", "Value"))
     elseif obj:IsA("BoolValue") then
         local v = xmlTagValue(block, "bool", "Value")
-        if v then obj.Value = (v == "true") end
+        if v then setIf(obj, "Value", v == "true") end
     elseif obj:IsA("IntValue") then
-        local v = xmlTagValue(block, "int", "Value")
-        if v then obj.Value = tonumber(v) or 0 end
+        local v = xmlTagValue(block, "int", "Value") or xmlTagValue(block, "int64", "Value")
+        if v then setIf(obj, "Value", tonumber(v)) end
     elseif obj:IsA("NumberValue") then
-        local v = xmlTagValue(block, "double", "Value") or xmlTagValue(block, "float", "Value")
-        if v then obj.Value = tonumber(v) or 0 end
+        local v = xmlTagValue(block, "float", "Value") or xmlTagValue(block, "double", "Value")
+        if v then setIf(obj, "Value", tonumber(v)) end
     elseif obj:IsA("Vector3Value") then
-        local v = xmlVec3(block, "Value")
-        if v then obj.Value = v end
+        setVector(obj, block, "Value")
+    elseif obj:IsA("CFrameValue") then
+        setCFrame(obj, block, "Value")
+    elseif obj:IsA("Color3Value") then
+        local c = xmlColor3(block, "Value")
+        if c then setIf(obj, "Value", c) end
     end
 
     return obj
@@ -753,6 +947,21 @@ local SCAN_PATHS = {
     "/sdcard/Android/Delta/workspace",
     "../workspace", "./workspace", ".", ""
 }
+
+local function scanWorkspaceInstances(results)
+    local ok, descendants = pcall(function() return workspace:GetDescendants() end)
+    if not ok then return end
+    for _, inst in ipairs(descendants) do
+        local name = tostring(inst.Name or "")
+        local ftype = getFileType(name)
+        if ftype then
+            table.insert(results, {
+                name=name, path=name, ftype=ftype, instance=inst,
+                source="workspace"
+            })
+        end
+    end
+end
 
 local function scanDeep(folder, depth, results, seen)
     if depth > 20 or seen[folder] then return end
