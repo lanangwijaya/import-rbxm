@@ -1,13 +1,1394 @@
 --[[
-VVV            VVV  OOOOOOO   RRRRRRRRRR TTTTTTTTTTTEEEEEEEEEE XXXXX      XXXXX I  OOOOOOO  NNNN   NNNN
- VVV          VVV OOOOOOOOOOO RRRRRRRRRRRTTTTTTTTTTTEEEEEEEEEE  XXXXX    XXXXX  I OOOOOOOOOOO NNNN   NNNN
-  VVV        VVV OOOOO   OOOOO RRR     RRR   TTTT   EEE           XXXXX  XXXXX   I OOOOO   OOOOONNNNN  NNNN
-   VVV      VVV  OOOO     OOOO RRRRRRRRRRR   TTTT   EEEEEEEE       XXXXXXXXXX    I OOOO     OOOONNNNNN NNNN
-    VVV    VVV   OOOO     OOOO RRRRRRRRRR    TTTT   EEEEEEEE        XXXXXXXX     I OOOO     OOOONNN NNNNNNN
-     VVV  VVV    OOOOO   OOOOO RRR   RRRR    TTTT   EEE            XXXXX  XXXXX  I OOOOO   OOOOONNN  NNNNNN
-      VVVVVV      OOOOOOOOOOO RRR    RRRR   TTTT   EEEEEEEEEE   XXXXX    XXXXX  I OOOOOOOOOOO NNN   NNNNN
-       VVVV        OOOOOOO   RRR     RRRR  TTTT   EEEEEEEEEE  XXXXX      XXXXXI  OOOOOOO  NNN    NNNN
+    ╔══════════════════════════════════════════════════════════════════════╗
+    ║  NANG RBXM v63.0 - Modern UI Edition    ║
+    ║  Features: Modern UI, Smooth Animations, Verified Asset Mapping           ║
+    ║  Supports: RBXM, RBXL, RBXLX, RBXMX                                  ║
+    ╚══════════════════════════════════════════════════════════════════════╝
+]]
 
-      << VORTEXION NATIVE OBFUSCATOR (UNIVERSAL & DAILY LIMIT) >>
-]]--
-local _vl_v1_vOvlI_l0=155;local function _Iv0lv_vl00vvI1(_0l1_1Illv0Il__) local _l00__Ov_v00_IO={} for _0l1011IIIIO01l=1,#_0l1_1Illv0Il__ do local b=bit32.bxor(_0l1_1Illv0Il__[_0l1011IIIIO01l],_vl_v1_vOvlI_l0)%256 _l00__Ov_v00_IO[_0l1011IIIIO01l]=string.char(b) end return table.concat(_l00__Ov_v00_IO) end return (function() if not game:IsLoaded() then game.Loaded:Wait() end local _WHITELIST = { 8236629801, } local _userId = game:GetService(_Iv0lv_vl00vvI1({203,247,250,226,254,233,232})).LocalPlayer.UserId local _allowed = false for _, id in ipairs(_WHITELIST) do if id == _userId then _allowed = true; break end end if not _allowed then warn(_Iv0lv_vl00vvI1({243,250,237,254,187,226,244,238,187,239,233,242,254,255,187,244,235,254,245,242,245,252,187,239,243,242,232,187,232,248,233,242,235,239,187,242,239,188,232,187,245,244,239,187,254,250,232,226,187,246,226,187,253,233,242,254,245,255,187,147,147,147,147})) warn(_Iv0lv_vl00vvI1({208,218,215,212,187,208,218,215,210,218,213,187,214,218,206,187,217,222,215,210,187,210,214,203,212,201,207,187,201,217,195,214,187,213,194,218,187,215,218,213,220,200,206,213,220,187,218,209,218,187,211,206,217,206,213,220,210,187,213,218,213,220,187,223,210,187,213,212,214,212,201,187,210,213,210,183,187,171,163,170,169,174,169,175,169,174,174,163,170,187,213,218,213,220,187,202})) return end local Players = game:GetService(_Iv0lv_vl00vvI1({203,247,250,226,254,233,232})) local ReplicatedStorage = game:GetService(_Iv0lv_vl00vvI1({201,254,235,247,242,248,250,239,254,255,200,239,244,233,250,252,254})) local HttpService = game:GetService(_Iv0lv_vl00vvI1({211,239,239,235,200,254,233,237,242,248,254})) local UserInputService = game:GetService(_Iv0lv_vl00vvI1({206,232,254,233,210,245,235,238,239,200,254,233,237,242,248,254})) local InsertService = game:GetService(_Iv0lv_vl00vvI1({210,245,232,254,233,239,200,254,233,237,242,248,254})) local CoreGui = game:GetService(_Iv0lv_vl00vvI1({216,244,233,254,220,238,242})) local TweenService = game:GetService(_Iv0lv_vl00vvI1({207,236,254,254,245,200,254,233,237,242,248,254})) local RunService = game:GetService(_Iv0lv_vl00vvI1({201,238,245,200,254,233,237,242,248,254})) local LocalPlayer = Players.LocalPlayer local CoreDest = pcall(function() return CoreGui.Name end) and CoreGui or LocalPlayer:WaitForChild(_Iv0lv_vl00vvI1({203,247,250,226,254,233,220,238,242})) _G.LANGZ_RAW_SOURCES = _G.LANGZ_RAW_SOURCES or {} local ICONS = { PACKAGE        = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,170,175,168,172}), SEARCH         = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,173,170,170,163}), CLOSE          = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,171,173,175,175}), MINIMIZE       = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,171,168,163,172}), CHEVRON_RIGHT  = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,163,169,174,169,174}), CHEVRON_LEFT   = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,163,169,169,168,171}), BELL           = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,170,170,173,171}), GAMEPAD        = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,171,171,163,169}), FILE           = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,171,162,175,163}), DOWNLOAD       = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,170,169,163,168}), CHECK          = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,171,169,175,171}), ALERT          = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,171,174,169,171}), FOLDER         = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,171,170,172,169}), REFRESH        = _Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,242,255,161,180,180,170,171,172,171,162,172,162,168,168,163,169}) } local function httpRequest(url, method, headers, data) method = method or _Iv0lv_vl00vvI1({220,222,207}) headers = headers or {} headers[_Iv0lv_vl00vvI1({206,232,254,233,182,218,252,254,245,239})] = _Iv0lv_vl00vvI1({214,244,225,242,247,247,250,180,174,181,171,187,179,204,242,245,255,244,236,232,187,213,207,187,170,171,181,171,160,187,204,242,245,173,175,160,187,227,173,175,178,187,218,235,235,247,254,204,254,249,208,242,239,180,174,168,172,181,168,173}) local requestFuncs = { function() if syn and syn.request then local r = syn.request({Url = url, Method = method, Headers = headers, Body = data}); return r.Body, r.StatusCode end end, function() if request then local r = request({Url = url, Method = method, Headers = headers, Body = data}); return r.Body, r.StatusCode end end, function() if http_request then local r = http_request({Url = url, Method = method, Headers = headers, Body = data}); return r.Body, r.StatusCode end end, function() if fluxus and fluxus.request then local r = fluxus.request({Url = url, Method = method, Headers = headers, Body = data}); return r.Body, r.StatusCode end end, function() return game:HttpGet(url, true), 200 end } for _, fn in ipairs(requestFuncs) do local ok, body, status = pcall(fn) if ok and body and type(body) == _Iv0lv_vl00vvI1({232,239,233,242,245,252}) and #body > 0 then return body, status or 200 end end return nil, nil end local function Buffer(str, allowOverflows) local Stream = { Offset = 0, Source = str, Length = string.len(str), AllowOverflows = (allowOverflows == nil and true) or allowOverflows } function Stream:read(len, shift) len = len or 1; shift = (shift == nil and true) or shift local dat = string.sub(self.Source, self.Offset + 1, self.Offset + len) if shift then self:seek(len) end return dat end function Stream:seek(len) self.Offset = math.clamp(self.Offset + len, 0, self.Length) end function Stream:readNumber(fmt, shift) fmt = fmt or _Iv0lv_vl00vvI1({210,170}); local chunk = self:read(string.packsize(fmt), shift); return string.unpack(fmt, chunk) end function Stream:append(s) self.Source = self.Source .. s; self.Length = #self.Source end function Stream:toEnd() self.Offset = self.Length end return Stream end local function transformInt(x) return (x % 2 == 0) and (x / 2) or (-(x + 1) / 2) end local function rbxF32(x) x = bit32.rrotate(x, 1); return string.unpack(_Iv0lv_vl00vvI1({165,253}), string.pack(_Iv0lv_vl00vvI1({165,210,175}), x)) end local basicTypes = {} function basicTypes.String(buffer) return buffer:read(buffer:readNumber(_Iv0lv_vl00vvI1({167,210,175}))) end function basicTypes.Int32(buffer) return transformInt(buffer:readNumber(_Iv0lv_vl00vvI1({165,210,175}))) end function basicTypes.Int64(buffer) return transformInt(buffer:readNumber(_Iv0lv_vl00vvI1({165,210,163}))) end function basicTypes.Float32(buffer) return rbxF32(buffer:readNumber(_Iv0lv_vl00vvI1({165,210,175}))) end function basicTypes.Float64(buffer) return buffer:readNumber(_Iv0lv_vl00vvI1({167,255})) end function basicTypes.InterleaveArrayWithSize(buffer, count, sizeof) if count < 0 then return Buffer("", false) end local stream = buffer:read(count * sizeof); local out = table.create(count) for i = 1, count do local chunk = table.create(sizeof) for s = 0, sizeof - 1 do local bitPos = i + (count * s); chunk[s+1] = string.sub(stream, bitPos, bitPos) end out[i] = table.concat(chunk) end return Buffer(table.concat(out), false) end function basicTypes.unsignedIntArray(buffer, count) if count < 1 then return {} end local o = table.create(count); local strings = basicTypes.InterleaveArrayWithSize(buffer, count, 4) for i = 1, count do o[i] = strings:readNumber(_Iv0lv_vl00vvI1({167,210,175})) end return o end function basicTypes.Int32Array(buffer, count) if count < 1 then return {} end local o = table.create(count); local strings = basicTypes.InterleaveArrayWithSize(buffer, count, 4) for i = 1, count do o[i] = basicTypes.Int32(strings) end return o end function basicTypes.Int64Array(buffer, count) if count < 1 then return {} end local o = table.create(count); local strings = basicTypes.InterleaveArrayWithSize(buffer, count, 8) for i = 1, count do o[i] = basicTypes.Int64(strings) end return o end function basicTypes.RbxF32Array(buffer, count) if count < 1 then return {} end local o = table.create(count); local strings = basicTypes.InterleaveArrayWithSize(buffer, count, 4) for i = 1, count do o[i] = basicTypes.Float32(strings) end return o end function basicTypes.RefArray(buffer, count) if count < 1 then return {} end local o = table.create(count); local refs = basicTypes.Int32Array(buffer, count); local last = 0 for i = 1, count do local ref = last + refs[i]; o[i] = ref; last = ref end return o end local function lz4(lz4data) local inputStream = Buffer(lz4data) local compressedLen = string.unpack(_Iv0lv_vl00vvI1({167,210,175}), inputStream:read(4)) local decompressedLen = string.unpack(_Iv0lv_vl00vvI1({167,210,175}), inputStream:read(4)) local reserved = string.unpack(_Iv0lv_vl00vvI1({167,210,175}), inputStream:read(4)) if reserved ~= 0 then error(_Iv0lv_vl00vvI1({245,244,239,187,247,225,175})) end if compressedLen == 0 then return inputStream:read(decompressedLen) end local outputStream = Buffer("") repeat local token = string.byte(inputStream:read()) local litLen = bit32.rshift(token, 4) local matLen = bit32.band(token, 15) + 4 if litLen >= 15 then repeat local nextByte = string.byte(inputStream:read()); litLen = litLen + nextByte until nextByte ~= 0xFF end local literal = inputStream:read(litLen); outputStream:append(literal); outputStream:toEnd() if outputStream.Length < decompressedLen then local offset = string.unpack(_Iv0lv_vl00vvI1({167,210,169}), inputStream:read(2)) if matLen >= 19 then repeat local nextByte = string.byte(inputStream:read()); matLen = matLen + nextByte until nextByte ~= 0xFF end outputStream:seek(-offset) local pos = outputStream.Offset; local match = outputStream:read(matLen) local unreadBytes = outputStream.LastUnreadBytes or 0 local extra if unreadBytes then repeat outputStream.Offset = pos; extra = outputStream:read(unreadBytes) unreadBytes = outputStream.LastUnreadBytes or 0; match = match .. extra until unreadBytes <= 0 end outputStream:append(match); outputStream:toEnd() end until outputStream.Length >= decompressedLen return outputStream.Source end local function b64encode(str) local chars = _Iv0lv_vl00vvI1({218,217,216,223,222,221,220,211,210,209,208,215,214,213,212,203,202,201,200,207,206,205,204,195,194,193,250,249,248,255,254,253,252,243,242,241,240,247,246,245,244,235,234,233,232,239,238,237,236,227,226,225,171,170,169,168,175,174,173,172,163,162,176,180}) local out = {} for i = 1, #str, 3 do local b0, b1, b2 = string.byte(str, i, i+2) local b = bit32.lshift(b0, 16) + bit32.lshift(b1 or 0, 8) + (b2 or 0) table.insert(out, chars:sub(bit32.extract(b, 18, 6)+1, bit32.extract(b, 18, 6)+1)) table.insert(out, chars:sub(bit32.extract(b, 12, 6)+1, bit32.extract(b, 12, 6)+1)) table.insert(out, b1 and chars:sub(bit32.extract(b, 6, 6)+1, bit32.extract(b, 6, 6)+1) or _Iv0lv_vl00vvI1({166})) table.insert(out, b2 and chars:sub(bit32.band(b, 63)+1, bit32.band(b, 63)+1) or _Iv0lv_vl00vvI1({166})) end return table.concat(out) end local function zstd(stream) local zbase64 = b64encode(stream) local json = _Iv0lv_vl00vvI1({224,185,246,185,161,245,238,247,247,183,185,239,185,161,185,249,238,253,253,254,233,185,183,185,225,249,250,232,254,173,175,185,161,185}) .. zbase64 .. _Iv0lv_vl00vvI1({185,230}) local x = HttpService:JSONDecode(json) return buffer.tostring(x) end local function parseRBXMForSources(data) local sources = {} local rbxmBuffer = Buffer(data, false) if rbxmBuffer:read(8) ~= _Iv0lv_vl00vvI1({167,233,244,249,247,244,227,186}) or rbxmBuffer:read(6) ~= _Iv0lv_vl00vvI1({199,227,163,162,199,227,253,253,199,227,171,255,199,227,171,250,199,227,170,250,199,227,171,250}) then return sources, _Iv0lv_vl00vvI1({210,245,237,250,247,242,255,187,243,254,250,255,254,233}) end if rbxmBuffer:read(2) ~= (string.char(0)..string.char(0)) then return sources, _Iv0lv_vl00vvI1({210,245,237,250,247,242,255,187,237,254,233,232,242,244,245}) end local classCount = rbxmBuffer:readNumber(_Iv0lv_vl00vvI1({167,242,175})) local instCount = rbxmBuffer:readNumber(_Iv0lv_vl00vvI1({167,242,175})) local classRefs, virtualInstances, strings, chunkInfo = {}, {}, {}, {} local valid_end_chunk = _Iv0lv_vl00vvI1({222,213,223})..string.char(0) local valid = {[valid_end_chunk]=true, [_Iv0lv_vl00vvI1({210,213,200,207})]=true, [_Iv0lv_vl00vvI1({214,222,207,218})]=true, [_Iv0lv_vl00vvI1({203,201,213,207})]=true, [_Iv0lv_vl00vvI1({203,201,212,203})]=true, [_Iv0lv_vl00vvI1({200,210,220,213})]=true, [_Iv0lv_vl00vvI1({200,200,207,201})]=true} for k in pairs(valid) do chunkInfo[k] = {} end if rbxmBuffer:read(8) ~= string.char(0,0,0,0,0,0,0,0) then return sources, _Iv0lv_vl00vvI1({210,245,237,250,247,242,255,187,243,254,250,255,254,233}) end local index, last_chunk = 0, nil repeat index = index + 1 local chunk = {InternalID = index, Header = rbxmBuffer:read(4)} if not valid[chunk.Header] then return sources, _Iv0lv_vl00vvI1({210,245,237,250,247,242,255,187,248,243,238,245,240}) end local lz4Header = rbxmBuffer:read(16, false) local compressed = string.unpack(_Iv0lv_vl00vvI1({167,210,175}), string.sub(lz4Header, 1, 4)) local decompressed = string.unpack(_Iv0lv_vl00vvI1({167,210,175}), string.sub(lz4Header, 5, 8)) local reserved = string.sub(lz4Header, 9, 12) local zstd_check = string.sub(lz4Header, 13, 16) local dataChunk if compressed == 0 then dataChunk = rbxmBuffer:read(decompressed + 12) else if zstd_check == _Iv0lv_vl00vvI1({199,227,169,163,199,227,217,174,199,227,169,221,199,227,221,223}) then rbxmBuffer:seek(12); dataChunk = zstd(rbxmBuffer:read(compressed)) else dataChunk = lz4(rbxmBuffer:read(compressed + 12)) end end chunk.Data = Buffer(dataChunk, false); table.insert(chunkInfo[chunk.Header], chunk); last_chunk = chunk until last_chunk and last_chunk.Header == valid_end_chunk for _, chunk in ipairs(chunkInfo[_Iv0lv_vl00vvI1({200,200,207,201})] or {}) do local buffer = chunk.Data if buffer:readNumber(_Iv0lv_vl00vvI1({167,210,175})) == 0 then for i = 1, buffer:readNumber(_Iv0lv_vl00vvI1({167,210,175})) do buffer:read(16); strings[i] = basicTypes.String(buffer) end end end for _, chunk in ipairs(chunkInfo[_Iv0lv_vl00vvI1({210,213,200,207})] or {}) do local buffer = chunk.Data local classID = buffer:readNumber(_Iv0lv_vl00vvI1({167,210,175})); local className = basicTypes.String(buffer) if buffer:read() == _Iv0lv_vl00vvI1({199,170}) then return sources, _Iv0lv_vl00vvI1({216,244,245,239,250,242,245,232,187,232,254,233,237,242,248,254,232}) end local count = buffer:readNumber(_Iv0lv_vl00vvI1({167,210,175})); local refs = basicTypes.RefArray(buffer, count) classRefs[classID] = { Name = className, Sizeof = count, Refs = refs } for _, ref in ipairs(refs) do virtualInstances[ref] = { ClassId = classID, ClassName = className, Ref = ref, Properties = {}, Children = {} } end end for _, chunk in ipairs(chunkInfo[_Iv0lv_vl00vvI1({203,201,212,203})] or {}) do local buffer = chunk.Data local classID = buffer:readNumber(_Iv0lv_vl00vvI1({167,210,175})); local classref = classRefs[classID] if not classref then return sources, _Iv0lv_vl00vvI1({214,242,232,232,242,245,252,187,248,247,250,232,232,233,254,253}) end local refs = classref.Refs; local sizeof = classref.Sizeof; local name = basicTypes.String(buffer) if string.byte(buffer:read(1, false)) == 0x1E then buffer:seek(1) end local typeID = string.byte(buffer:read()); local props = {} if typeID == 0x01 or typeID == 0x1D then for i = 1, sizeof do props[i] = basicTypes.String(buffer) end elseif typeID == 0x02 then for i = 1, sizeof do props[i] = buffer:read() ~= string.char(0) end elseif typeID == 0x03 then props = basicTypes.Int32Array(buffer, sizeof) elseif typeID == 0x04 then props = basicTypes.RbxF32Array(buffer, sizeof) elseif typeID == 0x05 then for i = 1, sizeof do props[i] = basicTypes.Float64(buffer) end else for i = 1, sizeof do if typeID == 0x13 then props = basicTypes.RefArray(buffer, sizeof); break else buffer:read(4) end end end if name == _Iv0lv_vl00vvI1({200,244,238,233,248,254}) or name == _Iv0lv_vl00vvI1({216,244,245,239,254,245,239,207,254,227,239}) then for i, v in ipairs(refs) do if virtualInstances[v] and props[i] then virtualInstances[v].Properties[name] = props[i] end end end end local function buildSourceMap(node, path) local src = node.Properties[_Iv0lv_vl00vvI1({200,244,238,233,248,254})] or node.Properties[_Iv0lv_vl00vvI1({216,244,245,239,254,245,239,207,254,227,239})] if src and type(src) == _Iv0lv_vl00vvI1({232,239,233,242,245,252}) and #src > 0 then sources[path] = src end for _, child in ipairs(node.Children or {}) do buildSourceMap(child, path .. _Iv0lv_vl00vvI1({181}) .. child.ClassName .. _Iv0lv_vl00vvI1({161}) .. (child.Properties[_Iv0lv_vl00vvI1({213,250,246,254})] or _Iv0lv_vl00vvI1({238,245,245,250,246,254,255}))) end end for _, chunk in ipairs(chunkInfo[_Iv0lv_vl00vvI1({203,201,213,207})] or {}) do local buffer = chunk.Data if buffer:read() ~= string.char(0) then return sources, _Iv0lv_vl00vvI1({210,245,237,250,247,242,255,187,203,201,213,207}) end local count = buffer:readNumber(_Iv0lv_vl00vvI1({167,210,175})) local child_refs = basicTypes.RefArray(buffer, count); local parent_refs = basicTypes.RefArray(buffer, count) for i = 1, count do local child = virtualInstances[child_refs[i]]; local parent = virtualInstances[parent_refs[i]] if child and parent then table.insert(parent.Children, child) end end end local roots = {} for _, inst in pairs(virtualInstances) do local hasParent = false for _, other in pairs(virtualInstances) do for _, child in ipairs(other.Children or {}) do if child.Ref == inst.Ref then hasParent = true; break end end if hasParent then break end end if not hasParent then table.insert(roots, inst) end end for _, root in ipairs(roots) do buildSourceMap(root, root.ClassName .. _Iv0lv_vl00vvI1({161}) .. (root.Properties[_Iv0lv_vl00vvI1({213,250,246,254})] or _Iv0lv_vl00vvI1({233,244,244,239}))) end return sources, nil end local slFolder = ReplicatedStorage:FindFirstChild(_Iv0lv_vl00vvI1({200,239,238,255,242,244,215,242,239,254,221,244,247,255,254,233})) local serverFuncs = slFolder and slFolder:FindFirstChild(_Iv0lv_vl00vvI1({200,254,233,237,254,233,221,238,245,248,239,242,244,245,232})) local function triggerServerLoad(idStr) if not serverFuncs or not idStr or idStr == "" then return end local id = tostring(idStr):match(_Iv0lv_vl00vvI1({190,255,176})) if id then pcall(function() serverFuncs:InvokeServer(_Iv0lv_vl00vvI1({215,244,250,255,214,254,232,243,207,244,201,238,245,239,242,246,254,214,254,232,243,254,232}), tonumber(id)) end) end end local SL_CACHE = {} local function injectStudioLiteUI(scr, sourceMap) if not scr:IsA(_Iv0lv_vl00vvI1({215,238,250,200,244,238,233,248,254,216,244,245,239,250,242,245,254,233})) then return end local path = scr.ClassName .. _Iv0lv_vl00vvI1({161}) .. scr.Name local realSource = sourceMap and sourceMap[path] if not realSource then pcall(function() realSource = scr.Source end) end if realSource and #realSource > 0 then realSource = (realSource:gsub(string.char(0).._Iv0lv_vl00vvI1({177,191}), "")) else realSource = _Iv0lv_vl00vvI1({145,150,145,187,187,187,187,196,220,181,215,218,213,220,193,196,201,218,204,196,200,212,206,201,216,222,200,192,232,248,233,198,187,166,187,233,254,250,247,200,244,238,233,248,254,150,145,150,145,187,187,187,187,247,244,248,250,247,187,206,210,196,207,222,195,207,187,166,187,233,254,250,247,200,244,238,233,248,254,150,145,187,187,187,187,242,253,187,184,206,210,196,207,222,195,207,187,165,187,170,174,171,171,171,171,187,239,243,254,245,187,206,210,196,207,222,195,207,187,166,187}) local existingTB = scr:FindFirstChild(_Iv0lv_vl00vvI1({200,215,196,216,244,255,254,207,254,227,239,217,244,227})) if existingTB then existingTB.Text = UI_TEXT if scr.ClassName == _Iv0lv_vl00vvI1({214,244,255,238,247,254,200,248,233,242,235,239}) then local ro = scr:FindFirstChild(_Iv0lv_vl00vvI1({200,215,196,170,201,254,250,255,212,245,247,226})) if ro then ro.ContentText = UI_TEXT; ro.Text = UI_TEXT end end return end if not serverFuncs then return end local map = { Script = _Iv0lv_vl00vvI1({210,245,232,254,233,239,200,248,233,242,235,239,200,248,233,242,235,239}), LocalScript = _Iv0lv_vl00vvI1({210,245,232,254,233,239,215,244,248,250,247,200,248,233,242,235,239,215,244,248,250,247,200,248,233,242,235,239}), ModuleScript = _Iv0lv_vl00vvI1({210,245,232,254,233,239,214,244,255,238,247,254,200,248,233,242,235,239,214,244,255,238,247,254,200,248,233,242,235,239}) } local assetName = map[scr.ClassName] if not assetName then return end if not SL_CACHE[assetName] then pcall(function() serverFuncs:InvokeServer(_Iv0lv_vl00vvI1({215,244,250,255,218,232,232,254,239,207,244,203,247,250,226,254,233,220,238,242}), assetName) local guiF = LocalPlayer:WaitForChild(_Iv0lv_vl00vvI1({203,247,250,226,254,233,220,238,242})):WaitForChild(assetName, 3) if guiF then SL_CACHE[assetName] = {} for _, c in ipairs(guiF:GetChildren()) do table.insert(SL_CACHE[assetName], c:Clone()) end serverFuncs:InvokeServer(_Iv0lv_vl00vvI1({216,247,254,250,233,218,232,232,254,239,221,233,244,246,203,247,250,226,254,233,220,238,242}), assetName) end end) end if not SL_CACHE[assetName] then return end pcall(function() for _, c in ipairs(SL_CACHE[assetName]) do c:Clone().Parent = scr end local tb = scr:FindFirstChild(_Iv0lv_vl00vvI1({200,215,196,216,244,255,254,207,254,227,239,217,244,227})) if tb then tb.Text = UI_TEXT if scr.ClassName == _Iv0lv_vl00vvI1({214,244,255,238,247,254,200,248,233,242,235,239}) then local ro = scr:FindFirstChild(_Iv0lv_vl00vvI1({200,215,196,170,201,254,250,255,212,245,247,226})) if ro then ro.ContentText = UI_TEXT; ro.Text = UI_TEXT end end end end) end local function injectAllScripts(root, sourceMap) if not root then return 0 end local list = {} if root:IsA(_Iv0lv_vl00vvI1({215,238,250,200,244,238,233,248,254,216,244,245,239,250,242,245,254,233})) then table.insert(list, root) end for _, d in ipairs(root:GetDescendants()) do if d:IsA(_Iv0lv_vl00vvI1({215,238,250,200,244,238,233,248,254,216,244,245,239,250,242,245,254,233})) then table.insert(list, d) end end local count = 0 for _, s in ipairs(list) do pcall(injectStudioLiteUI, s, sourceMap); count = count + 1; task.wait(0.02) end return count end local function ApplyStudioLiteProperties(obj) if not obj then return end pcall(function() if obj:IsA(_Iv0lv_vl00vvI1({217,250,232,254,203,250,233,239})) then local originalAnchor = obj.Anchored local originalCollide = obj.CanCollide obj.Anchored = true if obj:GetAttribute(_Iv0lv_vl00vvI1({200,215,196,218,245,248,243,244,233,254,255})) == nil then obj:SetAttribute(_Iv0lv_vl00vvI1({200,215,196,218,245,248,243,244,233,254,255}), originalAnchor) end if obj:GetAttribute(_Iv0lv_vl00vvI1({200,215,196,216,250,245,216,244,247,247,242,255,254})) == nil then obj:SetAttribute(_Iv0lv_vl00vvI1({200,215,196,216,250,245,216,244,247,247,242,255,254}), originalCollide) end end end) for _, child in ipairs(obj:GetChildren()) do ApplyStudioLiteProperties(child) end end local function LoadAssetsToSLServer(obj) local function scan(node) pcall(function() if node:IsA(_Iv0lv_vl00vvI1({214,254,232,243,203,250,233,239})) then triggerServerLoad(node.MeshId); triggerServerLoad(node.TextureID) elseif node:IsA(_Iv0lv_vl00vvI1({223,254,248,250,247})) or node:IsA(_Iv0lv_vl00vvI1({207,254,227,239,238,233,254})) then triggerServerLoad(node.Texture) elseif node:IsA(_Iv0lv_vl00vvI1({200,235,254,248,242,250,247,214,254,232,243})) then triggerServerLoad(node.MeshId); triggerServerLoad(node.TextureId) elseif node:IsA(_Iv0lv_vl00vvI1({216,247,244,239,243,242,245,252})) or node:IsA(_Iv0lv_vl00vvI1({200,243,242,233,239,220,233,250,235,243,242,248})) then triggerServerLoad(node.ClassName == _Iv0lv_vl00vvI1({200,243,242,233,239,220,233,250,235,243,242,248}) and node.Graphic or node[node.ClassName.._Iv0lv_vl00vvI1({207,254,246,235,247,250,239,254})]) elseif node:IsA(_Iv0lv_vl00vvI1({206,245,242,244,245,212,235,254,233,250,239,242,244,245})) or node:IsA(_Iv0lv_vl00vvI1({203,250,233,239,212,235,254,233,250,239,242,244,245})) then triggerServerLoad(node.AssetId) end end) for _, child in ipairs(node:GetChildren()) do scan(child) end end scan(obj) end local SVC_MAP = { Workspace = workspace, ReplicatedStorage = ReplicatedStorage, ReplicatedFirst = game:GetService(_Iv0lv_vl00vvI1({201,254,235,247,242,248,250,239,254,255,221,242,233,232,239})), StarterGui = game:GetService(_Iv0lv_vl00vvI1({200,239,250,233,239,254,233,220,238,242})), StarterPack = game:GetService(_Iv0lv_vl00vvI1({200,239,250,233,239,254,233,203,250,248,240})), StarterPlayer = game:GetService(_Iv0lv_vl00vvI1({200,239,250,233,239,254,233,203,247,250,226,254,233})), Lighting = game:GetService(_Iv0lv_vl00vvI1({215,242,252,243,239,242,245,252})), SoundService = game:GetService(_Iv0lv_vl00vvI1({200,244,238,245,255,200,254,233,237,242,248,254})), ServerScriptService = _G.sss or ReplicatedStorage, ServerStorage = _G.ss or ReplicatedStorage, Teams = ReplicatedStorage, Chat = ReplicatedStorage } local function insertObjects(objects, isRbxl, sourceMap) local count = 0 for _, obj in ipairs(objects) do pcall(function() local target = (isRbxl and (SVC_MAP[obj.ClassName] or SVC_MAP[obj.Name])) or workspace if target == workspace and obj:IsA(_Iv0lv_vl00vvI1({200,254,233,237,242,248,254})) then target = ReplicatedStorage end if isRbxl and target ~= workspace then for _, ch in ipairs(obj:GetChildren()) do pcall(function() ch.Parent = target; injectAllScripts(ch, sourceMap); ApplyStudioLiteProperties(ch); LoadAssetsToSLServer(ch); count = count + 1 end) task.wait(0.01) end else obj.Parent = target; injectAllScripts(obj, sourceMap); ApplyStudioLiteProperties(obj); LoadAssetsToSLServer(obj); count = count + 1 end end) end return count end local function safeReadFile(p) if not readfile then return nil end; local ok, d = pcall(readfile, p); return ok and d or nil end local function loadFile(fileInfo) local isRbxl = fileInfo.ftype == _Iv0lv_vl00vvI1({201,217,195,215}) local data = safeReadFile(fileInfo.path) if not data or #data == 0 then return false, _Iv0lv_vl00vvI1({233,254,250,255,253,242,247,254,187,252,250,252,250,247}) end local sourceMap = {} if not isRbxl then local ok, sources, err = pcall(parseRBXMForSources, data) if ok and sources then sourceMap = sources end end if getcustomasset then local ok1, aid = pcall(getcustomasset, fileInfo.path) if ok1 and aid then local ok2, objs = pcall(function() return game:GetObjects(aid) end) if ok2 and objs and #objs > 0 then return true, insertObjects(objs, isRbxl, sourceMap) .. _Iv0lv_vl00vvI1({187,244,249,241,254,248,239,179,232,178,187,247,244,250,255,254,255}) end end end local ok3, o3 = pcall(function() return game:GetObjects(_Iv0lv_vl00vvI1({233,249,227,250,232,232,254,239,161,180,180}) .. fileInfo.path) end) if ok3 and o3 and #o3 > 0 then return true, insertObjects(o3, isRbxl, sourceMap) .. _Iv0lv_vl00vvI1({187,244,249,241,254,248,239,179,232,178,187,247,244,250,255,254,255}) end return false, _Iv0lv_vl00vvI1({200,254,246,238,250,187,246,254,239,244,255,254,187,247,244,250,255,187,252,250,252,250,247}) end local function safeListFiles(p) if not listfiles then return nil end; local ok, f = pcall(listfiles, p); return ok and f or nil end local function getFileName(p) return p:match(_Iv0lv_vl00vvI1({179,192,197,180,198,176,178,191})) or p end local function getFileType(n) n = n:lower(); if n:match(_Iv0lv_vl00vvI1({190,181,233,249,227,247})) or n:match(_Iv0lv_vl00vvI1({190,181,233,249,227,247,227})) then return _Iv0lv_vl00vvI1({201,217,195,215}) elseif n:match(_Iv0lv_vl00vvI1({190,181,233,249,227,246})) or n:match(_Iv0lv_vl00vvI1({190,181,233,249,227,246,227})) then return _Iv0lv_vl00vvI1({201,217,195,214}) end; return nil end local function looksFolder(p) return not getFileName(p):match(_Iv0lv_vl00vvI1({190,181,192,190,250,190,255,198,176})) end local SCAN_PATHS = { _Iv0lv_vl00vvI1({236,244,233,240,232,235,250,248,254}), _Iv0lv_vl00vvI1({223,254,247,239,250,180,236,244,233,240,232,235,250,248,254}), _Iv0lv_vl00vvI1({255,254,247,239,250,180,236,244,233,240,232,235,250,248,254}), _Iv0lv_vl00vvI1({218,245,255,233,244,242,255,180,223,254,247,239,250,180,236,244,233,240,232,235,250,248,254}), _Iv0lv_vl00vvI1({180,232,255,248,250,233,255,180,223,254,247,239,250,180,236,244,233,240,232,235,250,248,254}), _Iv0lv_vl00vvI1({180,232,255,248,250,233,255,180,218,245,255,233,244,242,255,180,223,254,247,239,250,180,236,244,233,240,232,235,250,248,254}), _Iv0lv_vl00vvI1({181,181,180,236,244,233,240,232,235,250,248,254}), _Iv0lv_vl00vvI1({181}), "" } local function scanDeep(folder, depth, results, seen) if depth > 4 or seen[folder] then return end seen[folder] = true local list = safeListFiles(folder) if not list then return end for _, path in ipairs(list) do local name = getFileName(path); local ftype = getFileType(name) if ftype and not seen[path] then seen[path] = true; table.insert(results, { name=name, path=path, ftype=ftype, folder=folder }) elseif looksFolder(path) then scanDeep(path, depth+1, results, seen) end end end local function scanAll() local results, seen = {}, {}; for _, p in ipairs(SCAN_PATHS) do if safeListFiles(p) then scanDeep(p, 0, results, seen) end end return results end if CoreDest:FindFirstChild(_Iv0lv_vl00vvI1({215,218,213,220,193,210,246,235,244,233,239,254,233,206,210})) then CoreDest:FindFirstChild(_Iv0lv_vl00vvI1({215,218,213,220,193,210,246,235,244,233,239,254,233,206,210})):Destroy() end if CoreDest:FindFirstChild(_Iv0lv_vl00vvI1({215,218,213,220,193,210,246,235,244,233,239,254,233,206,210})) then CoreDest:FindFirstChild(_Iv0lv_vl00vvI1({215,218,213,220,193,210,246,235,244,233,239,254,233,206,210})):Destroy() end local UI = Instance.new(_Iv0lv_vl00vvI1({200,248,233,254,254,245,220,238,242}), CoreDest) UI.Name = _Iv0lv_vl00vvI1({215,218,213,220,193,210,246,235,244,233,239,254,233,206,210}); UI.ResetOnSpawn = false; UI.DisplayOrder = 100; UI.IgnoreGuiInset = true local HackerAtmosphere = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), UI) HackerAtmosphere.Name = _Iv0lv_vl00vvI1({211,250,248,240,254,233,218,239,246,244,232,235,243,254,233,254}) HackerAtmosphere.Size = UDim2.new(1, 0, 1, 0) HackerAtmosphere.Position = UDim2.new(0, 0, 0, 0) HackerAtmosphere.BackgroundColor3 = Color3.fromRGB(12, 10, 24) HackerAtmosphere.BackgroundTransparency = 0.84 HackerAtmosphere.BorderSizePixel = 0 HackerAtmosphere.ZIndex = 0 HackerAtmosphere.Active = false local AnimatedGradients = {} local function registerGradientAnimation(gradient, speed, mode) table.insert(AnimatedGradients, { Gradient = gradient, Speed = speed or 60, Mode = mode or _Iv0lv_vl00vvI1({233,244,239,250,239,254}) }) end local LoadingScreen = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), UI) LoadingScreen.Name = _Iv0lv_vl00vvI1({215,244,250,255,242,245,252,200,248,233,254,254,245}) LoadingScreen.Size = UDim2.new(1, 0, 1, 0) LoadingScreen.Position = UDim2.new(0, 0, 0, 0) LoadingScreen.BackgroundColor3 = Color3.fromRGB(7, 6, 14) LoadingScreen.BorderSizePixel = 0 LoadingScreen.ZIndex = 999 local MatrixCanvas = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), LoadingScreen) MatrixCanvas.Name = _Iv0lv_vl00vvI1({214,250,239,233,242,227,216,250,245,237,250,232}) MatrixCanvas.Size = UDim2.new(1, 0, 1, 0) MatrixCanvas.BackgroundTransparency = 1 MatrixCanvas.ZIndex = 999 local matrixChars = {_Iv0lv_vl00vvI1({171}),_Iv0lv_vl00vvI1({170}),_Iv0lv_vl00vvI1({171}),_Iv0lv_vl00vvI1({170}),_Iv0lv_vl00vvI1({218}),_Iv0lv_vl00vvI1({217}),_Iv0lv_vl00vvI1({216}),_Iv0lv_vl00vvI1({223}),_Iv0lv_vl00vvI1({222}),_Iv0lv_vl00vvI1({221}),_Iv0lv_vl00vvI1({191}),_Iv0lv_vl00vvI1({184}),_Iv0lv_vl00vvI1({190}),_Iv0lv_vl00vvI1({219}),_Iv0lv_vl00vvI1({186}),_Iv0lv_vl00vvI1({189}),_Iv0lv_vl00vvI1({177}),_Iv0lv_vl00vvI1({195}),_Iv0lv_vl00vvI1({193}),_Iv0lv_vl00vvI1({171}),_Iv0lv_vl00vvI1({170})} local COLUMN_COUNT = 18 local columns = {} for col = 1, COLUMN_COUNT do local xPos = (col - 1) / COLUMN_COUNT local columnFrame = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), MatrixCanvas) columnFrame.Size = UDim2.new(1 / COLUMN_COUNT, 0, 1, 0) columnFrame.Position = UDim2.new(xPos, 0, 0, 0) columnFrame.BackgroundTransparency = 1 columnFrame.ZIndex = 999 columnFrame.ClipsDescendants = true local streamLength = math.random(6, 16) local charLabels = {} for row = 1, streamLength do local charLabel = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), columnFrame) charLabel.Size = UDim2.new(1, 0, 0, 18) charLabel.Position = UDim2.new(0, 0, 0, (row - 1) * 18) charLabel.BackgroundTransparency = 1 charLabel.Font = Enum.Font.Code charLabel.TextSize = 14 charLabel.TextXAlignment = Enum.TextXAlignment.Center if row == 1 then charLabel.TextColor3 = Color3.fromRGB(240, 225, 255) elseif row <= 3 then charLabel.TextColor3 = Color3.fromRGB(180, 95, 255) elseif row <= 6 then charLabel.TextColor3 = Color3.fromRGB(130, 65, 210) else charLabel.TextColor3 = Color3.fromRGB(75, 40, 125) end charLabel.Text = matrixChars[math.random(1, #matrixChars)] charLabel.ZIndex = 999 table.insert(charLabels, charLabel) end local startY = math.random(-800, -100) local speed = math.random(180, 420) local currentY = startY table.insert(columns, { frame = columnFrame, labels = charLabels, y = currentY, speed = speed, streamLength = streamLength, charTimer = 0, charInterval = math.random(3, 8) * 0.05 }) end local CenterContainer = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), LoadingScreen) CenterContainer.Size = UDim2.new(0, 500, 0, 220) CenterContainer.Position = UDim2.new(0.5, -250, 0.5, -110) CenterContainer.BackgroundTransparency = 1 CenterContainer.ZIndex = 1001 local TopLine = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), CenterContainer) TopLine.Size = UDim2.new(1, 0, 0, 20) TopLine.Position = UDim2.new(0, 0, 0, 0) TopLine.BackgroundTransparency = 1 TopLine.Text = _Iv0lv_vl00vvI1({155,155,187,83,187,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,187,83,187,155,155}) TopLine.TextColor3 = Color3.fromRGB(175, 95, 255) TopLine.Font = Enum.Font.Code TopLine.TextSize = 13 TopLine.ZIndex = 1001 local BootMarker = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), CenterContainer) BootMarker.Size = UDim2.new(1, 0, 0, 38) BootMarker.Position = UDim2.new(0, 0, 0, 22) BootMarker.BackgroundTransparency = 1 BootMarker.Text = _Iv0lv_vl00vvI1({192,187,200,222,216,206,201,222,187,217,212,212,207,187,180,180,187,213,218,213,220,187,201,217,195,214,187,198}) BootMarker.TextColor3 = Color3.fromRGB(215, 180, 255) BootMarker.Font = Enum.Font.Code BootMarker.TextSize = 12 BootMarker.ZIndex = 1001 local KingText = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), CenterContainer) KingText.Size = UDim2.new(1, 0, 0, 62) KingText.Position = UDim2.new(0, 0, 0, 62) KingText.BackgroundTransparency = 1 KingText.Text = _Iv0lv_vl00vvI1({213,218,213,220,187,201,217,195,214}) KingText.TextColor3 = Color3.fromRGB(195, 105, 255) KingText.Font = Enum.Font.GothamBold KingText.TextSize = 54 KingText.ZIndex = 1001 local TagLine = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), CenterContainer) TagLine.Size = UDim2.new(1, 0, 0, 22) TagLine.Position = UDim2.new(0, 0, 0, 126) TagLine.BackgroundTransparency = 1 TagLine.Text = _Iv0lv_vl00vvI1({192,187,201,217,195,214,187,210,214,203,212,201,207,222,201,187,200,194,200,207,222,214,187,201,222,218,223,194,187,198}) TagLine.TextColor3 = Color3.fromRGB(145, 75, 220) TagLine.Font = Enum.Font.Code TagLine.TextSize = 13 TagLine.ZIndex = 1001 local LoadDots = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), CenterContainer) LoadDots.Size = UDim2.new(1, 0, 0, 20) LoadDots.Position = UDim2.new(0, 0, 0, 152) LoadDots.BackgroundTransparency = 1 LoadDots.Text = _Iv0lv_vl00vvI1({247,244,250,255,242,245,252,187,181,187,181,187,181}) LoadDots.TextColor3 = Color3.fromRGB(110, 55, 175) LoadDots.Font = Enum.Font.Code LoadDots.TextSize = 12 LoadDots.ZIndex = 1001 local BotLine = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), CenterContainer) BotLine.Size = UDim2.new(1, 0, 0, 20) BotLine.Position = UDim2.new(0, 0, 0, 196) BotLine.BackgroundTransparency = 1 BotLine.Text = _Iv0lv_vl00vvI1({155,155,187,83,187,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,155,187,83,187,155,155}) BotLine.TextColor3 = Color3.fromRGB(175, 95, 255) BotLine.Font = Enum.Font.Code BotLine.TextSize = 13 BotLine.ZIndex = 1001 local loadingActive = true local dotStates = {_Iv0lv_vl00vvI1({247,244,250,255,242,245,252,187,181,187,187,187,187,187}), _Iv0lv_vl00vvI1({247,244,250,255,242,245,252,187,181,187,181,187,187,187}), _Iv0lv_vl00vvI1({247,244,250,255,242,245,252,187,181,187,181,187,181,187})} local dotIndex = 0 local matrixConnection matrixConnection = RunService.RenderStepped:Connect(function(dt) if not loadingActive then matrixConnection:Disconnect() return end for _, col in ipairs(columns) do col.y = col.y + col.speed * dt col.frame.Position = UDim2.new(col.frame.Position.X.Scale, 0, 0, col.y) if col.y > 700 + col.streamLength * 18 then col.y = math.random(-600, -80) col.speed = math.random(180, 420) end col.charTimer = col.charTimer + dt if col.charTimer >= col.charInterval then col.charTimer = 0 col.charInterval = math.random(3, 8) * 0.05 for _, lbl in ipairs(col.labels) do lbl.Text = matrixChars[math.random(1, #matrixChars)] end end end end) task.spawn(function() local pulseUp = true local r, g, b = 0, 255, 70 local tick = 0 while loadingActive do task.wait(0.35) dotIndex = (dotIndex % 3) + 1 LoadDots.Text = dotStates[dotIndex] tick = tick + 1 if tick % 2 == 0 then KingText.TextColor3 = Color3.fromRGB(195, 105, 255) else KingText.TextColor3 = Color3.fromRGB(225, 165, 255) end end end) task.spawn(function() task.wait(2.8) loadingActive = false for i = 1, 20 do LoadingScreen.BackgroundTransparency = i / 20 for _, obj in ipairs(LoadingScreen:GetDescendants()) do if obj:IsA(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247})) then obj.TextTransparency = i / 20 end end task.wait(0.025) end LoadingScreen:Destroy() end) RunService.RenderStepped:Connect(function(deltaTime) for _, anim in ipairs(AnimatedGradients) do if anim.Gradient and anim.Gradient.Parent then if anim.Mode == _Iv0lv_vl00vvI1({233,244,239,250,239,254}) then anim.Gradient.Rotation = (anim.Gradient.Rotation + (anim.Speed * deltaTime)) % 360 elseif anim.Mode == _Iv0lv_vl00vvI1({232,243,242,253,239}) then local currentX = anim.Gradient.Offset.X local newX = currentX + (anim.Speed * deltaTime) if newX > 1 then newX = -1 end anim.Gradient.Offset = Vector2.new(newX, anim.Gradient.Offset.Y) end end end end) local ToggleFrame = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), UI) ToggleFrame.Name = _Iv0lv_vl00vvI1({207,244,252,252,247,254,221,233,250,246,254}) ToggleFrame.Size = UDim2.new(0, 36, 0, 36) ToggleFrame.Position = UDim2.new(0, 8, 0, 48) ToggleFrame.BackgroundColor3 = Color3.fromRGB(18, 14, 35) ToggleFrame.BackgroundTransparency = 0.08 ToggleFrame.BorderSizePixel = 0 ToggleFrame.Active = true local ToggleCorner = Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), ToggleFrame) ToggleCorner.CornerRadius = UDim.new(0, 10) local ToggleGrad = Instance.new(_Iv0lv_vl00vvI1({206,210,220,233,250,255,242,254,245,239}), ToggleFrame) ToggleGrad.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 24, 80)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(155, 75, 230)), ColorSequenceKeypoint.new(1, Color3.fromRGB(16, 10, 30)) }) ToggleGrad.Rotation = 45 registerGradientAnimation(ToggleGrad, 40, _Iv0lv_vl00vvI1({233,244,239,250,239,254})) local ToggleStroke = Instance.new(_Iv0lv_vl00vvI1({206,210,200,239,233,244,240,254}), ToggleFrame) ToggleStroke.Thickness = 1.2 ToggleStroke.Color = Color3.fromRGB(215, 180, 255) ToggleStroke.Transparency = 0.18 local ToggleIcon = Instance.new(_Iv0lv_vl00vvI1({210,246,250,252,254,215,250,249,254,247}), ToggleFrame) ToggleIcon.Size = UDim2.new(0, 20, 0, 20) ToggleIcon.Position = UDim2.new(0.5, -10, 0.5, -10) ToggleIcon.BackgroundTransparency = 1 ToggleIcon.Image = ICONS.CHEVRON_RIGHT ToggleIcon.ImageColor3 = Color3.fromRGB(245, 235, 255) local ToggleBtn = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,217,238,239,239,244,245}), ToggleFrame) ToggleBtn.Size = UDim2.new(1, 0, 1, 0) ToggleBtn.BackgroundTransparency = 1 ToggleBtn.Text = "" local tDragToggle, tDragStart, tStartPos ToggleFrame.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then tDragToggle = true; tDragStart = input.Position; tStartPos = ToggleFrame.Position end end) UserInputService.InputChanged:Connect(function(input) if tDragToggle and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then local delta = input.Position - tDragStart ToggleFrame.Position = UDim2.new(tStartPos.X.Scale, tStartPos.X.Offset + delta.X, tStartPos.Y.Scale, tStartPos.Y.Offset + delta.Y) end end) UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then tDragToggle = false end end) local Main = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), UI) Main.Name = _Iv0lv_vl00vvI1({214,250,242,245,221,233,250,246,254}) Main.Size = UDim2.new(0, 320, 0, 360) Main.Position = UDim2.new(0.5, -160, 0.5, -180) Main.BackgroundColor3 = Color3.fromRGB(12, 10, 24) Main.BackgroundTransparency = 0.05 Main.BorderSizePixel = 0 Main.ClipsDescendants = true Main.Visible = true local MainCorner = Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), Main) MainCorner.CornerRadius = UDim.new(0, 10) local MainStroke = Instance.new(_Iv0lv_vl00vvI1({206,210,200,239,233,244,240,254}), Main) MainStroke.Thickness = 1.2 MainStroke.Color = Color3.fromRGB(155, 90, 225) MainStroke.Transparency = 0.2 local TitleBar = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), Main) TitleBar.Size = UDim2.new(1, 0, 0, 36) TitleBar.BackgroundColor3 = Color3.fromRGB(28, 18, 52) TitleBar.BorderSizePixel = 0 TitleBar.ClipsDescendants = true local TitleCorner = Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), TitleBar) TitleCorner.CornerRadius = UDim.new(0, 10) local TitleGrad = Instance.new(_Iv0lv_vl00vvI1({206,210,220,233,250,255,242,254,245,239}), TitleBar) TitleGrad.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 10, 24)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(80, 40, 140)), ColorSequenceKeypoint.new(1, Color3.fromRGB(24, 14, 45)) }) registerGradientAnimation(TitleGrad, 0.8, _Iv0lv_vl00vvI1({232,243,242,253,239})) local TitleIcon = Instance.new(_Iv0lv_vl00vvI1({210,246,250,252,254,215,250,249,254,247}), TitleBar) TitleIcon.Size = UDim2.new(0, 18, 0, 18) TitleIcon.Position = UDim2.new(0, 10, 0.5, -9) TitleIcon.BackgroundTransparency = 1 TitleIcon.Image = ICONS.PACKAGE TitleIcon.ImageColor3 = Color3.fromRGB(230, 210, 255) local TitleText = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), TitleBar) TitleText.Size = UDim2.new(1, -90, 1, 0) TitleText.Position = UDim2.new(0, 34, 0, 0) TitleText.BackgroundTransparency = 1 TitleText.Text = _Iv0lv_vl00vvI1({213,218,213,220,187,201,217,195,214,187,187,185,187,187,210,214,203,212,201,207,222,201}) TitleText.TextColor3 = Color3.fromRGB(245, 235, 255) TitleText.Font = Enum.Font.GothamBold TitleText.TextSize = 12 TitleText.TextXAlignment = Enum.TextXAlignment.Left local CloseBtn = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), TitleBar) CloseBtn.Size = UDim2.new(0, 22, 0, 22) CloseBtn.Position = UDim2.new(1, -28, 0.5, -11) CloseBtn.BackgroundColor3 = Color3.fromRGB(35, 22, 60) Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), CloseBtn).CornerRadius = UDim.new(0, 5) local CloseIcon = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), CloseBtn) CloseIcon.Size = UDim2.new(0, 12, 0, 12) CloseIcon.Position = UDim2.new(0.5, -6, 0.5, -6) CloseIcon.BackgroundTransparency = 1 CloseIcon.Text = _Iv0lv_vl00vvI1({195}) CloseIcon.TextColor3 = Color3.fromRGB(225, 205, 255) CloseIcon.Font = Enum.Font.GothamBold CloseIcon.TextSize = 12 CloseIcon.TextXAlignment = Enum.TextXAlignment.Center CloseIcon.TextYAlignment = Enum.TextYAlignment.Center local CloseClick = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,217,238,239,239,244,245}), CloseBtn) CloseClick.Size = UDim2.new(1, 0, 1, 0) CloseClick.BackgroundTransparency = 1 CloseClick.Text = "" local MinBtn = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), TitleBar) MinBtn.Size = UDim2.new(0, 22, 0, 22) MinBtn.Position = UDim2.new(1, -54, 0.5, -11) MinBtn.BackgroundColor3 = Color3.fromRGB(35, 22, 60) Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), MinBtn).CornerRadius = UDim.new(0, 5) local MinIcon = Instance.new(_Iv0lv_vl00vvI1({210,246,250,252,254,215,250,249,254,247}), MinBtn) MinIcon.Size = UDim2.new(0, 12, 0, 12) MinIcon.Position = UDim2.new(0.5, -6, 0.5, -6) MinIcon.BackgroundTransparency = 1 MinIcon.Image = ICONS.MINIMIZE MinIcon.ImageColor3 = Color3.fromRGB(225, 205, 255) local MinClick = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,217,238,239,239,244,245}), MinBtn) MinClick.Size = UDim2.new(1, 0, 1, 0) MinClick.BackgroundTransparency = 1 MinClick.Text = "" local dragToggle, dragStart, startPos TitleBar.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragToggle = true; dragStart = input.Position; startPos = Main.Position end end) UserInputService.InputChanged:Connect(function(input) if dragToggle and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then local delta = input.Position - dragStart Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) end end) UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragToggle = false end end) local function toggleMain() Main.Visible = not Main.Visible ToggleIcon.Image = Main.Visible and ICONS.CHEVRON_RIGHT or ICONS.CHEVRON_LEFT end ToggleBtn.MouseButton1Click:Connect(toggleMain) local Content = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), Main) Content.Size = UDim2.new(1, -16, 1, -74) Content.Position = UDim2.new(0, 8, 0, 42) Content.BackgroundColor3 = Color3.fromRGB(18, 14, 34) Content.BorderSizePixel = 0 Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), Content).CornerRadius = UDim.new(0, 8) local ContentStroke = Instance.new(_Iv0lv_vl00vvI1({206,210,200,239,233,244,240,254}), Content) ContentStroke.Thickness = 1 ContentStroke.Color = Color3.fromRGB(70, 40, 105) local ScanBtn = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), Content) ScanBtn.Size = UDim2.new(1, -12, 0, 30) ScanBtn.Position = UDim2.new(0, 6, 0, 6) ScanBtn.BackgroundColor3 = Color3.fromRGB(225, 205, 255) Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), ScanBtn).CornerRadius = UDim.new(0, 6) local ScanGrad = Instance.new(_Iv0lv_vl00vvI1({206,210,220,233,250,255,242,254,245,239}), ScanBtn) ScanGrad.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(250, 240, 255)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(165, 90, 235)), ColorSequenceKeypoint.new(1, Color3.fromRGB(215, 180, 250)) }) registerGradientAnimation(ScanGrad, 50, _Iv0lv_vl00vvI1({233,244,239,250,239,254})) local ScanIcon = Instance.new(_Iv0lv_vl00vvI1({210,246,250,252,254,215,250,249,254,247}), ScanBtn) ScanIcon.Size = UDim2.new(0, 14, 0, 14) ScanIcon.Position = UDim2.new(0.5, -48, 0.5, -7) ScanIcon.BackgroundTransparency = 1 ScanIcon.Image = ICONS.SEARCH ScanIcon.ImageColor3 = Color3.fromRGB(30, 18, 45) local ScanText = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), ScanBtn) ScanText.Size = UDim2.new(0, 80, 1, 0) ScanText.Position = UDim2.new(0.5, -28, 0, 0) ScanText.BackgroundTransparency = 1 ScanText.Text = _Iv0lv_vl00vvI1({200,216,218,213,187,221,210,215,222,200}) ScanText.TextColor3 = Color3.fromRGB(30, 18, 45) ScanText.Font = Enum.Font.GothamBold ScanText.TextSize = 11 ScanText.TextXAlignment = Enum.TextXAlignment.Left local ScanClick = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,217,238,239,239,244,245}), ScanBtn) ScanClick.Size = UDim2.new(1, 0, 1, 0) ScanClick.BackgroundTransparency = 1 ScanClick.Text = "" local Scroll = Instance.new(_Iv0lv_vl00vvI1({200,248,233,244,247,247,242,245,252,221,233,250,246,254}), Content) Scroll.Size = UDim2.new(1, -12, 1, -48) Scroll.Position = UDim2.new(0, 6, 0, 42) Scroll.BackgroundTransparency = 1 Scroll.ScrollBarThickness = 3 Scroll.ScrollBarImageColor3 = Color3.fromRGB(160, 95, 225) Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y local Layout = Instance.new(_Iv0lv_vl00vvI1({206,210,215,242,232,239,215,250,226,244,238,239}), Scroll) Layout.Padding = UDim.new(0, 5) Layout.SortOrder = Enum.SortOrder.LayoutOrder local EmptyFrame = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), Scroll) EmptyFrame.Size = UDim2.new(1, 0, 0, 100) EmptyFrame.BackgroundTransparency = 1 local EmptyIcon = Instance.new(_Iv0lv_vl00vvI1({210,246,250,252,254,215,250,249,254,247}), EmptyFrame) EmptyIcon.Size = UDim2.new(0, 26, 0, 26) EmptyIcon.Position = UDim2.new(0.5, -13, 0, 16) EmptyIcon.BackgroundTransparency = 1 EmptyIcon.Image = ICONS.FOLDER EmptyIcon.ImageColor3 = Color3.fromRGB(170, 100, 235) local EmptyLabel = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), EmptyFrame) EmptyLabel.Size = UDim2.new(1, -20, 0, 36) EmptyLabel.Position = UDim2.new(0, 10, 0, 48) EmptyLabel.BackgroundTransparency = 1 EmptyLabel.Text = _Iv0lv_vl00vvI1({217,254,247,238,246,187,250,255,250,187,253,242,247,254,187,239,254,233,255,254,239,254,240,232,242,181,199,245,207,254,240,250,245,187,188,200,216,218,213,187,221,210,215,222,200,188,187,238,245,239,238,240,187,246,254,245,248,250,233,242,187,253,242,247,254,187,201,217,195,214,180,201,217,195,215,181}) EmptyLabel.TextColor3 = Color3.fromRGB(170, 150, 195) EmptyLabel.Font = Enum.Font.Gotham EmptyLabel.TextSize = 10 EmptyLabel.TextWrapped = true local StatsBar = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), Main) StatsBar.Size = UDim2.new(1, -16, 0, 22) StatsBar.Position = UDim2.new(0, 8, 1, -26) StatsBar.BackgroundColor3 = Color3.fromRGB(18, 14, 34) StatsBar.BorderSizePixel = 0 Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), StatsBar).CornerRadius = UDim.new(0, 5) local StatsText = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), StatsBar) StatsText.Size = UDim2.new(1, -10, 1, 0) StatsText.Position = UDim2.new(0, 6, 0, 0) StatsText.BackgroundTransparency = 1 StatsText.Text = _Iv0lv_vl00vvI1({200,239,250,239,238,232,161,187,201,254,250,255,226,187,187,231,187,187,221,242,247,254,232,161,187,171}) StatsText.TextColor3 = Color3.fromRGB(190, 160, 225) StatsText.Font = Enum.Font.Gotham StatsText.TextSize = 9 StatsText.TextXAlignment = Enum.TextXAlignment.Left local function notify(title, msg, color) color = color or Color3.fromRGB(220, 200, 235) local notif = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), UI) notif.Size = UDim2.new(0, 220, 0, 42) notif.Position = UDim2.new(1, -230, 1, -55) notif.BackgroundColor3 = Color3.fromRGB(20, 15, 38) notif.BorderSizePixel = 0 Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), notif).CornerRadius = UDim.new(0, 6) local notifStroke = Instance.new(_Iv0lv_vl00vvI1({206,210,200,239,233,244,240,254}), notif) notifStroke.Thickness = 1 notifStroke.Color = color local icon = Instance.new(_Iv0lv_vl00vvI1({210,246,250,252,254,215,250,249,254,247}), notif) icon.Size = UDim2.new(0, 14, 0, 14) icon.Position = UDim2.new(0, 8, 0, 6) icon.BackgroundTransparency = 1 icon.Image = ICONS.BELL icon.ImageColor3 = color local t = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), notif) t.Size = UDim2.new(1, -28, 0, 14); t.Position = UDim2.new(0, 26, 0, 4) t.BackgroundTransparency = 1; t.Text = title t.TextColor3 = Color3.fromRGB(245, 235, 255); t.Font = Enum.Font.GothamBold t.TextSize = 10; t.TextXAlignment = Enum.TextXAlignment.Left local d = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), notif) d.Size = UDim2.new(1, -12, 0, 16); d.Position = UDim2.new(0, 8, 0, 18) d.BackgroundTransparency = 1; d.Text = msg d.TextColor3 = Color3.fromRGB(165, 140, 190); d.Font = Enum.Font.Gotham d.TextSize = 8; d.TextXAlignment = Enum.TextXAlignment.Left d.TextWrapped = true task.spawn(function() task.wait(2.5) for i = 1, 12 do notif.BackgroundTransparency = i / 12 icon.ImageTransparency = i / 12 t.TextTransparency = i / 12 d.TextTransparency = i / 12 task.wait(0.02) end notif:Destroy() end) end local totalLoaded = 0 local function buildFileCard(fileInfo) EmptyFrame.Visible = false local card = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), Scroll) card.Size = UDim2.new(1, 0, 0, 44) card.BackgroundColor3 = Color3.fromRGB(24, 18, 42) card.BorderSizePixel = 0 Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), card).CornerRadius = UDim.new(0, 6) local cardStroke = Instance.new(_Iv0lv_vl00vvI1({206,210,200,239,233,244,240,254}), card) cardStroke.Thickness = 1 cardStroke.Color = Color3.fromRGB(70, 42, 100) local isRbxl = fileInfo.ftype == _Iv0lv_vl00vvI1({201,217,195,215}) local typeBadge = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), card) typeBadge.Size = UDim2.new(0, 48, 0, 16); typeBadge.Position = UDim2.new(0, 6, 0, 6) typeBadge.BackgroundColor3 = isRbxl and Color3.fromRGB(115, 220, 120) or Color3.fromRGB(43, 110, 55) typeBadge.BorderSizePixel = 0 Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), typeBadge).CornerRadius = UDim.new(0, 4) local badgeIcon = Instance.new(_Iv0lv_vl00vvI1({210,246,250,252,254,215,250,249,254,247}), typeBadge) badgeIcon.Size = UDim2.new(0, 10, 0, 10) badgeIcon.Position = UDim2.new(0, 4, 0.5, -5) badgeIcon.BackgroundTransparency = 1 badgeIcon.Image = isRbxl and ICONS.GAMEPAD or ICONS.FILE badgeIcon.ImageColor3 = Color3.fromRGB(4, 30, 13) local typeText = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), typeBadge) typeText.Size = UDim2.new(1, -16, 1, 0); typeText.Position = UDim2.new(0, 16, 0, 0) typeText.BackgroundTransparency = 1 typeText.Text = fileInfo.ftype typeText.TextColor3 = Color3.fromRGB(4, 30, 13) typeText.Font = Enum.Font.GothamBold; typeText.TextSize = 8 local nameLbl = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), card) nameLbl.Size = UDim2.new(1, -135, 0, 16); nameLbl.Position = UDim2.new(0, 60, 0, 6) nameLbl.BackgroundTransparency = 1; nameLbl.Text = fileInfo.name nameLbl.TextColor3 = Color3.fromRGB(210, 244, 205); nameLbl.Font = Enum.Font.GothamBold nameLbl.TextSize = 10; nameLbl.TextXAlignment = Enum.TextXAlignment.Left nameLbl.TextTruncate = Enum.TextTruncate.AtEnd local pathLbl = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), card) pathLbl.Size = UDim2.new(1, -135, 0, 12); pathLbl.Position = UDim2.new(0, 60, 0, 22) pathLbl.BackgroundTransparency = 1; pathLbl.Text = fileInfo.path pathLbl.TextColor3 = Color3.fromRGB(105, 170, 110); pathLbl.Font = Enum.Font.Gotham pathLbl.TextSize = 8; pathLbl.TextXAlignment = Enum.TextXAlignment.Left pathLbl.TextTruncate = Enum.TextTruncate.AtEnd local insertFrame = Instance.new(_Iv0lv_vl00vvI1({221,233,250,246,254}), card) insertFrame.Size = UDim2.new(0, 66, 0, 24); insertFrame.Position = UDim2.new(1, -72, 0.5, -12) insertFrame.BackgroundColor3 = Color3.fromRGB(18, 58, 27) Instance.new(_Iv0lv_vl00vvI1({206,210,216,244,233,245,254,233}), insertFrame).CornerRadius = UDim.new(0, 4) local btnStroke = Instance.new(_Iv0lv_vl00vvI1({206,210,200,239,233,244,240,254}), insertFrame) btnStroke.Thickness = 1 btnStroke.Color = Color3.fromRGB(100, 205, 105) local insertIcon = Instance.new(_Iv0lv_vl00vvI1({210,246,250,252,254,215,250,249,254,247}), insertFrame) insertIcon.Size = UDim2.new(0, 10, 0, 10) insertIcon.Position = UDim2.new(0, 6, 0.5, -5) insertIcon.BackgroundTransparency = 1 insertIcon.Image = ICONS.DOWNLOAD insertIcon.ImageColor3 = Color3.fromRGB(190, 255, 180) local insertText = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,215,250,249,254,247}), insertFrame) insertText.Size = UDim2.new(1, -18, 1, 0); insertText.Position = UDim2.new(0, 18, 0, 0) insertText.BackgroundTransparency = 1; insertText.Text = _Iv0lv_vl00vvI1({210,213,200,222,201,207}) insertText.TextColor3 = Color3.fromRGB(190, 255, 180) insertText.Font = Enum.Font.GothamBold; insertText.TextSize = 8 local insertBtn = Instance.new(_Iv0lv_vl00vvI1({207,254,227,239,217,238,239,239,244,245}), insertFrame) insertBtn.Size = UDim2.new(1, 0, 1, 0) insertBtn.BackgroundTransparency = 1 insertBtn.Text = "" insertBtn.MouseEnter:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 100, 42)}):Play() end) insertBtn.MouseLeave:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 58, 27)}):Play() end) insertBtn.MouseButton1Click:Connect(function() if insertText.Text == _Iv0lv_vl00vvI1({215,212,218,223,210,213,220}) then return end insertText.Text = _Iv0lv_vl00vvI1({215,212,218,223,210,213,220}); insertIcon.Image = ICONS.REFRESH insertFrame.BackgroundColor3 = Color3.fromRGB(20, 76, 30) task.spawn(function() local ok, msg = loadFile(fileInfo) if ok then insertText.Text = _Iv0lv_vl00vvI1({223,212,213,222}); insertIcon.Image = ICONS.CHECK insertFrame.BackgroundColor3 = Color3.fromRGB(95, 220, 105) totalLoaded = totalLoaded + 1 StatsText.Text = string.format(_Iv0lv_vl00vvI1({200,239,250,239,238,232,161,187,201,254,250,255,226,187,187,231,187,187,221,242,247,254,232,161,187,190,255,187,187,231,187,187,215,244,250,255,254,255,161,187,190,255}), #Scroll:GetChildren() - 1, totalLoaded) notify(_Iv0lv_vl00vvI1({200,238,248,248,254,232,232}), fileInfo.name .. _Iv0lv_vl00vvI1({187,255,242,246,238,250,239,186}), Color3.fromRGB(220, 200, 235)) else insertText.Text = _Iv0lv_vl00vvI1({221,218,210,215}); insertIcon.Image = ICONS.ALERT insertFrame.BackgroundColor3 = Color3.fromRGB(150, 45, 45) notify(_Iv0lv_vl00vvI1({220,250,252,250,247}), msg, Color3.fromRGB(220, 80, 80)) end task.wait(2) insertText.Text = _Iv0lv_vl00vvI1({210,213,200,222,201,207}); insertIcon.Image = ICONS.DOWNLOAD insertFrame.BackgroundColor3 = Color3.fromRGB(18, 58, 27) end) end) end ScanClick.MouseButton1Click:Connect(function() ScanText.Text = _Iv0lv_vl00vvI1({200,216,218,213,213,210,213,220,181,181,181}) ScanIcon.Image = ICONS.REFRESH for _, c in ipairs(Scroll:GetChildren()) do if c:IsA(_Iv0lv_vl00vvI1({221,233,250,246,254})) and c ~= EmptyFrame then c:Destroy() end end EmptyFrame.Visible = true totalLoaded = 0 task.spawn(function() local foundFiles = scanAll() for _, f in ipairs(foundFiles) do buildFileCard(f) end StatsText.Text = string.format(_Iv0lv_vl00vvI1({200,239,250,239,238,232,161,187,201,254,250,255,226,187,187,231,187,187,221,242,247,254,232,161,187,190,255}), #foundFiles) ScanText.Text = _Iv0lv_vl00vvI1({200,216,218,213,187,221,210,215,222,200}) ScanIcon.Image = ICONS.SEARCH if #foundFiles == 0 then EmptyLabel.Text = _Iv0lv_vl00vvI1({207,242,255,250,240,187,250,255,250,187,253,242,247,254,187,201,217,195,214,180,201,217,195,215,187,239,254,233,255,254,239,254,240,232,242,181,199,245,203,254,233,242,240,232,250,187,253,244,247,255,254,233,187,236,244,233,240,232,235,250,248,254,187,254,227,254,248,238,239,244,233,181}) else notify(_Iv0lv_vl00vvI1({200,248,250,245,187,200,254,247,254,232,250,242}), #foundFiles .. _Iv0lv_vl00vvI1({187,253,242,247,254,187,239,254,233,255,254,239,254,240,232,242}), Color3.fromRGB(220, 220, 230)) end end) end) CloseClick.MouseButton1Click:Connect(function() if Main.Visible then toggleMain() end end) local minimized = false MinClick.MouseButton1Click:Connect(function() minimized = not minimized if minimized then Content.Visible = false StatsBar.Visible = false Main.Size = UDim2.new(0, 320, 0, 36) else Content.Visible = true StatsBar.Visible = true Main.Size = UDim2.new(0, 320, 0, 360) end end) task.spawn(function() if hookmetamethod then local oldNamecall oldNamecall = hookmetamethod(game, _Iv0lv_vl00vvI1({196,196,245,250,246,254,248,250,247,247}), function(self, ...) local method = getnamecallmethod() local args = {...} if not checkcaller() and method == _Iv0lv_vl00vvI1({210,245,237,244,240,254,200,254,233,237,254,233}) then if self.Name == _Iv0lv_vl00vvI1({220,254,239,200,248,233,242,235,239,200,244,238,233,248,254,200,254,233,237,254,233,221,238,245,248,239,242,244,245}) then local target = tostring(args[1]) for obj, src in pairs(_G.LANGZ_RAW_SOURCES) do if typeof(obj) == _Iv0lv_vl00vvI1({210,245,232,239,250,245,248,254}) and (obj.ClassName .. obj.Name) == target then if src and src ~= "" then return src end end end for _, place in ipairs({workspace, ReplicatedStorage, _G.sss, _G.ss, game:GetService(_Iv0lv_vl00vvI1({200,239,250,233,239,254,233,220,238,242})), game:GetService(_Iv0lv_vl00vvI1({200,239,250,233,239,254,233,203,247,250,226,254,233})), LocalPlayer:FindFirstChild(_Iv0lv_vl00vvI1({203,247,250,226,254,233,220,238,242})), LocalPlayer:FindFirstChild(_Iv0lv_vl00vvI1({217,250,248,240,235,250,248,240}))}) do if place then for _, obj in ipairs(place:GetDescendants()) do if obj:IsA(_Iv0lv_vl00vvI1({215,238,250,200,244,238,233,248,254,216,244,245,239,250,242,245,254,233})) and (obj.ClassName .. obj.Name) == target then local src = _G.LANGZ_RAW_SOURCES[obj] if src and src ~= "" then return src end end end end end end if self.Name == _Iv0lv_vl00vvI1({200,250,237,254,200,248,233,242,235,239,200,244,238,233,248,254,200,254,233,237,254,233,221,238,245,248,239,242,244,245}) then local target = tostring(args[1]) local newSource = tostring(args[2]) for obj, _ in pairs(_G.LANGZ_RAW_SOURCES) do if typeof(obj) == _Iv0lv_vl00vvI1({210,245,232,239,250,245,248,254}) and (obj.ClassName .. obj.Name) == target then _G.LANGZ_RAW_SOURCES[obj] = newSource break end end end end return oldNamecall(self, ...) end) end if hookfunction then local oldRequire oldRequire = hookfunction(getrenv().require or require, function(module) if typeof(module) == _Iv0lv_vl00vvI1({210,245,232,239,250,245,248,254}) and module:IsA(_Iv0lv_vl00vvI1({214,244,255,238,247,254,200,248,233,242,235,239})) then local src = _G.LANGZ_RAW_SOURCES[module] if src and src ~= "" then local func, err = loadstring(src) if func then local success, result = pcall(func) if success then return result end end end end return oldRequire(module) end) local oldGetObjects oldGetObjects = hookfunction(game.GetObjects, function(self, url, ...) local assetId = tostring(url):match(_Iv0lv_vl00vvI1({190,255,176})) if assetId then triggerServerLoad(assetId) end local objects = oldGetObjects(self, url, ...) if objects then for _, obj in ipairs(objects) do pcall(function() injectAllScripts(obj, {}) end) pcall(function() ApplyStudioLiteProperties(obj) end) pcall(function() LoadAssetsToSLServer(obj) end) end end return objects end) local oldLoadAsset oldLoadAsset = hookfunction(InsertService.LoadAsset, function(self, assetId, ...) triggerServerLoad(tostring(assetId)) local obj = oldLoadAsset(self, assetId, ...) if obj then pcall(function() injectAllScripts(obj, {}) end) pcall(function() ApplyStudioLiteProperties(obj) end) pcall(function() LoadAssetsToSLServer(obj) end) end return obj end) end end) print(_Iv0lv_vl00vvI1({192,213,218,213,220,198,187,210,214,203,212,201,207,222,201,187,215,212,218,223,222,223})) end)()
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- WHITELIST GATE — LANGZ PAID SCRIPT
+-- ═══════════════════════════════════════════════════════════════════════
+local _WHITELIST = {
+    -- Masukkan UserId yang boleh akses di sini
+    8236629801,
+}
+
+local _userId = game:GetService("Players").LocalPlayer.UserId
+local _allowed = false
+for _, id in ipairs(_WHITELIST) do
+    if id == _userId then _allowed = true; break end
+end
+
+if not _allowed then
+    warn("have you tried opening this script it's not easy my friend 😈😈😈😈")
+    warn("KALO KALIAN MAU BELI IMPORT RBXM NYA LANGSUNG AJA HUBUNGI NANG DI NOMOR INI, 081252425581 NANG 👑")
+    return
+end
+
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- SERVICES & UTILITIES
+-- ═══════════════════════════════════════════════════════════════════════
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
+local InsertService = game:GetService("InsertService")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+local CoreDest = pcall(function() return CoreGui.Name end) and CoreGui or LocalPlayer:WaitForChild("PlayerGui")
+
+_G.LANGZ_RAW_SOURCES = _G.LANGZ_RAW_SOURCES or {}
+
+-- Pemetaan Icon Vektor Lucide (High Resolution & Clean Vector Mask)
+local ICONS = {
+    PACKAGE        = "rbxassetid://10709791437",
+    SEARCH         = "rbxassetid://10709796118",
+    CLOSE          = "rbxassetid://10709790644",
+    MINIMIZE       = "rbxassetid://10709790387",
+    CHEVRON_RIGHT  = "rbxassetid://10709782525",
+    CHEVRON_LEFT   = "rbxassetid://10709782230",
+    BELL           = "rbxassetid://10709791160",
+    GAMEPAD        = "rbxassetid://10709790082",
+    FILE           = "rbxassetid://10709790948",
+    DOWNLOAD       = "rbxassetid://10709791283",
+    CHECK          = "rbxassetid://10709790240",
+    ALERT          = "rbxassetid://10709790520",
+    FOLDER         = "rbxassetid://10709790172",
+    REFRESH        = "rbxassetid://10709793382"
+}
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- HTTP REQUEST UTILITY
+-- ═══════════════════════════════════════════════════════════════════════
+local function httpRequest(url, method, headers, data)
+    method = method or "GET"
+    headers = headers or {}
+    headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+
+    local requestFuncs = {
+        function() if syn and syn.request then local r = syn.request({Url = url, Method = method, Headers = headers, Body = data}); return r.Body, r.StatusCode end end,
+        function() if request then local r = request({Url = url, Method = method, Headers = headers, Body = data}); return r.Body, r.StatusCode end end,
+        function() if http_request then local r = http_request({Url = url, Method = method, Headers = headers, Body = data}); return r.Body, r.StatusCode end end,
+        function() if fluxus and fluxus.request then local r = fluxus.request({Url = url, Method = method, Headers = headers, Body = data}); return r.Body, r.StatusCode end end,
+        function() return game:HttpGet(url, true), 200 end
+    }
+    for _, fn in ipairs(requestFuncs) do
+        local ok, body, status = pcall(fn)
+        if ok and body and type(body) == "string" and #body > 0 then
+            return body, status or 200
+        end
+    end
+    return nil, nil
+end
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- RBXM FILE PARSER (LZ4 + Binary Format)
+-- ═══════════════════════════════════════════════════════════════════════
+local function Buffer(str, allowOverflows)
+    local Stream = { Offset = 0, Source = str, Length = string.len(str), AllowOverflows = (allowOverflows == nil and true) or allowOverflows }
+    function Stream:read(len, shift)
+        len = len or 1; shift = (shift == nil and true) or shift
+        local dat = string.sub(self.Source, self.Offset + 1, self.Offset + len)
+        if shift then self:seek(len) end
+        return dat
+    end
+    function Stream:seek(len) self.Offset = math.clamp(self.Offset + len, 0, self.Length) end
+    function Stream:readNumber(fmt, shift)
+        fmt = fmt or "I1"; local chunk = self:read(string.packsize(fmt), shift); return string.unpack(fmt, chunk)
+    end
+    function Stream:append(s) self.Source = self.Source .. s; self.Length = #self.Source end
+    function Stream:toEnd() self.Offset = self.Length end
+    return Stream
+end
+
+local function transformInt(x) return (x % 2 == 0) and (x / 2) or (-(x + 1) / 2) end
+local function rbxF32(x) x = bit32.rrotate(x, 1); return string.unpack(">f", string.pack(">I4", x)) end
+
+local basicTypes = {}
+function basicTypes.String(buffer) return buffer:read(buffer:readNumber("<I4")) end
+function basicTypes.Int32(buffer) return transformInt(buffer:readNumber(">I4")) end
+function basicTypes.Int64(buffer) return transformInt(buffer:readNumber(">I8")) end
+function basicTypes.Float32(buffer) return rbxF32(buffer:readNumber(">I4")) end
+function basicTypes.Float64(buffer) return buffer:readNumber("<d") end
+
+function basicTypes.InterleaveArrayWithSize(buffer, count, sizeof)
+    if count < 0 then return Buffer("", false) end
+    local stream = buffer:read(count * sizeof); local out = table.create(count)
+    for i = 1, count do
+        local chunk = table.create(sizeof)
+        for s = 0, sizeof - 1 do
+            local bitPos = i + (count * s); chunk[s+1] = string.sub(stream, bitPos, bitPos)
+        end
+        out[i] = table.concat(chunk)
+    end
+    return Buffer(table.concat(out), false)
+end
+
+function basicTypes.unsignedIntArray(buffer, count)
+    if count < 1 then return {} end
+    local o = table.create(count); local strings = basicTypes.InterleaveArrayWithSize(buffer, count, 4)
+    for i = 1, count do o[i] = strings:readNumber("<I4") end
+    return o
+end
+
+function basicTypes.Int32Array(buffer, count)
+    if count < 1 then return {} end
+    local o = table.create(count); local strings = basicTypes.InterleaveArrayWithSize(buffer, count, 4)
+    for i = 1, count do o[i] = basicTypes.Int32(strings) end
+    return o
+end
+
+function basicTypes.Int64Array(buffer, count)
+    if count < 1 then return {} end
+    local o = table.create(count); local strings = basicTypes.InterleaveArrayWithSize(buffer, count, 8)
+    for i = 1, count do o[i] = basicTypes.Int64(strings) end
+    return o
+end
+
+function basicTypes.RbxF32Array(buffer, count)
+    if count < 1 then return {} end
+    local o = table.create(count); local strings = basicTypes.InterleaveArrayWithSize(buffer, count, 4)
+    for i = 1, count do o[i] = basicTypes.Float32(strings) end
+    return o
+end
+
+function basicTypes.RefArray(buffer, count)
+    if count < 1 then return {} end
+    local o = table.create(count); local refs = basicTypes.Int32Array(buffer, count); local last = 0
+    for i = 1, count do local ref = last + refs[i]; o[i] = ref; last = ref end
+    return o
+end
+
+local function lz4(lz4data)
+    local inputStream = Buffer(lz4data)
+    local compressedLen = string.unpack("<I4", inputStream:read(4))
+    local decompressedLen = string.unpack("<I4", inputStream:read(4))
+    local reserved = string.unpack("<I4", inputStream:read(4))
+    if reserved ~= 0 then error("not lz4") end
+    if compressedLen == 0 then return inputStream:read(decompressedLen) end
+    local outputStream = Buffer("")
+    repeat
+        local token = string.byte(inputStream:read())
+        local litLen = bit32.rshift(token, 4)
+        local matLen = bit32.band(token, 15) + 4
+        if litLen >= 15 then
+            repeat local nextByte = string.byte(inputStream:read()); litLen = litLen + nextByte until nextByte ~= 0xFF
+        end
+        local literal = inputStream:read(litLen); outputStream:append(literal); outputStream:toEnd()
+        if outputStream.Length < decompressedLen then
+            local offset = string.unpack("<I2", inputStream:read(2))
+            if matLen >= 19 then
+                repeat local nextByte = string.byte(inputStream:read()); matLen = matLen + nextByte until nextByte ~= 0xFF
+            end
+            outputStream:seek(-offset)
+            local pos = outputStream.Offset; local match = outputStream:read(matLen)
+            local unreadBytes = outputStream.LastUnreadBytes or 0
+            local extra
+            if unreadBytes then
+                repeat
+                    outputStream.Offset = pos; extra = outputStream:read(unreadBytes)
+                    unreadBytes = outputStream.LastUnreadBytes or 0; match = match .. extra
+                until unreadBytes <= 0
+            end
+            outputStream:append(match); outputStream:toEnd()
+        end
+    until outputStream.Length >= decompressedLen
+    return outputStream.Source
+end
+
+local function b64encode(str)
+    local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    local out = {}
+    for i = 1, #str, 3 do
+        local b0, b1, b2 = string.byte(str, i, i+2)
+        local b = bit32.lshift(b0, 16) + bit32.lshift(b1 or 0, 8) + (b2 or 0)
+        table.insert(out, chars:sub(bit32.extract(b, 18, 6)+1, bit32.extract(b, 18, 6)+1))
+        table.insert(out, chars:sub(bit32.extract(b, 12, 6)+1, bit32.extract(b, 12, 6)+1))
+        table.insert(out, b1 and chars:sub(bit32.extract(b, 6, 6)+1, bit32.extract(b, 6, 6)+1) or "=")
+        table.insert(out, b2 and chars:sub(bit32.band(b, 63)+1, bit32.band(b, 63)+1) or "=")
+    end
+    return table.concat(out)
+end
+
+local function zstd(stream)
+    local zbase64 = b64encode(stream)
+    local json = '{"m":null,"t":"buffer","zbase64":"' .. zbase64 .. '"}'
+    local x = HttpService:JSONDecode(json)
+    return buffer.tostring(x)
+end
+
+local function parseRBXMForSources(data)
+    local sources = {}
+    local rbxmBuffer = Buffer(data, false)
+    if rbxmBuffer:read(8) ~= "<roblox!" or rbxmBuffer:read(6) ~= "\x89\xff\x0d\x0a\x1a\x0a" then return sources, "Invalid header" end
+    if rbxmBuffer:read(2) ~= (string.char(0)..string.char(0)) then return sources, "Invalid version" end
+    local classCount = rbxmBuffer:readNumber("<i4")
+    local instCount = rbxmBuffer:readNumber("<i4")
+    local classRefs, virtualInstances, strings, chunkInfo = {}, {}, {}, {}
+    local valid_end_chunk = "END"..string.char(0)
+    local valid = {[valid_end_chunk]=true, ["INST"]=true, ["META"]=true, ["PRNT"]=true, ["PROP"]=true, ["SIGN"]=true, ["SSTR"]=true}
+    for k in pairs(valid) do chunkInfo[k] = {} end
+    if rbxmBuffer:read(8) ~= string.char(0,0,0,0,0,0,0,0) then return sources, "Invalid header" end
+
+    local index, last_chunk = 0, nil
+    repeat
+        index = index + 1
+        local chunk = {InternalID = index, Header = rbxmBuffer:read(4)}
+        if not valid[chunk.Header] then return sources, "Invalid chunk" end
+        local lz4Header = rbxmBuffer:read(16, false)
+        local compressed = string.unpack("<I4", string.sub(lz4Header, 1, 4))
+        local decompressed = string.unpack("<I4", string.sub(lz4Header, 5, 8))
+        local reserved = string.sub(lz4Header, 9, 12)
+        local zstd_check = string.sub(lz4Header, 13, 16)
+        local dataChunk
+        if compressed == 0 then
+            dataChunk = rbxmBuffer:read(decompressed + 12)
+        else
+            if zstd_check == "\x28\xB5\x2F\xFD" then rbxmBuffer:seek(12); dataChunk = zstd(rbxmBuffer:read(compressed))
+            else dataChunk = lz4(rbxmBuffer:read(compressed + 12)) end
+        end
+        chunk.Data = Buffer(dataChunk, false); table.insert(chunkInfo[chunk.Header], chunk); last_chunk = chunk
+    until last_chunk and last_chunk.Header == valid_end_chunk
+
+    for _, chunk in ipairs(chunkInfo["SSTR"] or {}) do
+        local buffer = chunk.Data
+        if buffer:readNumber("<I4") == 0 then
+            for i = 1, buffer:readNumber("<I4") do buffer:read(16); strings[i] = basicTypes.String(buffer) end
+        end
+    end
+
+    for _, chunk in ipairs(chunkInfo["INST"] or {}) do
+        local buffer = chunk.Data
+        local classID = buffer:readNumber("<I4"); local className = basicTypes.String(buffer)
+        if buffer:read() == "\1" then return sources, "Contains services" end
+        local count = buffer:readNumber("<I4"); local refs = basicTypes.RefArray(buffer, count)
+        classRefs[classID] = { Name = className, Sizeof = count, Refs = refs }
+        for _, ref in ipairs(refs) do virtualInstances[ref] = { ClassId = classID, ClassName = className, Ref = ref, Properties = {}, Children = {} } end
+    end
+
+    for _, chunk in ipairs(chunkInfo["PROP"] or {}) do
+        local buffer = chunk.Data
+        local classID = buffer:readNumber("<I4"); local classref = classRefs[classID]
+        if not classref then return sources, "Missing classref" end
+        local refs = classref.Refs; local sizeof = classref.Sizeof; local name = basicTypes.String(buffer)
+        if string.byte(buffer:read(1, false)) == 0x1E then buffer:seek(1) end
+        local typeID = string.byte(buffer:read()); local props = {}
+        if typeID == 0x01 or typeID == 0x1D then
+            for i = 1, sizeof do props[i] = basicTypes.String(buffer) end
+        elseif typeID == 0x02 then
+            for i = 1, sizeof do props[i] = buffer:read() ~= string.char(0) end
+        elseif typeID == 0x03 then props = basicTypes.Int32Array(buffer, sizeof)
+        elseif typeID == 0x04 then props = basicTypes.RbxF32Array(buffer, sizeof)
+        elseif typeID == 0x05 then
+            for i = 1, sizeof do props[i] = basicTypes.Float64(buffer) end
+        else
+            for i = 1, sizeof do
+                if typeID == 0x13 then props = basicTypes.RefArray(buffer, sizeof); break else buffer:read(4) end
+            end
+        end
+        if name == "Source" or name == "ContentText" then
+            for i, v in ipairs(refs) do
+                if virtualInstances[v] and props[i] then virtualInstances[v].Properties[name] = props[i] end
+            end
+        end
+    end
+
+    local function buildSourceMap(node, path)
+        local src = node.Properties["Source"] or node.Properties["ContentText"]
+        if src and type(src) == "string" and #src > 0 then sources[path] = src end
+        for _, child in ipairs(node.Children or {}) do buildSourceMap(child, path .. "." .. child.ClassName .. ":" .. (child.Properties["Name"] or "unnamed")) end
+    end
+
+    for _, chunk in ipairs(chunkInfo["PRNT"] or {}) do
+        local buffer = chunk.Data
+        if buffer:read() ~= string.char(0) then return sources, "Invalid PRNT" end
+        local count = buffer:readNumber("<I4")
+        local child_refs = basicTypes.RefArray(buffer, count); local parent_refs = basicTypes.RefArray(buffer, count)
+        for i = 1, count do
+            local child = virtualInstances[child_refs[i]]; local parent = virtualInstances[parent_refs[i]]
+            if child and parent then table.insert(parent.Children, child) end
+        end
+    end
+
+    local roots = {}
+    for _, inst in pairs(virtualInstances) do
+        local hasParent = false
+        for _, other in pairs(virtualInstances) do
+            for _, child in ipairs(other.Children or {}) do if child.Ref == inst.Ref then hasParent = true; break end end
+            if hasParent then break end
+        end
+        if not hasParent then table.insert(roots, inst) end
+    end
+    for _, root in ipairs(roots) do buildSourceMap(root, root.ClassName .. ":" .. (root.Properties["Name"] or "root")) end
+
+    return sources, nil
+end
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- STUDIO LITE INTEGRATION
+-- ═══════════════════════════════════════════════════════════════════════
+local slFolder = ReplicatedStorage:FindFirstChild("StudioLiteFolder")
+local serverFuncs = slFolder and slFolder:FindFirstChild("ServerFunctions")
+
+local function triggerServerLoad(idStr)
+    if not serverFuncs or not idStr or idStr == "" then return end
+    local id = tostring(idStr):match("%d+")
+    if id then pcall(function() serverFuncs:InvokeServer("LoadMeshToRuntimeMeshes", tonumber(id)) end) end
+end
+
+local SL_CACHE = {}
+local function injectStudioLiteUI(scr, sourceMap)
+    if not scr:IsA("LuaSourceContainer") then return end
+    local path = scr.ClassName .. ":" .. scr.Name
+    local realSource = sourceMap and sourceMap[path]
+    if not realSource then pcall(function() realSource = scr.Source end) end
+    if realSource and #realSource > 0 then realSource = (realSource:gsub(string.char(0).."*$", "")) else realSource = "-- [LANGZ] Source tidak ditemukan." end
+
+    _G.LANGZ_RAW_SOURCES[scr] = realSource
+
+    local UI_TEXT = realSource
+    if #UI_TEXT > 150000 then UI_TEXT = "-- [LANGZ Warning] Source terlalu panjang.\n\n" .. string.sub(UI_TEXT, 1, 150000) .. "\n\n... [TERPOTONG]" end
+
+    local existingTB = scr:FindFirstChild("SL_CodeTextBox")
+    if existingTB then
+        existingTB.Text = UI_TEXT
+        if scr.ClassName == "ModuleScript" then
+            local ro = scr:FindFirstChild("SL_1ReadOnly")
+            if ro then ro.ContentText = UI_TEXT; ro.Text = UI_TEXT end
+        end
+        return
+    end
+
+    if not serverFuncs then return end
+    local map = { Script = "InsertScriptScript", LocalScript = "InsertLocalScriptLocalScript", ModuleScript = "InsertModuleScriptModuleScript" }
+    local assetName = map[scr.ClassName]
+    if not assetName then return end
+
+    if not SL_CACHE[assetName] then
+        pcall(function()
+            serverFuncs:InvokeServer("LoadAssetToPlayerGui", assetName)
+            local guiF = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild(assetName, 3)
+            if guiF then
+                SL_CACHE[assetName] = {}
+                for _, c in ipairs(guiF:GetChildren()) do table.insert(SL_CACHE[assetName], c:Clone()) end
+                serverFuncs:InvokeServer("ClearAssetFromPlayerGui", assetName)
+            end
+        end)
+    end
+    if not SL_CACHE[assetName] then return end
+
+    pcall(function()
+        for _, c in ipairs(SL_CACHE[assetName]) do c:Clone().Parent = scr end
+        local tb = scr:FindFirstChild("SL_CodeTextBox")
+        if tb then
+            tb.Text = UI_TEXT
+            if scr.ClassName == "ModuleScript" then
+                local ro = scr:FindFirstChild("SL_1ReadOnly")
+                if ro then ro.ContentText = UI_TEXT; ro.Text = UI_TEXT end
+            end
+        end
+    end)
+end
+
+local function injectAllScripts(root, sourceMap)
+    if not root then return 0 end
+    local list = {}
+    if root:IsA("LuaSourceContainer") then table.insert(list, root) end
+    for _, d in ipairs(root:GetDescendants()) do if d:IsA("LuaSourceContainer") then table.insert(list, d) end end
+    local count = 0
+    for _, s in ipairs(list) do pcall(injectStudioLiteUI, s, sourceMap); count = count + 1; task.wait(0.02) end
+    return count
+end
+
+local function ApplyStudioLiteProperties(obj)
+    if not obj then return end
+    pcall(function()
+        if obj:IsA("BasePart") then
+            local originalAnchor = obj.Anchored
+            local originalCollide = obj.CanCollide
+            obj.Anchored = true
+            if obj:GetAttribute("SL_Anchored") == nil then obj:SetAttribute("SL_Anchored", originalAnchor) end
+            if obj:GetAttribute("SL_CanCollide") == nil then obj:SetAttribute("SL_CanCollide", originalCollide) end
+        end
+    end)
+    for _, child in ipairs(obj:GetChildren()) do ApplyStudioLiteProperties(child) end
+end
+
+local function LoadAssetsToSLServer(obj)
+    local function scan(node)
+        pcall(function()
+            if node:IsA("MeshPart") then triggerServerLoad(node.MeshId); triggerServerLoad(node.TextureID)
+            elseif node:IsA("Decal") or node:IsA("Texture") then triggerServerLoad(node.Texture)
+            elseif node:IsA("SpecialMesh") then triggerServerLoad(node.MeshId); triggerServerLoad(node.TextureId)
+            elseif node:IsA("Clothing") or node:IsA("ShirtGraphic") then triggerServerLoad(node.ClassName == "ShirtGraphic" and node.Graphic or node[node.ClassName.."Template"])
+            elseif node:IsA("UnionOperation") or node:IsA("PartOperation") then triggerServerLoad(node.AssetId) end
+        end)
+        for _, child in ipairs(node:GetChildren()) do scan(child) end
+    end
+    scan(obj)
+end
+
+local SVC_MAP = { 
+    Workspace = workspace, 
+    ReplicatedStorage = ReplicatedStorage, 
+    ReplicatedFirst = game:GetService("ReplicatedFirst"), 
+    StarterGui = game:GetService("StarterGui"), 
+    StarterPack = game:GetService("StarterPack"), 
+    StarterPlayer = game:GetService("StarterPlayer"), 
+    Lighting = game:GetService("Lighting"), 
+    SoundService = game:GetService("SoundService"), 
+    ServerScriptService = _G.sss or ReplicatedStorage, 
+    ServerStorage = _G.ss or ReplicatedStorage, 
+    Teams = ReplicatedStorage, 
+    Chat = ReplicatedStorage 
+}
+
+local function insertObjects(objects, isRbxl, sourceMap)
+    local count = 0
+    for _, obj in ipairs(objects) do
+        pcall(function()
+            local target = (isRbxl and (SVC_MAP[obj.ClassName] or SVC_MAP[obj.Name])) or workspace
+            if target == workspace and obj:IsA("Service") then target = ReplicatedStorage end
+
+            if isRbxl and target ~= workspace then
+                for _, ch in ipairs(obj:GetChildren()) do
+                    pcall(function() 
+                        ch.Parent = target; 
+                        injectAllScripts(ch, sourceMap); 
+                        ApplyStudioLiteProperties(ch); 
+                        LoadAssetsToSLServer(ch); 
+                        count = count + 1 
+                    end)
+                    task.wait(0.01)
+                end
+            else
+                obj.Parent = target; 
+                injectAllScripts(obj, sourceMap); 
+                ApplyStudioLiteProperties(obj); 
+                LoadAssetsToSLServer(obj); 
+                count = count + 1
+            end
+        end)
+    end
+    return count
+end
+
+local function safeReadFile(p) if not readfile then return nil end; local ok, d = pcall(readfile, p); return ok and d or nil end
+
+local function loadFile(fileInfo)
+    local isRbxl = fileInfo.ftype == "RBXL"
+    local data = safeReadFile(fileInfo.path)
+    if not data or #data == 0 then return false, "readfile gagal" end
+
+    local sourceMap = {}
+    if not isRbxl then
+        local ok, sources, err = pcall(parseRBXMForSources, data)
+        if ok and sources then sourceMap = sources end
+    end
+
+    if getcustomasset then
+        local ok1, aid = pcall(getcustomasset, fileInfo.path)
+        if ok1 and aid then
+            local ok2, objs = pcall(function() return game:GetObjects(aid) end)
+            if ok2 and objs and #objs > 0 then return true, insertObjects(objs, isRbxl, sourceMap) .. " object(s) loaded" end
+        end
+    end
+
+    local ok3, o3 = pcall(function() return game:GetObjects("rbxasset://" .. fileInfo.path) end)
+    if ok3 and o3 and #o3 > 0 then return true, insertObjects(o3, isRbxl, sourceMap) .. " object(s) loaded" end
+
+    return false, "Semua metode load gagal"
+end
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- FILE SCANNER
+-- ═══════════════════════════════════════════════════════════════════════
+local function safeListFiles(p) if not listfiles then return nil end; local ok, f = pcall(listfiles, p); return ok and f or nil end
+local function getFileName(p) return p:match("([^/]+)$") or p end
+local function getFileType(n) 
+    n = n:lower(); 
+    if n:match("%.rbxl") or n:match("%.rbxlx") then return "RBXL" 
+    elseif n:match("%.rbxm") or n:match("%.rbxmx") then return "RBXM" end; 
+    return nil 
+end
+local function looksFolder(p) return not getFileName(p):match("%.[%a%d]+") end
+
+local SCAN_PATHS = { "workspace", "Delta/workspace", "delta/workspace", "Android/Delta/workspace", "/sdcard/Delta/workspace", "/sdcard/Android/Delta/workspace", "../workspace", ".", "" }
+
+local function scanDeep(folder, depth, results, seen)
+    if depth > 4 or seen[folder] then return end
+    seen[folder] = true
+    local list = safeListFiles(folder)
+    if not list then return end
+    for _, path in ipairs(list) do
+        local name = getFileName(path); local ftype = getFileType(name)
+        if ftype and not seen[path] then
+            seen[path] = true; table.insert(results, { name=name, path=path, ftype=ftype, folder=folder })
+        elseif looksFolder(path) then scanDeep(path, depth+1, results, seen) end
+    end
+end
+
+local function scanAll()
+    local results, seen = {}, {}; 
+    for _, p in ipairs(SCAN_PATHS) do 
+        if safeListFiles(p) then scanDeep(p, 0, results, seen) end 
+    end
+    return results
+end
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- DESTROY OLD UI
+-- ═══════════════════════════════════════════════════════════════════════
+if CoreDest:FindFirstChild("LANGZImporterUI") then CoreDest:FindFirstChild("LANGZImporterUI"):Destroy() end
+if CoreDest:FindFirstChild("LANGZImporterUI") then CoreDest:FindFirstChild("LANGZImporterUI"):Destroy() end
+
+local UI = Instance.new("ScreenGui", CoreDest)
+UI.Name = "LANGZImporterUI"; UI.ResetOnSpawn = false; UI.DisplayOrder = 100; UI.IgnoreGuiInset = true
+
+-- Modern dark atmosphere with purple accent.
+local HackerAtmosphere = Instance.new("Frame", UI)
+HackerAtmosphere.Name = "HackerAtmosphere"
+HackerAtmosphere.Size = UDim2.new(1, 0, 1, 0)
+HackerAtmosphere.Position = UDim2.new(0, 0, 0, 0)
+HackerAtmosphere.BackgroundColor3 = Color3.fromRGB(12, 10, 24)
+HackerAtmosphere.BackgroundTransparency = 0.84
+HackerAtmosphere.BorderSizePixel = 0
+HackerAtmosphere.ZIndex = 0
+HackerAtmosphere.Active = false
+
+-- Table untuk menampung UIGradient yang akan dianimasikan secara real-time
+local AnimatedGradients = {}
+
+local function registerGradientAnimation(gradient, speed, mode)
+    table.insert(AnimatedGradients, {
+        Gradient = gradient,
+        Speed = speed or 60,
+        Mode = mode or "rotate"
+    })
+end
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- LOADING SCREEN (HACKER MATRIX RAIN + NANG RBXM CENTER TEXT)
+-- ═══════════════════════════════════════════════════════════════════════
+local LoadingScreen = Instance.new("Frame", UI)
+LoadingScreen.Name = "LoadingScreen"
+LoadingScreen.Size = UDim2.new(1, 0, 1, 0)
+LoadingScreen.Position = UDim2.new(0, 0, 0, 0)
+LoadingScreen.BackgroundColor3 = Color3.fromRGB(7, 6, 14)
+LoadingScreen.BorderSizePixel = 0
+LoadingScreen.ZIndex = 999
+
+-- Matrix rain canvas
+local MatrixCanvas = Instance.new("Frame", LoadingScreen)
+MatrixCanvas.Name = "MatrixCanvas"
+MatrixCanvas.Size = UDim2.new(1, 0, 1, 0)
+MatrixCanvas.BackgroundTransparency = 1
+MatrixCanvas.ZIndex = 999
+
+-- Characters used for matrix rain
+local matrixChars = {"0","1","0","1","A","B","C","D","E","F","$","#","%","@","!","&","*","X","Z","0","1"}
+
+-- Spawn multiple falling text columns
+local COLUMN_COUNT = 18
+local columns = {}
+
+for col = 1, COLUMN_COUNT do
+    local xPos = (col - 1) / COLUMN_COUNT
+    local columnFrame = Instance.new("Frame", MatrixCanvas)
+    columnFrame.Size = UDim2.new(1 / COLUMN_COUNT, 0, 1, 0)
+    columnFrame.Position = UDim2.new(xPos, 0, 0, 0)
+    columnFrame.BackgroundTransparency = 1
+    columnFrame.ZIndex = 999
+    columnFrame.ClipsDescendants = true
+
+    -- Each column has a stream of characters
+    local streamLength = math.random(6, 16)
+    local charLabels = {}
+    for row = 1, streamLength do
+        local charLabel = Instance.new("TextLabel", columnFrame)
+        charLabel.Size = UDim2.new(1, 0, 0, 18)
+        charLabel.Position = UDim2.new(0, 0, 0, (row - 1) * 18)
+        charLabel.BackgroundTransparency = 1
+        charLabel.Font = Enum.Font.Code
+        charLabel.TextSize = 14
+        charLabel.TextXAlignment = Enum.TextXAlignment.Center
+        -- Head char is bright green, tail fades
+        if row == 1 then
+            charLabel.TextColor3 = Color3.fromRGB(240, 225, 255)
+        elseif row <= 3 then
+            charLabel.TextColor3 = Color3.fromRGB(180, 95, 255)
+        elseif row <= 6 then
+            charLabel.TextColor3 = Color3.fromRGB(130, 65, 210)
+        else
+            charLabel.TextColor3 = Color3.fromRGB(75, 40, 125)
+        end
+        charLabel.Text = matrixChars[math.random(1, #matrixChars)]
+        charLabel.ZIndex = 999
+        table.insert(charLabels, charLabel)
+    end
+
+    -- Randomize start offset and speed
+    local startY = math.random(-800, -100)
+    local speed = math.random(180, 420)
+    local currentY = startY
+
+    table.insert(columns, {
+        frame = columnFrame,
+        labels = charLabels,
+        y = currentY,
+        speed = speed,
+        streamLength = streamLength,
+        charTimer = 0,
+        charInterval = math.random(3, 8) * 0.05
+    })
+end
+
+-- CENTER: NANG RBXM text - no stroke, no background, text only + decorative elements
+local CenterContainer = Instance.new("Frame", LoadingScreen)
+CenterContainer.Size = UDim2.new(0, 500, 0, 220)
+CenterContainer.Position = UDim2.new(0.5, -250, 0.5, -110)
+CenterContainer.BackgroundTransparency = 1
+CenterContainer.ZIndex = 1001
+
+-- Top decorative line
+local TopLine = Instance.new("TextLabel", CenterContainer)
+TopLine.Size = UDim2.new(1, 0, 0, 20)
+TopLine.Position = UDim2.new(0, 0, 0, 0)
+TopLine.BackgroundTransparency = 1
+TopLine.Text = "── ◈ ────────────────────── ◈ ──"
+TopLine.TextColor3 = Color3.fromRGB(175, 95, 255)
+TopLine.Font = Enum.Font.Code
+TopLine.TextSize = 13
+TopLine.ZIndex = 1001
+
+-- Hacker terminal boot marker
+local BootMarker = Instance.new("TextLabel", CenterContainer)
+BootMarker.Size = UDim2.new(1, 0, 0, 38)
+BootMarker.Position = UDim2.new(0, 0, 0, 22)
+BootMarker.BackgroundTransparency = 1
+BootMarker.Text = "[ SECURE BOOT // NANG RBXM ]"
+BootMarker.TextColor3 = Color3.fromRGB(215, 180, 255)
+BootMarker.Font = Enum.Font.Code
+BootMarker.TextSize = 12
+BootMarker.ZIndex = 1001
+
+-- Main NANG RBXM text - GothamBold, no stroke
+local KingText = Instance.new("TextLabel", CenterContainer)
+KingText.Size = UDim2.new(1, 0, 0, 62)
+KingText.Position = UDim2.new(0, 0, 0, 62)
+KingText.BackgroundTransparency = 1
+KingText.Text = "NANG RBXM"
+KingText.TextColor3 = Color3.fromRGB(195, 105, 255)
+KingText.Font = Enum.Font.GothamBold
+KingText.TextSize = 54
+KingText.ZIndex = 1001
+
+-- Tagline below
+local TagLine = Instance.new("TextLabel", CenterContainer)
+TagLine.Size = UDim2.new(1, 0, 0, 22)
+TagLine.Position = UDim2.new(0, 0, 0, 126)
+TagLine.BackgroundTransparency = 1
+TagLine.Text = "[ RBXM IMPORTER SYSTEM READY ]"
+TagLine.TextColor3 = Color3.fromRGB(145, 75, 220)
+TagLine.Font = Enum.Font.Code
+TagLine.TextSize = 13
+TagLine.ZIndex = 1001
+
+-- Progress dots / loading indicator
+local LoadDots = Instance.new("TextLabel", CenterContainer)
+LoadDots.Size = UDim2.new(1, 0, 0, 20)
+LoadDots.Position = UDim2.new(0, 0, 0, 152)
+LoadDots.BackgroundTransparency = 1
+LoadDots.Text = "loading . . ."
+LoadDots.TextColor3 = Color3.fromRGB(110, 55, 175)
+LoadDots.Font = Enum.Font.Code
+LoadDots.TextSize = 12
+LoadDots.ZIndex = 1001
+
+-- Bottom decorative line
+local BotLine = Instance.new("TextLabel", CenterContainer)
+BotLine.Size = UDim2.new(1, 0, 0, 20)
+BotLine.Position = UDim2.new(0, 0, 0, 196)
+BotLine.BackgroundTransparency = 1
+BotLine.Text = "── ◈ ────────────────────── ◈ ──"
+BotLine.TextColor3 = Color3.fromRGB(175, 95, 255)
+BotLine.Font = Enum.Font.Code
+BotLine.TextSize = 13
+BotLine.ZIndex = 1001
+
+-- Animate matrix rain + loading dots in a single loop
+local loadingActive = true
+local dotStates = {"loading .     ", "loading . .   ", "loading . . . "}
+local dotIndex = 0
+
+local matrixConnection
+matrixConnection = RunService.RenderStepped:Connect(function(dt)
+    if not loadingActive then
+        matrixConnection:Disconnect()
+        return
+    end
+
+    -- Update matrix columns
+    for _, col in ipairs(columns) do
+        col.y = col.y + col.speed * dt
+        -- Reposition frame
+        col.frame.Position = UDim2.new(col.frame.Position.X.Scale, 0, 0, col.y)
+        -- Reset when fully off bottom
+        if col.y > 700 + col.streamLength * 18 then
+            col.y = math.random(-600, -80)
+            col.speed = math.random(180, 420)
+        end
+        -- Randomize characters periodically
+        col.charTimer = col.charTimer + dt
+        if col.charTimer >= col.charInterval then
+            col.charTimer = 0
+            col.charInterval = math.random(3, 8) * 0.05
+            for _, lbl in ipairs(col.labels) do
+                lbl.Text = matrixChars[math.random(1, #matrixChars)]
+            end
+        end
+    end
+end)
+
+-- Loading dot animation + pulse on NANG RBXM text
+task.spawn(function()
+    local pulseUp = true
+    local r, g, b = 0, 255, 70
+    local tick = 0
+    while loadingActive do
+        task.wait(0.35)
+        dotIndex = (dotIndex % 3) + 1
+        LoadDots.Text = dotStates[dotIndex]
+        -- Pulse green hue on main text
+        tick = tick + 1
+        if tick % 2 == 0 then
+            KingText.TextColor3 = Color3.fromRGB(195, 105, 255)
+        else
+            KingText.TextColor3 = Color3.fromRGB(225, 165, 255)
+        end
+    end
+end)
+
+-- Auto-dismiss loading screen after 2.8 seconds
+task.spawn(function()
+    task.wait(2.8)
+    loadingActive = false
+    -- Fade out loading screen
+    for i = 1, 20 do
+        LoadingScreen.BackgroundTransparency = i / 20
+        for _, obj in ipairs(LoadingScreen:GetDescendants()) do
+            if obj:IsA("TextLabel") then
+                obj.TextTransparency = i / 20
+            end
+        end
+        task.wait(0.025)
+    end
+    LoadingScreen:Destroy()
+end)
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- RenderStepped Animation Engine (60 FPS Smooth Movement)
+-- ═══════════════════════════════════════════════════════════════════════
+RunService.RenderStepped:Connect(function(deltaTime)
+    for _, anim in ipairs(AnimatedGradients) do
+        if anim.Gradient and anim.Gradient.Parent then
+            if anim.Mode == "rotate" then
+                anim.Gradient.Rotation = (anim.Gradient.Rotation + (anim.Speed * deltaTime)) % 360
+            elseif anim.Mode == "shift" then
+                local currentX = anim.Gradient.Offset.X
+                local newX = currentX + (anim.Speed * deltaTime)
+                if newX > 1 then newX = -1 end
+                anim.Gradient.Offset = Vector2.new(newX, anim.Gradient.Offset.Y)
+            end
+        end
+    end
+end)
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- FLOATING TOGGLE BUTTON WITH VECTOR CHEVRON ICON
+-- ═══════════════════════════════════════════════════════════════════════
+local ToggleFrame = Instance.new("Frame", UI)
+ToggleFrame.Name = "ToggleFrame"
+ToggleFrame.Size = UDim2.new(0, 36, 0, 36)
+-- Keep the only toggle directly below the Roblox menu.
+ToggleFrame.Position = UDim2.new(0, 8, 0, 48)
+ToggleFrame.BackgroundColor3 = Color3.fromRGB(18, 14, 35)
+ToggleFrame.BackgroundTransparency = 0.08
+ToggleFrame.BorderSizePixel = 0
+ToggleFrame.Active = true
+
+local ToggleCorner = Instance.new("UICorner", ToggleFrame)
+ToggleCorner.CornerRadius = UDim.new(0, 10)
+
+local ToggleGrad = Instance.new("UIGradient", ToggleFrame)
+ToggleGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 24, 80)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(155, 75, 230)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(16, 10, 30))
+})
+ToggleGrad.Rotation = 45
+registerGradientAnimation(ToggleGrad, 40, "rotate")
+
+local ToggleStroke = Instance.new("UIStroke", ToggleFrame)
+ToggleStroke.Thickness = 1.2
+ToggleStroke.Color = Color3.fromRGB(215, 180, 255)
+ToggleStroke.Transparency = 0.18
+
+local ToggleIcon = Instance.new("ImageLabel", ToggleFrame)
+ToggleIcon.Size = UDim2.new(0, 20, 0, 20)
+ToggleIcon.Position = UDim2.new(0.5, -10, 0.5, -10)
+ToggleIcon.BackgroundTransparency = 1
+ToggleIcon.Image = ICONS.CHEVRON_RIGHT
+ToggleIcon.ImageColor3 = Color3.fromRGB(245, 235, 255)
+
+local ToggleBtn = Instance.new("TextButton", ToggleFrame)
+ToggleBtn.Size = UDim2.new(1, 0, 1, 0)
+ToggleBtn.BackgroundTransparency = 1
+ToggleBtn.Text = ""
+
+-- Dragging System Toggle Button
+local tDragToggle, tDragStart, tStartPos
+ToggleFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        tDragToggle = true; tDragStart = input.Position; tStartPos = ToggleFrame.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if tDragToggle and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - tDragStart
+        ToggleFrame.Position = UDim2.new(tStartPos.X.Scale, tStartPos.X.Offset + delta.X, tStartPos.Y.Scale, tStartPos.Y.Offset + delta.Y)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        tDragToggle = false
+    end
+end)
+
+-- MAIN CONTAINER
+local Main = Instance.new("Frame", UI)
+Main.Name = "MainFrame"
+Main.Size = UDim2.new(0, 320, 0, 360)
+Main.Position = UDim2.new(0.5, -160, 0.5, -180)
+Main.BackgroundColor3 = Color3.fromRGB(12, 10, 24)
+Main.BackgroundTransparency = 0.05
+Main.BorderSizePixel = 0
+Main.ClipsDescendants = true
+Main.Visible = true
+
+local MainCorner = Instance.new("UICorner", Main)
+MainCorner.CornerRadius = UDim.new(0, 10)
+
+local MainStroke = Instance.new("UIStroke", Main)
+MainStroke.Thickness = 1.2
+MainStroke.Color = Color3.fromRGB(155, 90, 225)
+MainStroke.Transparency = 0.2
+
+-- TITLE BAR WITH VECTOR PACKAGE ICON
+local TitleBar = Instance.new("Frame", Main)
+TitleBar.Size = UDim2.new(1, 0, 0, 36)
+TitleBar.BackgroundColor3 = Color3.fromRGB(28, 18, 52)
+TitleBar.BorderSizePixel = 0
+TitleBar.ClipsDescendants = true
+
+-- Round the upper panel corners so the header matches the rounded body.
+local TitleCorner = Instance.new("UICorner", TitleBar)
+TitleCorner.CornerRadius = UDim.new(0, 10)
+
+local TitleGrad = Instance.new("UIGradient", TitleBar)
+TitleGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 10, 24)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(80, 40, 140)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(24, 14, 45))
+})
+registerGradientAnimation(TitleGrad, 0.8, "shift")
+
+local TitleIcon = Instance.new("ImageLabel", TitleBar)
+TitleIcon.Size = UDim2.new(0, 18, 0, 18)
+TitleIcon.Position = UDim2.new(0, 10, 0.5, -9)
+TitleIcon.BackgroundTransparency = 1
+TitleIcon.Image = ICONS.PACKAGE
+TitleIcon.ImageColor3 = Color3.fromRGB(230, 210, 255)
+
+local TitleText = Instance.new("TextLabel", TitleBar)
+TitleText.Size = UDim2.new(1, -90, 1, 0)
+TitleText.Position = UDim2.new(0, 34, 0, 0)
+TitleText.BackgroundTransparency = 1
+TitleText.Text = "NANG RBXM  •  IMPORTER"
+TitleText.TextColor3 = Color3.fromRGB(245, 235, 255)
+TitleText.Font = Enum.Font.GothamBold
+TitleText.TextSize = 12
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
+
+-- CLOSE BUTTON WITH CLEAR X ICON
+local CloseBtn = Instance.new("Frame", TitleBar)
+CloseBtn.Size = UDim2.new(0, 22, 0, 22)
+CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(35, 22, 60)
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 5)
+
+local CloseIcon = Instance.new("TextLabel", CloseBtn)
+CloseIcon.Size = UDim2.new(0, 12, 0, 12)
+CloseIcon.Position = UDim2.new(0.5, -6, 0.5, -6)
+CloseIcon.BackgroundTransparency = 1
+CloseIcon.Text = "X"
+CloseIcon.TextColor3 = Color3.fromRGB(225, 205, 255)
+CloseIcon.Font = Enum.Font.GothamBold
+CloseIcon.TextSize = 12
+CloseIcon.TextXAlignment = Enum.TextXAlignment.Center
+CloseIcon.TextYAlignment = Enum.TextYAlignment.Center
+
+local CloseClick = Instance.new("TextButton", CloseBtn)
+CloseClick.Size = UDim2.new(1, 0, 1, 0)
+CloseClick.BackgroundTransparency = 1
+CloseClick.Text = ""
+
+-- MINIMIZE BUTTON WITH VECTOR MINIMIZE ICON
+local MinBtn = Instance.new("Frame", TitleBar)
+MinBtn.Size = UDim2.new(0, 22, 0, 22)
+MinBtn.Position = UDim2.new(1, -54, 0.5, -11)
+MinBtn.BackgroundColor3 = Color3.fromRGB(35, 22, 60)
+Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 5)
+
+local MinIcon = Instance.new("ImageLabel", MinBtn)
+MinIcon.Size = UDim2.new(0, 12, 0, 12)
+MinIcon.Position = UDim2.new(0.5, -6, 0.5, -6)
+MinIcon.BackgroundTransparency = 1
+MinIcon.Image = ICONS.MINIMIZE
+MinIcon.ImageColor3 = Color3.fromRGB(225, 205, 255)
+
+local MinClick = Instance.new("TextButton", MinBtn)
+MinClick.Size = UDim2.new(1, 0, 1, 0)
+MinClick.BackgroundTransparency = 1
+MinClick.Text = ""
+
+-- Dragging System Main UI
+local dragToggle, dragStart, startPos
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
+        dragToggle = true; dragStart = input.Position; startPos = Main.Position 
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragToggle and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragToggle = false end
+end)
+
+-- Toggle panel visibility - the single toggle below the Roblox menu opens/closes Main
+local function toggleMain()
+    Main.Visible = not Main.Visible
+    ToggleIcon.Image = Main.Visible and ICONS.CHEVRON_RIGHT or ICONS.CHEVRON_LEFT
+end
+
+ToggleBtn.MouseButton1Click:Connect(toggleMain)
+
+-- CONTENT AREA
+local Content = Instance.new("Frame", Main)
+Content.Size = UDim2.new(1, -16, 1, -74)
+Content.Position = UDim2.new(0, 8, 0, 42)
+Content.BackgroundColor3 = Color3.fromRGB(18, 14, 34)
+Content.BorderSizePixel = 0
+Instance.new("UICorner", Content).CornerRadius = UDim.new(0, 8)
+
+local ContentStroke = Instance.new("UIStroke", Content)
+ContentStroke.Thickness = 1
+ContentStroke.Color = Color3.fromRGB(70, 40, 105)
+
+-- SCAN BUTTON WITH ANIMATED GRADIENT & VECTOR SEARCH ICON
+local ScanBtn = Instance.new("Frame", Content)
+ScanBtn.Size = UDim2.new(1, -12, 0, 30)
+ScanBtn.Position = UDim2.new(0, 6, 0, 6)
+ScanBtn.BackgroundColor3 = Color3.fromRGB(225, 205, 255)
+Instance.new("UICorner", ScanBtn).CornerRadius = UDim.new(0, 6)
+
+local ScanGrad = Instance.new("UIGradient", ScanBtn)
+ScanGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(250, 240, 255)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(165, 90, 235)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(215, 180, 250))
+})
+registerGradientAnimation(ScanGrad, 50, "rotate")
+
+local ScanIcon = Instance.new("ImageLabel", ScanBtn)
+ScanIcon.Size = UDim2.new(0, 14, 0, 14)
+ScanIcon.Position = UDim2.new(0.5, -48, 0.5, -7)
+ScanIcon.BackgroundTransparency = 1
+ScanIcon.Image = ICONS.SEARCH
+ScanIcon.ImageColor3 = Color3.fromRGB(30, 18, 45)
+
+local ScanText = Instance.new("TextLabel", ScanBtn)
+ScanText.Size = UDim2.new(0, 80, 1, 0)
+ScanText.Position = UDim2.new(0.5, -28, 0, 0)
+ScanText.BackgroundTransparency = 1
+ScanText.Text = "SCAN FILES"
+ScanText.TextColor3 = Color3.fromRGB(30, 18, 45)
+ScanText.Font = Enum.Font.GothamBold
+ScanText.TextSize = 11
+ScanText.TextXAlignment = Enum.TextXAlignment.Left
+
+local ScanClick = Instance.new("TextButton", ScanBtn)
+ScanClick.Size = UDim2.new(1, 0, 1, 0)
+ScanClick.BackgroundTransparency = 1
+ScanClick.Text = ""
+
+-- SCROLL LIST
+local Scroll = Instance.new("ScrollingFrame", Content)
+Scroll.Size = UDim2.new(1, -12, 1, -48)
+Scroll.Position = UDim2.new(0, 6, 0, 42)
+Scroll.BackgroundTransparency = 1
+Scroll.ScrollBarThickness = 3
+Scroll.ScrollBarImageColor3 = Color3.fromRGB(160, 95, 225)
+Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+local Layout = Instance.new("UIListLayout", Scroll)
+Layout.Padding = UDim.new(0, 5)
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- EMPTY STATE FRAME WITH VECTOR FOLDER ICON
+local EmptyFrame = Instance.new("Frame", Scroll)
+EmptyFrame.Size = UDim2.new(1, 0, 0, 100)
+EmptyFrame.BackgroundTransparency = 1
+
+local EmptyIcon = Instance.new("ImageLabel", EmptyFrame)
+EmptyIcon.Size = UDim2.new(0, 26, 0, 26)
+EmptyIcon.Position = UDim2.new(0.5, -13, 0, 16)
+EmptyIcon.BackgroundTransparency = 1
+EmptyIcon.Image = ICONS.FOLDER
+EmptyIcon.ImageColor3 = Color3.fromRGB(170, 100, 235)
+
+local EmptyLabel = Instance.new("TextLabel", EmptyFrame)
+EmptyLabel.Size = UDim2.new(1, -20, 0, 36)
+EmptyLabel.Position = UDim2.new(0, 10, 0, 48)
+EmptyLabel.BackgroundTransparency = 1
+EmptyLabel.Text = "Belum ada file terdeteksi.\nTekan 'SCAN FILES' untuk mencari file RBXM/RBXL."
+EmptyLabel.TextColor3 = Color3.fromRGB(170, 150, 195)
+EmptyLabel.Font = Enum.Font.Gotham
+EmptyLabel.TextSize = 10
+EmptyLabel.TextWrapped = true
+
+-- STATS BAR
+local StatsBar = Instance.new("Frame", Main)
+StatsBar.Size = UDim2.new(1, -16, 0, 22)
+StatsBar.Position = UDim2.new(0, 8, 1, -26)
+StatsBar.BackgroundColor3 = Color3.fromRGB(18, 14, 34)
+StatsBar.BorderSizePixel = 0
+Instance.new("UICorner", StatsBar).CornerRadius = UDim.new(0, 5)
+
+local StatsText = Instance.new("TextLabel", StatsBar)
+StatsText.Size = UDim2.new(1, -10, 1, 0)
+StatsText.Position = UDim2.new(0, 6, 0, 0)
+StatsText.BackgroundTransparency = 1
+StatsText.Text = "Status: Ready  |  Files: 0"
+StatsText.TextColor3 = Color3.fromRGB(190, 160, 225)
+StatsText.Font = Enum.Font.Gotham
+StatsText.TextSize = 9
+StatsText.TextXAlignment = Enum.TextXAlignment.Left
+
+-- NOTIFICATION SYSTEM WITH VECTOR BELL ICON
+local function notify(title, msg, color)
+    color = color or Color3.fromRGB(220, 200, 235)
+    local notif = Instance.new("Frame", UI)
+    notif.Size = UDim2.new(0, 220, 0, 42)
+    notif.Position = UDim2.new(1, -230, 1, -55)
+    notif.BackgroundColor3 = Color3.fromRGB(20, 15, 38)
+    notif.BorderSizePixel = 0
+    Instance.new("UICorner", notif).CornerRadius = UDim.new(0, 6)
+
+    local notifStroke = Instance.new("UIStroke", notif)
+    notifStroke.Thickness = 1
+    notifStroke.Color = color
+
+    local icon = Instance.new("ImageLabel", notif)
+    icon.Size = UDim2.new(0, 14, 0, 14)
+    icon.Position = UDim2.new(0, 8, 0, 6)
+    icon.BackgroundTransparency = 1
+    icon.Image = ICONS.BELL
+    icon.ImageColor3 = color
+
+    local t = Instance.new("TextLabel", notif)
+    t.Size = UDim2.new(1, -28, 0, 14); t.Position = UDim2.new(0, 26, 0, 4)
+    t.BackgroundTransparency = 1; t.Text = title
+    t.TextColor3 = Color3.fromRGB(245, 235, 255); t.Font = Enum.Font.GothamBold
+    t.TextSize = 10; t.TextXAlignment = Enum.TextXAlignment.Left
+
+    local d = Instance.new("TextLabel", notif)
+    d.Size = UDim2.new(1, -12, 0, 16); d.Position = UDim2.new(0, 8, 0, 18)
+    d.BackgroundTransparency = 1; d.Text = msg
+    d.TextColor3 = Color3.fromRGB(165, 140, 190); d.Font = Enum.Font.Gotham
+    d.TextSize = 8; d.TextXAlignment = Enum.TextXAlignment.Left
+    d.TextWrapped = true
+
+    task.spawn(function()
+        task.wait(2.5)
+        for i = 1, 12 do
+            notif.BackgroundTransparency = i / 12
+            icon.ImageTransparency = i / 12
+            t.TextTransparency = i / 12
+            d.TextTransparency = i / 12
+            task.wait(0.02)
+        end
+        notif:Destroy()
+    end)
+end
+
+-- CARD BUILDER WITH VECTOR BADGES & DOWNLOAD ICON
+local totalLoaded = 0
+
+local function buildFileCard(fileInfo)
+    EmptyFrame.Visible = false
+
+    local card = Instance.new("Frame", Scroll)
+    card.Size = UDim2.new(1, 0, 0, 44)
+    card.BackgroundColor3 = Color3.fromRGB(24, 18, 42)
+    card.BorderSizePixel = 0
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
+
+    local cardStroke = Instance.new("UIStroke", card)
+    cardStroke.Thickness = 1
+    cardStroke.Color = Color3.fromRGB(70, 42, 100)
+
+    local isRbxl = fileInfo.ftype == "RBXL"
+
+    local typeBadge = Instance.new("Frame", card)
+    typeBadge.Size = UDim2.new(0, 48, 0, 16); typeBadge.Position = UDim2.new(0, 6, 0, 6)
+    typeBadge.BackgroundColor3 = isRbxl and Color3.fromRGB(115, 220, 120) or Color3.fromRGB(43, 110, 55)
+    typeBadge.BorderSizePixel = 0
+    Instance.new("UICorner", typeBadge).CornerRadius = UDim.new(0, 4)
+
+    local badgeIcon = Instance.new("ImageLabel", typeBadge)
+    badgeIcon.Size = UDim2.new(0, 10, 0, 10)
+    badgeIcon.Position = UDim2.new(0, 4, 0.5, -5)
+    badgeIcon.BackgroundTransparency = 1
+    badgeIcon.Image = isRbxl and ICONS.GAMEPAD or ICONS.FILE
+    badgeIcon.ImageColor3 = Color3.fromRGB(4, 30, 13)
+
+    local typeText = Instance.new("TextLabel", typeBadge)
+    typeText.Size = UDim2.new(1, -16, 1, 0); typeText.Position = UDim2.new(0, 16, 0, 0)
+    typeText.BackgroundTransparency = 1
+    typeText.Text = fileInfo.ftype
+    typeText.TextColor3 = Color3.fromRGB(4, 30, 13)
+    typeText.Font = Enum.Font.GothamBold; typeText.TextSize = 8
+
+    local nameLbl = Instance.new("TextLabel", card)
+    nameLbl.Size = UDim2.new(1, -135, 0, 16); nameLbl.Position = UDim2.new(0, 60, 0, 6)
+    nameLbl.BackgroundTransparency = 1; nameLbl.Text = fileInfo.name
+    nameLbl.TextColor3 = Color3.fromRGB(210, 244, 205); nameLbl.Font = Enum.Font.GothamBold
+    nameLbl.TextSize = 10; nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+    nameLbl.TextTruncate = Enum.TextTruncate.AtEnd
+
+    local pathLbl = Instance.new("TextLabel", card)
+    pathLbl.Size = UDim2.new(1, -135, 0, 12); pathLbl.Position = UDim2.new(0, 60, 0, 22)
+    pathLbl.BackgroundTransparency = 1; pathLbl.Text = fileInfo.path
+    pathLbl.TextColor3 = Color3.fromRGB(105, 170, 110); pathLbl.Font = Enum.Font.Gotham
+    pathLbl.TextSize = 8; pathLbl.TextXAlignment = Enum.TextXAlignment.Left
+    pathLbl.TextTruncate = Enum.TextTruncate.AtEnd
+
+    local insertFrame = Instance.new("Frame", card)
+    insertFrame.Size = UDim2.new(0, 66, 0, 24); insertFrame.Position = UDim2.new(1, -72, 0.5, -12)
+    insertFrame.BackgroundColor3 = Color3.fromRGB(18, 58, 27)
+    Instance.new("UICorner", insertFrame).CornerRadius = UDim.new(0, 4)
+
+    local btnStroke = Instance.new("UIStroke", insertFrame)
+    btnStroke.Thickness = 1
+    btnStroke.Color = Color3.fromRGB(100, 205, 105)
+
+    local insertIcon = Instance.new("ImageLabel", insertFrame)
+    insertIcon.Size = UDim2.new(0, 10, 0, 10)
+    insertIcon.Position = UDim2.new(0, 6, 0.5, -5)
+    insertIcon.BackgroundTransparency = 1
+    insertIcon.Image = ICONS.DOWNLOAD
+    insertIcon.ImageColor3 = Color3.fromRGB(190, 255, 180)
+
+    local insertText = Instance.new("TextLabel", insertFrame)
+    insertText.Size = UDim2.new(1, -18, 1, 0); insertText.Position = UDim2.new(0, 18, 0, 0)
+    insertText.BackgroundTransparency = 1; insertText.Text = "INSERT"
+    insertText.TextColor3 = Color3.fromRGB(190, 255, 180)
+    insertText.Font = Enum.Font.GothamBold; insertText.TextSize = 8
+
+    local insertBtn = Instance.new("TextButton", insertFrame)
+    insertBtn.Size = UDim2.new(1, 0, 1, 0)
+    insertBtn.BackgroundTransparency = 1
+    insertBtn.Text = ""
+
+    insertBtn.MouseEnter:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 100, 42)}):Play() end)
+    insertBtn.MouseLeave:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 58, 27)}):Play() end)
+
+    insertBtn.MouseButton1Click:Connect(function()
+        if insertText.Text == "LOADING" then return end
+        insertText.Text = "LOADING"; insertIcon.Image = ICONS.REFRESH
+        insertFrame.BackgroundColor3 = Color3.fromRGB(20, 76, 30)
+
+        task.spawn(function()
+            local ok, msg = loadFile(fileInfo)
+            if ok then
+                insertText.Text = "DONE"; insertIcon.Image = ICONS.CHECK
+                insertFrame.BackgroundColor3 = Color3.fromRGB(95, 220, 105)
+                totalLoaded = totalLoaded + 1
+                StatsText.Text = string.format("Status: Ready  |  Files: %d  |  Loaded: %d", #Scroll:GetChildren() - 1, totalLoaded)
+                notify("Success", fileInfo.name .. " dimuat!", Color3.fromRGB(220, 200, 235))
+            else
+                insertText.Text = "FAIL"; insertIcon.Image = ICONS.ALERT
+                insertFrame.BackgroundColor3 = Color3.fromRGB(150, 45, 45)
+                notify("Gagal", msg, Color3.fromRGB(220, 80, 80))
+            end
+            task.wait(2)
+            insertText.Text = "INSERT"; insertIcon.Image = ICONS.DOWNLOAD
+            insertFrame.BackgroundColor3 = Color3.fromRGB(18, 58, 27)
+        end)
+    end)
+end
+
+-- SCAN LOGIC
+ScanClick.MouseButton1Click:Connect(function()
+    ScanText.Text = "SCANNING..."
+    ScanIcon.Image = ICONS.REFRESH
+
+    for _, c in ipairs(Scroll:GetChildren()) do 
+        if c:IsA("Frame") and c ~= EmptyFrame then c:Destroy() end 
+    end
+    EmptyFrame.Visible = true
+    totalLoaded = 0
+
+    task.spawn(function()
+        local foundFiles = scanAll()
+        for _, f in ipairs(foundFiles) do buildFileCard(f) end
+
+        StatsText.Text = string.format("Status: Ready  |  Files: %d", #foundFiles)
+        ScanText.Text = "SCAN FILES"
+        ScanIcon.Image = ICONS.SEARCH
+
+        if #foundFiles == 0 then
+            EmptyLabel.Text = "Tidak ada file RBXM/RBXL terdeteksi.\nPeriksa folder workspace executor."
+        else
+            notify("Scan Selesai", #foundFiles .. " file terdeteksi", Color3.fromRGB(220, 220, 230))
+        end
+    end)
+end)
+
+-- MINIMIZE / CLOSE
+-- Close only hides the panel; the toggle below the Roblox menu stays available.
+CloseClick.MouseButton1Click:Connect(function()
+    if Main.Visible then
+        toggleMain()
+    end
+end)
+
+local minimized = false
+MinClick.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        Content.Visible = false
+        StatsBar.Visible = false
+        Main.Size = UDim2.new(0, 320, 0, 36)
+    else
+        Content.Visible = true
+        StatsBar.Visible = true
+        Main.Size = UDim2.new(0, 320, 0, 360)
+    end
+end)
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- HOOKS (Anti-Putus Studio Lite)
+-- ═══════════════════════════════════════════════════════════════════════
+task.spawn(function()
+    if hookmetamethod then
+        local oldNamecall
+        oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+            local method = getnamecallmethod()
+            local args = {...}
+
+            if not checkcaller() and method == "InvokeServer" then
+                if self.Name == "GetScriptSourceServerFunction" then
+                    local target = tostring(args[1])
+                    for obj, src in pairs(_G.LANGZ_RAW_SOURCES) do
+                        if typeof(obj) == "Instance" and (obj.ClassName .. obj.Name) == target then
+                            if src and src ~= "" then return src end
+                        end
+                    end
+                    for _, place in ipairs({workspace, ReplicatedStorage, _G.sss, _G.ss, game:GetService("StarterGui"), game:GetService("StarterPlayer"), LocalPlayer:FindFirstChild("PlayerGui"), LocalPlayer:FindFirstChild("Backpack")}) do
+                        if place then
+                            for _, obj in ipairs(place:GetDescendants()) do
+                                if obj:IsA("LuaSourceContainer") and (obj.ClassName .. obj.Name) == target then
+                                    local src = _G.LANGZ_RAW_SOURCES[obj]
+                                    if src and src ~= "" then return src end
+                                end
+                           end
+                        end
+                    end
+                end
+
+                if self.Name == "SaveScriptSourceServerFunction" then
+                    local target = tostring(args[1])
+                    local newSource = tostring(args[2])
+                    for obj, _ in pairs(_G.LANGZ_RAW_SOURCES) do
+                        if typeof(obj) == "Instance" and (obj.ClassName .. obj.Name) == target then
+                            _G.LANGZ_RAW_SOURCES[obj] = newSource
+                            break
+                        end
+                    end
+                end
+            end
+            return oldNamecall(self, ...)
+        end)
+    end
+
+    if hookfunction then
+        local oldRequire
+        oldRequire = hookfunction(getrenv().require or require, function(module)
+            if typeof(module) == "Instance" and module:IsA("ModuleScript") then
+                local src = _G.LANGZ_RAW_SOURCES[module]
+                if src and src ~= "" then
+                    local func, err = loadstring(src)
+                    if func then 
+                        local success, result = pcall(func)
+                        if success then return result end
+                    end
+                end
+            end
+            return oldRequire(module)
+        end)
+
+        local oldGetObjects
+        oldGetObjects = hookfunction(game.GetObjects, function(self, url, ...)
+            local assetId = tostring(url):match("%d+")
+            if assetId then triggerServerLoad(assetId) end
+            local objects = oldGetObjects(self, url, ...)
+            if objects then
+                for _, obj in ipairs(objects) do
+                    pcall(function() injectAllScripts(obj, {}) end)
+                    pcall(function() ApplyStudioLiteProperties(obj) end)
+                    pcall(function() LoadAssetsToSLServer(obj) end)
+                end
+            end
+            return objects
+        end)
+
+        local oldLoadAsset
+        oldLoadAsset = hookfunction(InsertService.LoadAsset, function(self, assetId, ...)
+            triggerServerLoad(tostring(assetId))
+            local obj = oldLoadAsset(self, assetId, ...)
+            if obj then
+                pcall(function() injectAllScripts(obj, {}) end)
+                pcall(function() ApplyStudioLiteProperties(obj) end)
+                pcall(function() LoadAssetsToSLServer(obj) end)
+            end
+            return obj
+        end)
+    end
+end)
+
+print("[NANG] IMPORTER LOADED")
