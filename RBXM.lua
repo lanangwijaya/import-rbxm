@@ -23,7 +23,7 @@ if not game:IsLoaded() then game.Loaded:Wait() end
 -- }
 --
 -- GANTI URL DI BAWAH dengan URL RAW milikmu.
-local NANG_LICENSE_URL = "https://raw.githubusercontent.com/lanangwijaya/NANG-License/refs/heads/main/licenses.json"
+local NANG_LICENSE_URL = "https://raw.githubusercontent.com/lanangwijaya/import-rbxm/refs/heads/main/licenses.json"
 local NANG_PRODUCT = "NANG_RBXM_RBXMX"
 local NANG_CONTACT = "081252425581"
 
