@@ -1128,31 +1128,42 @@ local function NANG_ToolboxInsert(assetId)
     notify("Toolbox", "Loading model ID " .. id .. "...", Color3.fromRGB(220, 190, 255))
 
     task.spawn(function()
-        local ok, result = pcall(function()
+        -- Method 1: GetObjects, usually the most compatible in executor.
+        local ok, objects = pcall(function()
+            return game:GetObjects("rbxassetid://" .. tostring(id))
+        end)
+
+        if ok and type(objects) == "table" and #objects > 0 then
+            local count = 0
+            for _, obj in ipairs(objects) do
+                local parentOk = pcall(function()
+                    obj.Parent = workspace
+                end)
+                if parentOk then
+                    count += 1
+                end
+            end
+
+            if count > 0 then
+                notify("Toolbox", tostring(count) .. " object berhasil di-insert.", Color3.fromRGB(120, 230, 140))
+                return
+            end
+        end
+
+        -- Method 2: InsertService fallback.
+        local ok2, result = pcall(function()
             return InsertService:LoadAsset(id)
         end)
 
-        if ok and result then
-            -- Existing LoadAsset hook in this script handles the model.
-            if result.Parent ~= workspace then
-                pcall(function() result.Parent = workspace end)
-            end
-            notify("Toolbox", "Model ID " .. id .. " berhasil di-insert.", Color3.fromRGB(120, 230, 140))
-        else
-            -- Fallback for environments where LoadAsset is blocked.
-            local ok2, objects = pcall(function()
-                return game:GetObjects("rbxassetid://" .. id)
+        if ok2 and result then
+            pcall(function()
+                result.Parent = workspace
             end)
-
-            if ok2 and objects and #objects > 0 then
-                for _, obj in ipairs(objects) do
-                    pcall(function() obj.Parent = workspace end)
-                end
-                notify("Toolbox", "Model ID " .. id .. " berhasil di-insert.", Color3.fromRGB(120, 230, 140))
-            else
-                notify("Toolbox", "Model tidak ditemukan / executor menolak load.", Color3.fromRGB(240, 100, 120))
-            end
+            notify("Toolbox", "Model ID " .. id .. " berhasil di-insert.", Color3.fromRGB(120, 230, 140))
+            return
         end
+
+        notify("Toolbox", "ID tidak bisa di-load. Pastikan ID adalah Model Creator Store yang bisa diakses.", Color3.fromRGB(240, 100, 120))
     end)
 end
 
@@ -1173,7 +1184,7 @@ local function NANG_SearchToolbox()
         return
     end
 
-    local req = request or http_request or (syn and syn.request)
+    local req = request or http_request or (syn and syn.request) or (http and http.request) or (fluxus and fluxus.request)
     if not req then
         if NANG_OpenCreatorStoreSearch(keyword) then
             notify("Toolbox", "Creator Store dibuka.", Color3.fromRGB(120, 230, 140))
@@ -1183,8 +1194,8 @@ local function NANG_SearchToolbox()
         return
     end
 
-    local url = "https://create.roblox.com/store/models?keyword="
-        .. HttpService:UrlEncode(keyword) .. "&ResultsPerPage=20"
+    local url = "https://search.roblox.com/catalog/json?Category=Models&Keyword="
+        .. HttpService:UrlEncode(keyword) .. "&ResultsPerPage=30"
 
     task.spawn(function()
         local ok, response = pcall(req, {Url = url, Method = "GET"})
@@ -1622,6 +1633,16 @@ print("[NANG] IMPORTER LOADED")
 local function NANG_OpenCreatorStoreSearch(keyword)
     keyword = tostring(keyword or ""):gsub("^%s+", ""):gsub("%s+$", "")
     if keyword == "" then return false end
+
+    local url = "https://create.roblox.com/store/models?keyword="
+        .. HttpService:UrlEncode(keyword)
+
+    local openFn = open_url or openurl or openbrowser or open_url_in_browser
+    if openFn then
+        return pcall(openFn, url)
+    end
+    return false
+end
 
     local url = "https://create.roblox.com/store/models?keyword="
         .. HttpService:UrlEncode(keyword)
