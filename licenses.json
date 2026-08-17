@@ -1,0 +1,13 @@
+{
+  "product": "NANG_RBXM_RBXMX",
+  "licenses": {
+    "8236629801": {
+      "license": "NANG-ABC123",
+      "active": true
+    },
+    "10370966620": {
+      "license": "NANG-XYZ789",
+      "active": true
+    }
+  }
+}
