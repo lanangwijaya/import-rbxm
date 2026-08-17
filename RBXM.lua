@@ -2,14 +2,14 @@
     ╔══════════════════════════════════════════════════════════════════════╗
     ║  NANG RBXM v63.0 - Modern UI Edition    ║
     ║  Features: Modern UI, Smooth Animations, Verified Asset Mapping           ║
-    ║  Supports: RBXM, RBXMX                                  ║
+    ║  Supports: RBXM + TOOLBOX                                  ║
     ╚══════════════════════════════════════════════════════════════════════╝
 ]]
 
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 -- ═══════════════════════════════════════════════════════════════════════
--- WHITELIST GATE — NANG PAID SCRIPT
+-- WHITELIST GATE
 -- ═══════════════════════════════════════════════════════════════════════
 local _WHITELIST = {
     -- Masukkan UserId yang boleh akses di sini
@@ -451,15 +451,31 @@ local SVC_MAP = {
     Chat = ReplicatedStorage 
 }
 
-local function insertObjects(objects, sourceMap)
+local function insertObjects(objects, isRbxl, sourceMap)
     local count = 0
     for _, obj in ipairs(objects) do
         pcall(function()
-            obj.Parent = workspace
-            injectAllScripts(obj, sourceMap)
-            ApplyStudioLiteProperties(obj)
-            LoadAssetsToSLServer(obj)
-            count = count + 1
+            local target = (isRbxl and (SVC_MAP[obj.ClassName] or SVC_MAP[obj.Name])) or workspace
+            if target == workspace and obj:IsA("Service") then target = ReplicatedStorage end
+
+            if isRbxl and target ~= workspace then
+                for _, ch in ipairs(obj:GetChildren()) do
+                    pcall(function() 
+                        ch.Parent = target; 
+                        injectAllScripts(ch, sourceMap); 
+                        ApplyStudioLiteProperties(ch); 
+                        LoadAssetsToSLServer(ch); 
+                        count = count + 1 
+                    end)
+                    task.wait(0.01)
+                end
+            else
+                obj.Parent = target; 
+                injectAllScripts(obj, sourceMap); 
+                ApplyStudioLiteProperties(obj); 
+                LoadAssetsToSLServer(obj); 
+                count = count + 1
+            end
         end)
     end
     return count
@@ -467,263 +483,26 @@ end
 
 local function safeReadFile(p) if not readfile then return nil end; local ok, d = pcall(readfile, p); return ok and d or nil end
 
--- ═══════════════════════════════════════════════════════════════════════
--- RBXMX XML LOADER
--- Supports common Roblox XML property types and preserves hierarchy.
--- ═══════════════════════════════════════════════════════════════════════
-local function xmlUnescape(s)
-    s = tostring(s or "")
-    s = s:gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", '"'):gsub("&apos;", "'"):gsub("&amp;", "&")
-    s = s:gsub("&#(%d+);", function(n) return utf8.char(tonumber(n)) end)
-    s = s:gsub("&#x([%da-fA-F]+);", function(n) return utf8.char(tonumber(n, 16)) end)
-    return s
-end
-
-local function xmlTagValue(xml, tag, attrs)
-    local pat = "<" .. tag .. attrs .. ">(.-)</" .. tag .. ">"
-    return xml:match(pat)
-end
-
-local function xmlAttr(attrs, key)
-    return attrs:match(key .. '%s*=%s*"([^"]*)"') or attrs:match(key .. "%s*=%s*'([^']*)'")
-end
-
-local function xmlNumberList(s)
-    local out = {}
-    for n in tostring(s or ""):gmatch("[-+]?[%d%.]+[eE]?[-+]?%d*") do
-        table.insert(out, tonumber(n) or 0)
-    end
-    return out
-end
-
-local function xmlColor3(s)
-    local v = xmlNumberList(s)
-    if #v >= 3 then return Color3.new(v[1], v[2], v[3]) end
-end
-
-local function xmlVector2(s)
-    local v = xmlNumberList(s)
-    if #v >= 2 then return Vector2.new(v[1], v[2]) end
-end
-
-local function xmlVector3(s)
-    local v = xmlNumberList(s)
-    if #v >= 3 then return Vector3.new(v[1], v[2], v[3]) end
-end
-
-local function xmlCFrame(s)
-    local v = xmlNumberList(s)
-    if #v >= 12 then
-        return CFrame.new(
-            v[1],v[2],v[3],
-            v[4],v[5],v[6],
-            v[7],v[8],v[9],
-            v[10],v[11],v[12]
-        )
-    elseif #v >= 3 then
-        return CFrame.new(v[1], v[2], v[3])
-    end
-end
-
-local function xmlContentId(s)
-    s = xmlUnescape(s):gsub("^%s+", ""):gsub("%s+$", "")
-    if s == "" then return "" end
-    return s
-end
-
-local function setRBXMXProperty(obj, typeName, propName, raw)
-    raw = xmlUnescape(raw or "")
-    local value
-
-    if typeName == "string" or typeName == "ProtectedString" or typeName == "BinaryString" then
-        value = raw
-    elseif typeName == "bool" then
-        value = (raw == "true" or raw == "1")
-    elseif typeName == "int" or typeName == "int64" or typeName == "token" then
-        value = tonumber(raw)
-    elseif typeName == "float" or typeName == "double" then
-        value = tonumber(raw)
-    elseif typeName == "Vector2" then
-        value = xmlVector2(raw)
-    elseif typeName == "Vector3" then
-        value = xmlVector3(raw)
-    elseif typeName == "Color3" then
-        value = xmlColor3(raw)
-    elseif typeName == "BrickColor" then
-        local n = tonumber(raw)
-        if n then value = BrickColor.new(n) end
-    elseif typeName == "CFrame" or typeName == "CoordinateFrame" then
-        value = xmlCFrame(raw)
-    elseif typeName == "Content" or typeName == "ContentId" then
-        value = Content.fromUri(xmlContentId(raw))
-    elseif typeName == "Ref" then
-        -- Reference resolution is handled separately when possible.
-        return true, raw
-    elseif typeName == "UDim" then
-        local v = xmlNumberList(raw); if #v >= 2 then value = UDim.new(v[2], v[1]) end
-    elseif typeName == "UDim2" then
-        local v = xmlNumberList(raw); if #v >= 4 then value = UDim2.new(v[2], v[1], v[4], v[3]) end
-    elseif typeName == "Ray" then
-        local v = xmlNumberList(raw); if #v >= 6 then value = Ray.new(Vector3.new(v[1],v[2],v[3]), Vector3.new(v[4],v[5],v[6])) end
-    elseif typeName == "PhysicalProperties" then
-        local v = xmlNumberList(raw); if #v >= 5 then value = PhysicalProperties.new(v[1],v[2],v[3],v[4],v[5]) end
-    elseif typeName == "NumberSequence" then
-        -- Best-effort: Roblox XML commonly stores keypoints as number/time pairs.
-        local v = xmlNumberList(raw)
-        if #v >= 2 then
-            local kp = {}
-            for i = 1, #v - 1, 2 do table.insert(kp, NumberSequenceKeypoint.new(v[i], v[i+1])) end
-            if #kp > 0 then value = NumberSequence.new(kp) end
-        end
-    elseif typeName == "ColorSequence" then
-        local v = xmlNumberList(raw)
-        if #v >= 4 then
-            local kp = {}
-            for i = 1, #v - 4, 4 do
-                table.insert(kp, ColorSequenceKeypoint.new(v[i], Color3.new(v[i+1],v[i+2],v[i+3])))
-            end
-            if #kp > 0 then value = ColorSequence.new(kp) end
-        end
-    end
-
-    if value ~= nil then
-        local ok = pcall(function() obj[propName] = value end)
-        return ok, value
-    end
-    return false, nil
-end
-
-local function parseRBXMX(data)
-    if type(data) ~= "string" or not data:find("<roblox", 1, true) then
-        return nil, "Bukan RBXMX/XML Roblox"
-    end
-
-    -- Remove comments and XML declarations while keeping Item/Properties structure.
-    data = data:gsub("<!%-%-.-%-%->", "")
-    data = data:gsub("<!%[CDATA%[(.-)%]%]>", function(v)
-        return xmlUnescape(v)
-    end)
-
-    local roots = {}
-    local stack = {}
-    local pendingRefs = {}
-
-    local pos = 1
-    while true do
-        local a,b,slash,tag,attrs,body = data:find("<(%/?)([%w_:%-]+)(.-)>", pos)
-        if not a then break end
-
-        if tag ~= "roblox" and tag ~= "Item" and tag ~= "Properties" then
-            -- Property elements are handled when their complete tag is found below.
-        end
-
-        if slash == "" and tag == "Item" then
-            local className = xmlAttr(attrs, "class") or "Folder"
-            local ok, obj = pcall(Instance.new, className)
-            if not ok or not obj then
-                obj = Instance.new("Folder")
-                obj:SetAttribute("NANG_OriginalClass", className)
-            end
-            table.insert(stack, {obj=obj, refs={}, props={}})
-        elseif slash == "/" and tag == "Item" then
-            local node = table.remove(stack)
-            if node then
-                if #stack > 0 then
-                    node.obj.Parent = stack[#stack].obj
-                else
-                    table.insert(roots, node.obj)
-                end
-                for refName, refId in pairs(node.refs) do
-                    table.insert(pendingRefs, {obj=node.obj, prop=refName, ref=refId})
-                end
-            end
-        elseif #stack > 0 and tag ~= "roblox" and tag ~= "Properties" and slash == "" then
-            -- Parse a property element as <type name="Property">value</type>.
-            local name = xmlAttr(attrs, "name")
-            if name then
-                local closePat = "</" .. tag .. ">"
-                local cb, ce = data:find(closePat, b + 1, true)
-                if cb then
-                    local raw = data:sub(b + 1, cb - 1)
-                    local ok, refOrValue = setRBXMXProperty(stack[#stack].obj, tag, name, raw)
-                    if tag == "Ref" and ok then
-                        stack[#stack].refs[name] = refOrValue
-                    end
-                    pos = ce + 1
-                else
-                    pos = b + 1
-                end
-            else
-                pos = b + 1
-            end
-        else
-            pos = b + 1
-        end
-    end
-
-    return roots, nil
-end
-
 local function loadFile(fileInfo)
-    if fileInfo.ftype ~= "RBXM" and fileInfo.ftype ~= "RBXMX" then
-        return false, "Format file tidak didukung"
-    end
-
+    if fileInfo.ftype ~= "RBXM" then return false, "Hanya RBXM yang didukung" end
     local data = safeReadFile(fileInfo.path)
-    if not data or #data == 0 then
-        return false, "readfile gagal"
-    end
-
-    -- RBXMX: parse XML directly first, so it does not depend on executor
-    -- custom-asset behavior.
-    if fileInfo.ftype == "RBXMX" then
-        local okXml, objs, err = pcall(function()
-            local roots, parseErr = parseRBXMX(data)
-            if not roots or #roots == 0 then
-                error(parseErr or "RBXMX kosong")
-            end
-            return roots
-        end)
-        if okXml and objs and #objs > 0 then
-            local loaded = insertObjects(objs, {})
-            return loaded > 0, loaded > 0 and (loaded .. " object(s) loaded") or "Tidak ada object yang bisa dibuat"
-        end
-
-        -- Fallback for environments that can mount local XML as a custom asset.
-        if getcustomasset then
-            local ok1, aid = pcall(getcustomasset, fileInfo.path)
-            if ok1 and aid then
-                local ok2, loaded = pcall(function() return game:GetObjects(aid) end)
-                if ok2 and loaded and #loaded > 0 then
-                    return true, insertObjects(loaded, {}) .. " object(s) loaded"
-                end
-            end
-        end
-        return false, "RBXMX tidak dapat diparse di environment ini"
-    end
-
-    -- RBXM binary path.
+    if not data or #data == 0 then return false, "readfile gagal" end
     local sourceMap = {}
     local ok, sources = pcall(parseRBXMForSources, data)
     if ok and sources then sourceMap = sources end
-
     if getcustomasset then
         local ok1, aid = pcall(getcustomasset, fileInfo.path)
         if ok1 and aid then
             local ok2, objs = pcall(function() return game:GetObjects(aid) end)
             if ok2 and objs and #objs > 0 then
-                return true, insertObjects(objs, sourceMap) .. " object(s) loaded"
+                return true, insertObjects(objs, false, sourceMap) .. " object(s) loaded"
             end
         end
     end
-
-    local ok3, o3 = pcall(function()
-        return game:GetObjects("rbxasset://" .. fileInfo.path)
-    end)
-    if ok3 and o3 and #o3 > 0 then
-        return true, insertObjects(o3, sourceMap) .. " object(s) loaded"
+    local ok3, objs = pcall(function() return game:GetObjects("rbxasset://" .. fileInfo.path) end)
+    if ok3 and objs and #objs > 0 then
+        return true, insertObjects(objs, false, sourceMap) .. " object(s) loaded"
     end
-
     return false, "RBXM gagal dimuat"
 end
 
@@ -734,11 +513,7 @@ local function safeListFiles(p) if not listfiles then return nil end; local ok, 
 local function getFileName(p) return p:match("([^/]+)$") or p end
 local function getFileType(n)
     n = n:lower()
-    if n:match("%.rbxm$") then
-        return "RBXM"
-    elseif n:match("%.rbxmx$") then
-        return "RBXMX"
-    end
+    if n:match("%.rbxm$") then return "RBXM" end
     return nil
 end
 local function looksFolder(p) return not getFileName(p):match("%.[%a%d]+") end
@@ -789,6 +564,135 @@ local function insertToolboxModel(value)
     if inserted.Parent==nil then inserted.Parent=workspace end
     pcall(function() injectAllScripts(inserted,{}); ApplyStudioLiteProperties(inserted); LoadAssetsToSLServer(inserted) end)
     return true,inserted.Name
+end
+
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- CREATOR STORE MODEL SEARCH
+-- ═══════════════════════════════════════════════════════════════════════
+local Scroll, EmptyFrame, notify
+local CREATOR_STORE_SEARCH = {
+    "https://apis.roblox.com/toolbox-service/v1/marketplace/10",
+    "https://apis.roproxy.com/toolbox-service/v1/marketplace/10",
+    "https://apis.rotunnel.com/toolbox-service/v1/marketplace/10"
+}
+
+local function searchCreatorModels(keyword, pageNumber)
+    keyword = tostring(keyword or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if keyword == "" then return false, "Masukkan nama model yang ingin dicari." end
+    pageNumber = math.max(0, tonumber(pageNumber) or 0)
+
+    local query = "?limit=30&pageNumber=" .. tostring(pageNumber)
+        .. "&keyword=" .. HttpService:UrlEncode(keyword)
+        .. "&includeOnlyVerifiedCreators=false"
+
+    local lastError = "Tidak ada respons dari Creator Store."
+    for _, base in ipairs(CREATOR_STORE_SEARCH) do
+        local body, status = httpRequest(base .. query, "GET")
+        if body and (not status or (status >= 200 and status < 300)) then
+            local ok, data = pcall(function() return HttpService:JSONDecode(body) end)
+            if ok and type(data) == "table" and type(data.data) == "table" then
+                local results = {}
+                for _, item in ipairs(data.data) do
+                    local id = tonumber(item.id or item.assetId or item.AssetId)
+                    if id then
+                        table.insert(results, {
+                            id = id,
+                            name = tostring(item.name or item.Name or ("Model " .. id)),
+                            creator = tostring(item.creatorName or item.CreatorName or item.creator or "Creator Store")
+                        })
+                    end
+                end
+                return true, results, data.nextPageCursor
+            end
+            lastError = "Format respons Creator Store tidak dikenali."
+        elseif status then
+            lastError = "Creator Store HTTP " .. tostring(status)
+        end
+    end
+    return false, lastError
+end
+
+local function clearScrollCards()
+    for _, c in ipairs(Scroll:GetChildren()) do
+        if c:IsA("Frame") and c ~= EmptyFrame then c:Destroy() end
+    end
+end
+
+local function buildModelResultCard(info)
+    EmptyFrame.Visible = false
+
+    local card = Instance.new("Frame", Scroll)
+    card.Size = UDim2.new(1, 0, 0, 58)
+    card.BackgroundColor3 = Color3.fromRGB(24, 18, 42)
+    card.BorderSizePixel = 0
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
+
+    local stroke = Instance.new("UIStroke", card)
+    stroke.Thickness = 1
+    stroke.Color = Color3.fromRGB(70, 42, 100)
+
+    local thumb = Instance.new("ImageLabel", card)
+    thumb.Size = UDim2.new(0, 44, 0, 44)
+    thumb.Position = UDim2.new(0, 6, 0.5, -22)
+    thumb.BackgroundColor3 = Color3.fromRGB(15, 12, 28)
+    thumb.BorderSizePixel = 0
+    thumb.Image = "rbxthumb://type=Asset&id=" .. tostring(info.id) .. "&w=150&h=150"
+    thumb.ScaleType = Enum.ScaleType.Crop
+    Instance.new("UICorner", thumb).CornerRadius = UDim.new(0, 5)
+
+    local name = Instance.new("TextLabel", card)
+    name.Size = UDim2.new(1, -142, 0, 18)
+    name.Position = UDim2.new(0, 58, 0, 7)
+    name.BackgroundTransparency = 1
+    name.Text = tostring(info.name)
+    name.TextColor3 = Color3.fromRGB(225, 215, 240)
+    name.Font = Enum.Font.GothamBold
+    name.TextSize = 9
+    name.TextXAlignment = Enum.TextXAlignment.Left
+    name.TextTruncate = Enum.TextTruncate.AtEnd
+
+    local creator = Instance.new("TextLabel", card)
+    creator.Size = UDim2.new(1, -142, 0, 13)
+    creator.Position = UDim2.new(0, 58, 0, 26)
+    creator.BackgroundTransparency = 1
+    creator.Text = "ID: " .. tostring(info.id) .. "  •  " .. tostring(info.creator)
+    creator.TextColor3 = Color3.fromRGB(135, 115, 165)
+    creator.Font = Enum.Font.Gotham
+    creator.TextSize = 7
+    creator.TextXAlignment = Enum.TextXAlignment.Left
+    creator.TextTruncate = Enum.TextTruncate.AtEnd
+
+    local insert = Instance.new("TextButton", card)
+    insert.Size = UDim2.new(0, 66, 0, 26)
+    insert.Position = UDim2.new(1, -72, 0.5, -13)
+    insert.BackgroundColor3 = Color3.fromRGB(18, 58, 27)
+    insert.BorderSizePixel = 0
+    insert.Text = "INSERT"
+    insert.TextColor3 = Color3.fromRGB(190, 255, 180)
+    insert.Font = Enum.Font.GothamBold
+    insert.TextSize = 8
+    Instance.new("UICorner", insert).CornerRadius = UDim.new(0, 5)
+
+    insert.MouseButton1Click:Connect(function()
+        if insert.Text == "LOAD..." then return end
+        insert.Text = "LOAD..."
+        task.spawn(function()
+            local ok, msg = insertToolboxModel(tostring(info.id))
+            if ok then
+                insert.Text = "DONE"
+                insert.BackgroundColor3 = Color3.fromRGB(70, 150, 78)
+                notify("Creator Store", tostring(info.name) .. " berhasil diinsert.", Color3.fromRGB(120, 230, 135))
+            else
+                insert.Text = "FAIL"
+                insert.BackgroundColor3 = Color3.fromRGB(150, 45, 45)
+                notify("Insert Gagal", tostring(msg), Color3.fromRGB(240, 90, 90))
+            end
+            task.wait(1.5)
+            insert.Text = "INSERT"
+            insert.BackgroundColor3 = Color3.fromRGB(18, 58, 27)
+        end)
+    end)
 end
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -921,7 +825,7 @@ local BootMarker = Instance.new("TextLabel", CenterContainer)
 BootMarker.Size = UDim2.new(1, 0, 0, 38)
 BootMarker.Position = UDim2.new(0, 0, 0, 22)
 BootMarker.BackgroundTransparency = 1
-BootMarker.Text = "[ SECURE BOOT // NANG RBXM + RBXMX ]"
+BootMarker.Text = "[ SECURE BOOT // NANG RBXM ]"
 BootMarker.TextColor3 = Color3.fromRGB(215, 180, 255)
 BootMarker.Font = Enum.Font.Code
 BootMarker.TextSize = 12
@@ -932,7 +836,7 @@ local KingText = Instance.new("TextLabel", CenterContainer)
 KingText.Size = UDim2.new(1, 0, 0, 62)
 KingText.Position = UDim2.new(0, 0, 0, 62)
 KingText.BackgroundTransparency = 1
-KingText.Text = "NANG RBXM + RBXMX"
+KingText.Text = "NANG RBXM"
 KingText.TextColor3 = Color3.fromRGB(195, 105, 255)
 KingText.Font = Enum.Font.GothamBold
 KingText.TextSize = 54
@@ -943,7 +847,7 @@ local TagLine = Instance.new("TextLabel", CenterContainer)
 TagLine.Size = UDim2.new(1, 0, 0, 22)
 TagLine.Position = UDim2.new(0, 0, 0, 126)
 TagLine.BackgroundTransparency = 1
-TagLine.Text = "[ RBXM + RBXMX IMPORTER SYSTEM READY ]"
+TagLine.Text = "[ RBXM IMPORTER SYSTEM READY ]"
 TagLine.TextColor3 = Color3.fromRGB(145, 75, 220)
 TagLine.Font = Enum.Font.Code
 TagLine.TextSize = 13
@@ -1125,7 +1029,7 @@ end)
 -- MAIN CONTAINER
 local Main = Instance.new("Frame", UI)
 Main.Name = "MainFrame"
-Main.Size = UDim2.new(0, 320, 0, 410)
+Main.Size = UDim2.new(0, 320, 0, 430)
 Main.Position = UDim2.new(0.5, -160, 0.5, -180)
 Main.BackgroundColor3 = Color3.fromRGB(12, 10, 24)
 Main.BackgroundTransparency = 0.05
@@ -1171,7 +1075,7 @@ local TitleText = Instance.new("TextLabel", TitleBar)
 TitleText.Size = UDim2.new(1, -90, 1, 0)
 TitleText.Position = UDim2.new(0, 34, 0, 0)
 TitleText.BackgroundTransparency = 1
-TitleText.Text = "NANG  •  RBXM + RBXMX + TOOLBOX"
+TitleText.Text = "NANG RBXM  •  IMPORTER + TOOLBOX"
 TitleText.TextColor3 = Color3.fromRGB(245, 235, 255)
 TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 12
@@ -1242,12 +1146,12 @@ local function toggleMain()
     ToggleIcon.Image = Main.Visible and ICONS.CHEVRON_RIGHT or ICONS.CHEVRON_LEFT
 end
 
-ToggleBtn.Activated:Connect(toggleMain)
+ToggleBtn.MouseButton1Click:Connect(toggleMain)
 
 -- CONTENT AREA
 local Content = Instance.new("Frame", Main)
-Content.Size = UDim2.new(1, -16, 1, -124)
-Content.Position = UDim2.new(0, 8, 0, 42)
+Content.Size = UDim2.new(1, -16, 1, -160)
+Content.Position = UDim2.new(0, 8, 0, 78)
 Content.BackgroundColor3 = Color3.fromRGB(18, 14, 34)
 Content.BorderSizePixel = 0
 Instance.new("UICorner", Content).CornerRadius = UDim.new(0, 8)
@@ -1255,6 +1159,63 @@ Instance.new("UICorner", Content).CornerRadius = UDim.new(0, 8)
 local ContentStroke = Instance.new("UIStroke", Content)
 ContentStroke.Thickness = 1
 ContentStroke.Color = Color3.fromRGB(70, 40, 105)
+
+-- ================================================================
+-- MAIN NAVIGATION: RBXM / TOOLBOX / PUBLISH
+-- Semua fitur berada dalam satu UI, tetapi dipisahkan menjadi menu.
+-- ================================================================
+local MenuBar = Instance.new("Frame", Main)
+MenuBar.Name = "MainMenu"
+MenuBar.Size = UDim2.new(1, -16, 0, 30)
+MenuBar.Position = UDim2.new(0, 8, 0, 42)
+MenuBar.BackgroundColor3 = Color3.fromRGB(18, 14, 34)
+MenuBar.BorderSizePixel = 0
+Instance.new("UICorner", MenuBar).CornerRadius = UDim.new(0, 7)
+
+local MenuStroke = Instance.new("UIStroke", MenuBar)
+MenuStroke.Thickness = 1
+MenuStroke.Color = Color3.fromRGB(70, 40, 105)
+
+local MenuLayout = Instance.new("UIListLayout", MenuBar)
+MenuLayout.FillDirection = Enum.FillDirection.Horizontal
+MenuLayout.Padding = UDim.new(0, 4)
+MenuLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+MenuLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+
+local function makeMenuButton(label, icon)
+    local b = Instance.new("TextButton", MenuBar)
+    b.Size = UDim2.new(0, 91, 0, 24)
+    b.BackgroundColor3 = Color3.fromRGB(27, 20, 45)
+    b.BorderSizePixel = 0
+    b.AutoButtonColor = false
+    b.Text = ""
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 5)
+
+    local i = Instance.new("ImageLabel", b)
+    i.Size = UDim2.new(0, 13, 0, 13)
+    i.Position = UDim2.new(0, 8, 0.5, -6)
+    i.BackgroundTransparency = 1
+    i.Image = icon
+    i.ImageColor3 = Color3.fromRGB(160, 135, 190)
+
+    local t = Instance.new("TextLabel", b)
+    t.Size = UDim2.new(1, -27, 1, 0)
+    t.Position = UDim2.new(0, 25, 0, 0)
+    t.BackgroundTransparency = 1
+    t.Text = label
+    t.TextColor3 = Color3.fromRGB(170, 150, 195)
+    t.Font = Enum.Font.GothamBold
+    t.TextSize = 8
+    t.TextXAlignment = Enum.TextXAlignment.Left
+
+    return b, i, t
+end
+
+local MenuRBXM, MenuRBXMIcon, MenuRBXMText = makeMenuButton("RBXM", ICONS.FILE)
+local MenuToolbox, MenuToolboxIcon, MenuToolboxText = makeMenuButton("TOOLBOX", ICONS.PACKAGE)
+local MenuPublish, MenuPublishIcon, MenuPublishText = makeMenuButton("PUBLISH", ICONS.DOWNLOAD)
+
+local ActiveMenu = "rbxm"
 
 -- SCAN BUTTON WITH ANIMATED GRADIENT & VECTOR SEARCH ICON
 local ScanBtn = Instance.new("Frame", Content)
@@ -1306,6 +1267,7 @@ ToolboxBox.PlaceholderColor3=Color3.fromRGB(125,110,150)
 ToolboxBox.Font=Enum.Font.Gotham
 ToolboxBox.TextSize=10
 Instance.new("UICorner",ToolboxBox).CornerRadius=UDim.new(0,6)
+
 local ToolboxInsert=Instance.new("TextButton",Content)
 ToolboxInsert.Size=UDim2.new(0,78,0,30)
 ToolboxInsert.Position=UDim2.new(1,-84,0,42)
@@ -1316,29 +1278,116 @@ ToolboxInsert.TextColor3=Color3.fromRGB(190,255,180)
 ToolboxInsert.Font=Enum.Font.GothamBold
 ToolboxInsert.TextSize=9
 Instance.new("UICorner",ToolboxInsert).CornerRadius=UDim.new(0,6)
-local SearchBox = Instance.new("TextBox", Content)
-SearchBox.Size = UDim2.new(1, -12, 0, 28)
-SearchBox.Position = UDim2.new(0, 6, 0, 76)
-SearchBox.BackgroundColor3 = Color3.fromRGB(25, 19, 45)
-SearchBox.BorderSizePixel = 0
-SearchBox.ClearTextOnFocus = false
-SearchBox.PlaceholderText = "Search file RBXM / RBXMX..."
-SearchBox.Text = ""
-SearchBox.TextColor3 = Color3.fromRGB(225, 215, 240)
-SearchBox.PlaceholderColor3 = Color3.fromRGB(125, 110, 150)
-SearchBox.Font = Enum.Font.Gotham
-SearchBox.TextSize = 10
-SearchBox.TextXAlignment = Enum.TextXAlignment.Left
-Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 6)
 
-local SearchPadding = Instance.new("UIPadding", SearchBox)
-SearchPadding.PaddingLeft = UDim.new(0, 10)
+local SearchModelBox=Instance.new("TextBox",Content)
+SearchModelBox.Size=UDim2.new(1,-92,0,30)
+SearchModelBox.Position=UDim2.new(0,6,0,78)
+SearchModelBox.BackgroundColor3=Color3.fromRGB(25,19,45)
+SearchModelBox.BorderSizePixel=0
+SearchModelBox.ClearTextOnFocus=false
+SearchModelBox.PlaceholderText="Cari model di Creator Store..."
+SearchModelBox.Text=""
+SearchModelBox.TextColor3=Color3.fromRGB(225,215,240)
+SearchModelBox.PlaceholderColor3=Color3.fromRGB(145,125,175)
+SearchModelBox.Font=Enum.Font.Gotham
+SearchModelBox.TextSize=10
+Instance.new("UICorner",SearchModelBox).CornerRadius=UDim.new(0,6)
 
+local SearchModelBtn=Instance.new("TextButton",Content)
+SearchModelBtn.Size=UDim2.new(0,78,0,30)
+SearchModelBtn.Position=UDim2.new(1,-84,0,78)
+SearchModelBtn.BackgroundColor3=Color3.fromRGB(82,45,145)
+SearchModelBtn.BorderSizePixel=0
+SearchModelBtn.Text="CARI MODEL"
+SearchModelBtn.TextColor3=Color3.fromRGB(245,235,255)
+SearchModelBtn.Font=Enum.Font.GothamBold
+SearchModelBtn.TextSize=8
+Instance.new("UICorner",SearchModelBtn).CornerRadius=UDim.new(0,6)
+
+local ToolboxHint=Instance.new("TextLabel",Content)
+ToolboxHint.Size=UDim2.new(1,-12,0,16)
+ToolboxHint.Position=UDim2.new(0,6,0,112)
+ToolboxHint.BackgroundTransparency=1
+ToolboxHint.Text="CREATOR STORE  •  Cari model berdasarkan nama lalu tekan INSERT"
+ToolboxHint.TextColor3=Color3.fromRGB(145,120,175)
+ToolboxHint.Font=Enum.Font.Gotham
+ToolboxHint.TextSize=7
+ToolboxHint.TextXAlignment=Enum.TextXAlignment.Left
+
+
+local function styleMenuButton(button, icon, label, active)
+    if active then
+        button.BackgroundColor3 = Color3.fromRGB(82, 45, 145)
+        icon.ImageColor3 = Color3.fromRGB(245, 235, 255)
+        label.TextColor3 = Color3.fromRGB(250, 245, 255)
+    else
+        button.BackgroundColor3 = Color3.fromRGB(27, 20, 45)
+        icon.ImageColor3 = Color3.fromRGB(160, 135, 190)
+        label.TextColor3 = Color3.fromRGB(170, 150, 195)
+    end
+end
+
+local function showMenu(menu)
+    ActiveMenu = menu
+
+    local isRBXM = menu == "rbxm"
+    local isToolbox = menu == "toolbox"
+    local isPublish = menu == "publish"
+
+    -- Main content
+    Content.Visible = not isPublish
+    StatsBar.Visible = not isPublish
+
+    -- RBXM menu
+    ScanBtn.Visible = isRBXM
+
+    -- Toolbox / Creator Store menu
+    ToolboxBox.Visible = isToolbox
+    ToolboxInsert.Visible = isToolbox
+    SearchModelBox.Visible = isToolbox
+    SearchModelBtn.Visible = isToolbox
+    ToolboxHint.Visible = isToolbox
+
+    -- Shared result list
+    if isRBXM then
+        Scroll.Position = UDim2.new(0, 6, 0, 42)
+        Scroll.Size = UDim2.new(1, -12, 1, -48)
+        EmptyLabel.Text = "Belum ada file.\nTekan 'SCAN FILES' untuk mencari RBXM."
+    elseif isToolbox then
+        Scroll.Position = UDim2.new(0, 6, 0, 132)
+        Scroll.Size = UDim2.new(1, -12, 1, -138)
+        EmptyLabel.Text = "Belum ada hasil.\nCari model di Creator Store atau gunakan Asset ID."
+    end
+
+    styleMenuButton(MenuRBXM, MenuRBXMIcon, MenuRBXMText, isRBXM)
+    styleMenuButton(MenuToolbox, MenuToolboxIcon, MenuToolboxText, isToolbox)
+    styleMenuButton(MenuPublish, MenuPublishIcon, MenuPublishText, isPublish)
+
+    -- Publish memakai panel publish yang sama, tetapi dipanggil dari tab utama.
+    if PublishPanel then
+        PublishPanel.Visible = isPublish
+        if isPublish then
+            PublishPanel.ZIndex = 50
+        end
+    end
+end
+
+MenuRBXM.Activated:Connect(function()
+    showMenu("rbxm")
+end)
+
+MenuToolbox.Activated:Connect(function()
+    showMenu("toolbox")
+end)
+
+MenuPublish.MouseButton1Click:Connect(function()
+    showMenu("publish")
+end)
 
 -- SCROLL LIST
-local Scroll = Instance.new("ScrollingFrame", Content)
-Scroll.Size = UDim2.new(1, -12, 1, -160)
-Scroll.Position = UDim2.new(0, 6, 0, 110)
+Scroll = Instance.new("ScrollingFrame", Content)
+Scroll.Size = UDim2.new(1, -12, 1, -136)
+Scroll.Position = UDim2.new(0, 6, 0, 132)
 Scroll.BackgroundTransparency = 1
 Scroll.ScrollBarThickness = 3
 Scroll.ScrollBarImageColor3 = Color3.fromRGB(160, 95, 225)
@@ -1349,7 +1398,7 @@ Layout.Padding = UDim.new(0, 5)
 Layout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- EMPTY STATE FRAME WITH VECTOR FOLDER ICON
-local EmptyFrame = Instance.new("Frame", Scroll)
+EmptyFrame = Instance.new("Frame", Scroll)
 EmptyFrame.Size = UDim2.new(1, 0, 0, 100)
 EmptyFrame.BackgroundTransparency = 1
 
@@ -1364,7 +1413,7 @@ local EmptyLabel = Instance.new("TextLabel", EmptyFrame)
 EmptyLabel.Size = UDim2.new(1, -20, 0, 36)
 EmptyLabel.Position = UDim2.new(0, 10, 0, 48)
 EmptyLabel.BackgroundTransparency = 1
-EmptyLabel.Text = "Belum ada file terdeteksi.\nTekan 'SCAN FILES' untuk mencari file RBXM atau RBXMX."
+EmptyLabel.Text = "Belum ada hasil.\nCari model di Creator Store atau tekan 'SCAN FILES'."
 EmptyLabel.TextColor3 = Color3.fromRGB(170, 150, 195)
 EmptyLabel.Font = Enum.Font.Gotham
 EmptyLabel.TextSize = 10
@@ -1389,7 +1438,7 @@ StatsText.TextSize = 9
 StatsText.TextXAlignment = Enum.TextXAlignment.Left
 
 -- NOTIFICATION SYSTEM WITH VECTOR BELL ICON
-local function notify(title, msg, color)
+notify = function(title, msg, color)
     color = color or Color3.fromRGB(220, 200, 235)
     local notif = Instance.new("Frame", UI)
     notif.Size = UDim2.new(0, 220, 0, 42)
@@ -1442,7 +1491,6 @@ local function buildFileCard(fileInfo)
     EmptyFrame.Visible = false
 
     local card = Instance.new("Frame", Scroll)
-    card:SetAttribute("FileName", string.lower(fileInfo.name))
     card.Size = UDim2.new(1, 0, 0, 44)
     card.BackgroundColor3 = Color3.fromRGB(24, 18, 42)
     card.BorderSizePixel = 0
@@ -1452,9 +1500,11 @@ local function buildFileCard(fileInfo)
     cardStroke.Thickness = 1
     cardStroke.Color = Color3.fromRGB(70, 42, 100)
 
+    local isRbxl = fileInfo.ftype == "RBXM"
+
     local typeBadge = Instance.new("Frame", card)
     typeBadge.Size = UDim2.new(0, 48, 0, 16); typeBadge.Position = UDim2.new(0, 6, 0, 6)
-    typeBadge.BackgroundColor3 = Color3.fromRGB(43, 110, 55)
+    typeBadge.BackgroundColor3 = isRbxl and Color3.fromRGB(115, 220, 120) or Color3.fromRGB(43, 110, 55)
     typeBadge.BorderSizePixel = 0
     Instance.new("UICorner", typeBadge).CornerRadius = UDim.new(0, 4)
 
@@ -1462,7 +1512,7 @@ local function buildFileCard(fileInfo)
     badgeIcon.Size = UDim2.new(0, 10, 0, 10)
     badgeIcon.Position = UDim2.new(0, 4, 0.5, -5)
     badgeIcon.BackgroundTransparency = 1
-    badgeIcon.Image = ICONS.FILE
+    badgeIcon.Image = isRbxl and ICONS.GAMEPAD or ICONS.FILE
     badgeIcon.ImageColor3 = Color3.fromRGB(4, 30, 13)
 
     local typeText = Instance.new("TextLabel", typeBadge)
@@ -1516,7 +1566,7 @@ local function buildFileCard(fileInfo)
     insertBtn.MouseEnter:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 100, 42)}):Play() end)
     insertBtn.MouseLeave:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 58, 27)}):Play() end)
 
-    insertBtn.Activated:Connect(function()
+    insertBtn.MouseButton1Click:Connect(function()
         if insertText.Text == "LOADING" then return end
         insertText.Text = "LOADING"; insertIcon.Image = ICONS.REFRESH
         insertFrame.BackgroundColor3 = Color3.fromRGB(20, 76, 30)
@@ -1542,6 +1592,52 @@ local function buildFileCard(fileInfo)
 end
 
 
+local creatorPage = 0
+local creatorSearching = false
+
+local function runCreatorSearch()
+    if creatorSearching then return end
+    local keyword = SearchModelBox.Text
+    if tostring(keyword):gsub("%s+","") == "" then
+        notify("Creator Store", "Ketik nama model terlebih dahulu.", Color3.fromRGB(240, 180, 80))
+        return
+    end
+
+    creatorSearching = true
+    creatorPage = 0
+    SearchModelBtn.Text = "MENCARI..."
+    clearScrollCards()
+    EmptyFrame.Visible = true
+    EmptyLabel.Text = "Mencari model di Creator Store..."
+
+    task.spawn(function()
+        local ok, results, err = searchCreatorModels(keyword, creatorPage)
+        if ok then
+            EmptyFrame.Visible = (#results == 0)
+            if #results == 0 then
+                EmptyLabel.Text = "Model tidak ditemukan.\nCoba kata kunci lain."
+            else
+                for _, info in ipairs(results) do
+                    buildModelResultCard(info)
+                end
+                StatsText.Text = string.format("Status: Creator Store  |  %d model", #results)
+                notify("Creator Store", #results .. " model ditemukan.", Color3.fromRGB(190, 150, 245))
+            end
+        else
+            EmptyFrame.Visible = true
+            EmptyLabel.Text = "Pencarian gagal.\n" .. tostring(err)
+            notify("Creator Store Gagal", tostring(results), Color3.fromRGB(240, 90, 90))
+        end
+        SearchModelBtn.Text = "CARI MODEL"
+        creatorSearching = false
+    end)
+end
+
+SearchModelBtn.Activated:Connect(runCreatorSearch)
+SearchModelBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then runCreatorSearch() end
+end)
+
 ToolboxInsert.Activated:Connect(function()
     if ToolboxInsert.Text=="LOAD..." then return end
     ToolboxInsert.Text="LOAD..."
@@ -1552,19 +1648,6 @@ ToolboxInsert.Activated:Connect(function()
         ToolboxInsert.Text="INSERT"
     end)
 end)
-
-
-local function applyFileSearch()
-    local query = string.lower(SearchBox.Text or "")
-    for _, child in ipairs(Scroll:GetChildren()) do
-        if child:IsA("Frame") and child ~= EmptyFrame then
-            local fileName = child:GetAttribute("FileName") or ""
-            child.Visible = (query == "" or string.find(fileName, query, 1, true) ~= nil)
-        end
-    end
-end
-
-SearchBox:GetPropertyChangedSignal("Text"):Connect(applyFileSearch)
 
 -- SCAN LOGIC
 ScanClick.Activated:Connect(function()
@@ -1580,30 +1663,517 @@ ScanClick.Activated:Connect(function()
     task.spawn(function()
         local foundFiles = scanAll()
         for _, f in ipairs(foundFiles) do buildFileCard(f) end
-        applyFileSearch()
 
         StatsText.Text = string.format("Status: Ready  |  Files: %d", #foundFiles)
         ScanText.Text = "SCAN FILES"
         ScanIcon.Image = ICONS.SEARCH
 
         if #foundFiles == 0 then
-            EmptyLabel.Text = "Tidak ada file RBXM atau RBXMX terdeteksi.\nPeriksa folder workspace executor."
+            EmptyLabel.Text = "Tidak ada file RBXM terdeteksi.\nPeriksa folder workspace executor."
         else
             notify("Scan Selesai", #foundFiles .. " file terdeteksi", Color3.fromRGB(220, 220, 230))
         end
     end)
 end)
 
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- INSTANT MAP PUBLISHER — ROBLOX OPEN CLOUD
+-- Publishes an .rbxl/.rbxlx place file to an existing Universe/Place.
+-- Requires a Roblox Open Cloud API key with universe-places write access.
+-- ═══════════════════════════════════════════════════════════════════════
+local function openCloudRequest(url, method, headers, body)
+    local funcs = {
+        function()
+            if syn and syn.request then
+                local r = syn.request({Url=url, Method=method, Headers=headers, Body=body})
+                return r.Body, r.StatusCode
+            end
+        end,
+        function()
+            if request then
+                local r = request({Url=url, Method=method, Headers=headers, Body=body})
+                return r.Body, r.StatusCode
+            end
+        end,
+        function()
+            if http_request then
+                local r = http_request({Url=url, Method=method, Headers=headers, Body=body})
+                return r.Body, r.StatusCode
+            end
+        end,
+        function()
+            if fluxus and fluxus.request then
+                local r = fluxus.request({Url=url, Method=method, Headers=headers, Body=body})
+                return r.Body, r.StatusCode
+            end
+        end
+    }
+    for _, fn in ipairs(funcs) do
+        local ok, responseBody, status = pcall(fn)
+        if ok and status then
+            return responseBody or "", tonumber(status) or 0
+        end
+    end
+    return nil, 0
+end
+
+local function readExistingBinary(path)
+    if not readfile then return nil end
+    local ok, data = pcall(readfile, path)
+    if ok and type(data) == "string" and #data > 100 then return data end
+    return nil
+end
+
+local function saveCurrentPlaceBinary(path)
+    -- If the executor already has a saved place file, use it first.
+    local existing = readExistingBinary(path)
+    if existing then return existing end
+    if not saveinstance then
+        return nil, "Executor tidak menyediakan saveinstance(). Masukkan path file .rbxl yang sudah ada."
+    end
+
+    local attempts = {
+        function() return saveinstance({Path = path}) end,
+        function() return saveinstance({path = path}) end,
+        function() return saveinstance({FilePath = path}) end,
+        function() return saveinstance(path) end,
+    }
+    for _, fn in ipairs(attempts) do
+        pcall(fn)
+        local data = readExistingBinary(path)
+        if data then return data end
+    end
+    return nil, "saveinstance() dipanggil tetapi file .rbxl tidak berhasil dibuat."
+end
+
+local function resolveUniverseRootPlace(apiKey, universeId)
+    -- The public games endpoint exposes rootPlaceId from a Universe ID,
+    -- so the user does not need to enter a separate Place ID.
+    local url = "https://games.roblox.com/v1/games?universeIds=" .. tostring(universeId)
+    local body, status = openCloudRequest(url, "GET", { ["Accept"] = "application/json" }, nil)
+    if not body or status < 200 or status >= 300 then
+        return nil, nil, "Tidak bisa mengambil Root Place ID. HTTP " .. tostring(status)
+    end
+    local ok, data = pcall(function() return HttpService:JSONDecode(body) end)
+    if not ok or type(data) ~= "table" or type(data.data) ~= "table" or not data.data[1] then
+        return nil, nil, "Respons Universe tidak valid."
+    end
+    local info = data.data[1]
+    local rootPlaceId = tostring(info.rootPlaceId or ""):match("%d+")
+    local universeName = tostring(info.name or "")
+    if not rootPlaceId then
+        return nil, universeName, "Root Place ID tidak ditemukan untuk Universe tersebut."
+    end
+    return rootPlaceId, universeName, nil
+end
+
+local function publishPlaceBinary(apiKey, universeId, placeId, placeBytes)
+    local url = "https://apis.roblox.com/universes/v1/" .. tostring(universeId)
+        .. "/places/" .. tostring(placeId) .. "/versions?versionType=Published"
+    local headers = {
+        ["x-api-key"] = tostring(apiKey),
+        ["Content-Type"] = "application/octet-stream",
+        ["Accept"] = "application/json"
+    }
+    return openCloudRequest(url, "POST", headers, placeBytes)
+end
+
+local function updateUniverseDisplayName(apiKey, universeId, mapName)
+    if tostring(mapName or ""):gsub("%s+", "") == "" then return true, 204, "Nama dilewati" end
+    local url = "https://apis.roblox.com/cloud/v2/universes/" .. tostring(universeId)
+    local headers = {
+        ["x-api-key"] = tostring(apiKey),
+        ["Content-Type"] = "application/json",
+        ["Accept"] = "application/json"
+    }
+    local body = HttpService:JSONEncode({displayName = tostring(mapName)})
+    local response, status = openCloudRequest(url, "PATCH", headers, body)
+    if status >= 200 and status < 300 then
+        return true, status, response
+    end
+    return false, status, response
+end
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- CLEAN INSTANT MAP PUBLISHER UI
+-- Methods:
+--   1) MAP SAAT INI   -> auto-detect GameId/PlaceId
+--   2) MAP KOMUNITAS  -> enter Universe ID, Root Place is resolved automatically
+-- ═══════════════════════════════════════════════════════════════════════
+local PublishOpenBtn = Instance.new("TextButton", TitleBar)
+PublishOpenBtn.Size = UDim2.new(0, 42, 0, 22)
+PublishOpenBtn.Position = UDim2.new(1, -104, 0.5, -11)
+PublishOpenBtn.BackgroundColor3 = Color3.fromRGB(55, 32, 95)
+PublishOpenBtn.BorderSizePixel = 0
+PublishOpenBtn.Text = "PUB"
+PublishOpenBtn.TextColor3 = Color3.fromRGB(230, 210, 255)
+PublishOpenBtn.Font = Enum.Font.GothamBold
+PublishOpenBtn.TextSize = 8
+Instance.new("UICorner", PublishOpenBtn).CornerRadius = UDim.new(0, 5)
+PublishOpenBtn.Visible = false
+
+local PublishPanel = Instance.new("Frame", UI)
+PublishPanel.Name = "InstantPublishPanel"
+PublishPanel.Size = UDim2.new(0, 330, 0, 430)
+PublishPanel.Position = UDim2.new(0.5, -165, 0.5, -215)
+PublishPanel.BackgroundColor3 = Color3.fromRGB(12, 10, 24)
+PublishPanel.BorderSizePixel = 0
+PublishPanel.Visible = false
+PublishPanel.ZIndex = 50
+Instance.new("UICorner", PublishPanel).CornerRadius = UDim.new(0, 12)
+local ppStroke = Instance.new("UIStroke", PublishPanel)
+ppStroke.Thickness = 1.2
+ppStroke.Color = Color3.fromRGB(155, 90, 225)
+
+local ppTitle = Instance.new("TextLabel", PublishPanel)
+ppTitle.Size = UDim2.new(1, -60, 0, 32)
+ppTitle.Position = UDim2.new(0, 14, 0, 7)
+ppTitle.BackgroundTransparency = 1
+ppTitle.Text = "INSTANT MAP PUBLISH"
+ppTitle.TextColor3 = Color3.fromRGB(245, 235, 255)
+ppTitle.Font = Enum.Font.GothamBold
+ppTitle.TextSize = 12
+ppTitle.TextXAlignment = Enum.TextXAlignment.Left
+ppTitle.ZIndex = 51
+
+local ppSub = Instance.new("TextLabel", PublishPanel)
+ppSub.Size = UDim2.new(1, -28, 0, 18)
+ppSub.Position = UDim2.new(0, 14, 0, 34)
+ppSub.BackgroundTransparency = 1
+ppSub.Text = "Pilih metode publish yang kamu inginkan"
+ppSub.TextColor3 = Color3.fromRGB(140, 125, 165)
+ppSub.Font = Enum.Font.Gotham
+ppSub.TextSize = 8
+ppSub.TextXAlignment = Enum.TextXAlignment.Left
+ppSub.ZIndex = 51
+
+local ppClose = Instance.new("TextButton", PublishPanel)
+ppClose.Size = UDim2.new(0, 25, 0, 25)
+ppClose.Position = UDim2.new(1, -34, 0, 7)
+ppClose.BackgroundColor3 = Color3.fromRGB(35, 22, 60)
+ppClose.BorderSizePixel = 0
+ppClose.Text = "X"
+ppClose.TextColor3 = Color3.fromRGB(225, 205, 255)
+ppClose.Font = Enum.Font.GothamBold
+ppClose.TextSize = 10
+ppClose.ZIndex = 51
+Instance.new("UICorner", ppClose).CornerRadius = UDim.new(0, 6)
+
+-- Method selector
+local MethodLabel = Instance.new("TextLabel", PublishPanel)
+MethodLabel.Size = UDim2.new(1, -28, 0, 18)
+MethodLabel.Position = UDim2.new(0, 14, 0, 60)
+MethodLabel.BackgroundTransparency = 1
+MethodLabel.Text = "METODE PUBLISH"
+MethodLabel.TextColor3 = Color3.fromRGB(170, 150, 195)
+MethodLabel.Font = Enum.Font.GothamBold
+MethodLabel.TextSize = 8
+MethodLabel.TextXAlignment = Enum.TextXAlignment.Left
+MethodLabel.ZIndex = 51
+
+local function methodButton(text, x)
+    local b = Instance.new("TextButton", PublishPanel)
+    b.Size = UDim2.new(0.5, -18, 0, 32)
+    b.Position = UDim2.new(x, 12, 0, 80)
+    b.BackgroundColor3 = Color3.fromRGB(27, 20, 45)
+    b.BorderSizePixel = 0
+    b.Text = text
+    b.TextColor3 = Color3.fromRGB(165, 150, 185)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 8
+    b.ZIndex = 51
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 7)
+    return b
+end
+
+local CurrentMethodBtn = methodButton("MAP SAAT INI", 0)
+local CommunityMethodBtn = methodButton("MAP KOMUNITAS", 0.5)
+
+local PublishApiKey
+-- Local helper is defined here so the complete UI is self-contained.
+local function makePublishBox2(parent, y, placeholder, height)
+    local box = Instance.new("TextBox", parent)
+    box.Size = UDim2.new(1, -28, 0, height or 30)
+    box.Position = UDim2.new(0, 14, 0, y)
+    box.BackgroundColor3 = Color3.fromRGB(25, 19, 45)
+    box.BorderSizePixel = 0
+    box.ClearTextOnFocus = false
+    box.PlaceholderText = placeholder
+    box.Text = ""
+    box.TextColor3 = Color3.fromRGB(225, 215, 240)
+    box.PlaceholderColor3 = Color3.fromRGB(125, 110, 150)
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 9
+    box.TextXAlignment = Enum.TextXAlignment.Left
+    box.ZIndex = 51
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 7)
+    local stroke = Instance.new("UIStroke", box)
+    stroke.Thickness = 0.7
+    stroke.Color = Color3.fromRGB(58, 43, 78)
+    return box
+end
+
+PublishApiKey = makePublishBox2(PublishPanel, 120, "API Key (x-api-key)", 30)
+PublishApiKey.TextEditable = true
+
+local CurrentInfo = Instance.new("Frame", PublishPanel)
+CurrentInfo.Size = UDim2.new(1, -28, 0, 104)
+CurrentInfo.Position = UDim2.new(0, 14, 0, 158)
+CurrentInfo.BackgroundColor3 = Color3.fromRGB(19, 15, 33)
+CurrentInfo.BorderSizePixel = 0
+CurrentInfo.ZIndex = 51
+Instance.new("UICorner", CurrentInfo).CornerRadius = UDim.new(0, 8)
+
+local CurrentTitle = Instance.new("TextLabel", CurrentInfo)
+CurrentTitle.Size = UDim2.new(1, -20, 0, 20)
+CurrentTitle.Position = UDim2.new(0, 10, 0, 8)
+CurrentTitle.BackgroundTransparency = 1
+CurrentTitle.Text = "MAP SAAT INI"
+CurrentTitle.TextColor3 = Color3.fromRGB(200, 175, 230)
+CurrentTitle.Font = Enum.Font.GothamBold
+CurrentTitle.TextSize = 9
+CurrentTitle.TextXAlignment = Enum.TextXAlignment.Left
+CurrentTitle.ZIndex = 52
+
+local CurrentMapText = Instance.new("TextLabel", CurrentInfo)
+CurrentMapText.Size = UDim2.new(1, -20, 0, 62)
+CurrentMapText.Position = UDim2.new(0, 10, 0, 30)
+CurrentMapText.BackgroundTransparency = 1
+CurrentMapText.TextColor3 = Color3.fromRGB(190, 180, 205)
+CurrentMapText.Font = Enum.Font.Gotham
+CurrentMapText.TextSize = 8
+CurrentMapText.TextWrapped = true
+CurrentMapText.TextXAlignment = Enum.TextXAlignment.Left
+CurrentMapText.TextYAlignment = Enum.TextYAlignment.Top
+CurrentMapText.ZIndex = 52
+
+local CommunityInfo = Instance.new("Frame", PublishPanel)
+CommunityInfo.Size = UDim2.new(1, -28, 0, 104)
+CommunityInfo.Position = UDim2.new(0, 14, 0, 158)
+CommunityInfo.BackgroundColor3 = Color3.fromRGB(19, 15, 33)
+CommunityInfo.BorderSizePixel = 0
+CommunityInfo.Visible = false
+CommunityInfo.ZIndex = 51
+Instance.new("UICorner", CommunityInfo).CornerRadius = UDim.new(0, 8)
+
+local CommunityTitle = Instance.new("TextLabel", CommunityInfo)
+CommunityTitle.Size = UDim2.new(1, -20, 0, 20)
+CommunityTitle.Position = UDim2.new(0, 10, 0, 8)
+CommunityTitle.BackgroundTransparency = 1
+CommunityTitle.Text = "MAP KOMUNITAS"
+CommunityTitle.TextColor3 = Color3.fromRGB(200, 175, 230)
+CommunityTitle.Font = Enum.Font.GothamBold
+CommunityTitle.TextSize = 9
+CommunityTitle.TextXAlignment = Enum.TextXAlignment.Left
+CommunityTitle.ZIndex = 52
+
+local CommunityUniverse = makePublishBox2(CommunityInfo, 34, "Universe ID komunitas", 30)
+local CommunityName = makePublishBox2(CommunityInfo, 68, "Nama map / experience (opsional)", 30)
+
+local PublishPath = makePublishBox2(PublishPanel, 272, "Path file .rbxl — default: NANG_PUBLISH.rbxl", 30)
+PublishPath.Text = "NANG_PUBLISH.rbxl"
+
+local RefreshMapBtn = Instance.new("TextButton", PublishPanel)
+RefreshMapBtn.Size = UDim2.new(0, 82, 0, 28)
+RefreshMapBtn.Position = UDim2.new(1, -96, 0, 230)
+RefreshMapBtn.BackgroundColor3 = Color3.fromRGB(31, 24, 50)
+RefreshMapBtn.BorderSizePixel = 0
+RefreshMapBtn.Text = "REFRESH"
+RefreshMapBtn.TextColor3 = Color3.fromRGB(195, 175, 220)
+RefreshMapBtn.Font = Enum.Font.GothamBold
+RefreshMapBtn.TextSize = 8
+RefreshMapBtn.ZIndex = 51
+Instance.new("UICorner", RefreshMapBtn).CornerRadius = UDim.new(0, 6)
+
+local PublishBtn = Instance.new("TextButton", PublishPanel)
+PublishBtn.Size = UDim2.new(1, -28, 0, 36)
+PublishBtn.Position = UDim2.new(0, 14, 0, 310)
+PublishBtn.BackgroundColor3 = Color3.fromRGB(104, 58, 175)
+PublishBtn.BorderSizePixel = 0
+PublishBtn.Text = "PUBLISH MAP SAAT INI"
+PublishBtn.TextColor3 = Color3.fromRGB(250, 245, 255)
+PublishBtn.Font = Enum.Font.GothamBold
+PublishBtn.TextSize = 9
+PublishBtn.ZIndex = 51
+Instance.new("UICorner", PublishBtn).CornerRadius = UDim.new(0, 7)
+
+local PublishStatus = Instance.new("TextLabel", PublishPanel)
+PublishStatus.Size = UDim2.new(1, -28, 0, 52)
+PublishStatus.Position = UDim2.new(0, 14, 0, 354)
+PublishStatus.BackgroundTransparency = 1
+PublishStatus.Text = "Status: Ready"
+PublishStatus.TextColor3 = Color3.fromRGB(175, 150, 205)
+PublishStatus.Font = Enum.Font.Gotham
+PublishStatus.TextSize = 8
+PublishStatus.TextWrapped = true
+PublishStatus.TextXAlignment = Enum.TextXAlignment.Left
+PublishStatus.TextYAlignment = Enum.TextYAlignment.Top
+PublishStatus.ZIndex = 51
+
+local publishMethod = "current"
+local publishing = false
+
+local function detectCurrentMap()
+    local universeId = tostring(game.GameId or 0)
+    local placeId = tostring(game.PlaceId or 0)
+    local placeName = tostring(game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name or game.Name)
+    if universeId == "0" then universeId = "-" end
+    if placeId == "0" then placeId = "-" end
+    CurrentMapText.Text = "Nama: " .. placeName
+        .. "\nUniverse: " .. universeId
+        .. "\nPlace: " .. placeId
+        .. "\nStatus: Map terdeteksi otomatis"
+    return universeId, placeId, placeName
+end
+
+local function setPublishMethod(method)
+    publishMethod = method
+    local current = method == "current"
+    CurrentInfo.Visible = current
+    CommunityInfo.Visible = not current
+    CurrentMethodBtn.BackgroundColor3 = current and Color3.fromRGB(104, 58, 175) or Color3.fromRGB(27, 20, 45)
+    CommunityMethodBtn.BackgroundColor3 = current and Color3.fromRGB(27, 20, 45) or Color3.fromRGB(104, 58, 175)
+    CurrentMethodBtn.TextColor3 = current and Color3.fromRGB(250, 245, 255) or Color3.fromRGB(165, 150, 185)
+    CommunityMethodBtn.TextColor3 = current and Color3.fromRGB(165, 150, 185) or Color3.fromRGB(250, 245, 255)
+    PublishBtn.Text = current and "PUBLISH MAP SAAT INI" or "PUBLISH MAP KOMUNITAS"
+end
+
+CurrentMethodBtn.MouseButton1Click:Connect(function() setPublishMethod("current") end)
+CommunityMethodBtn.MouseButton1Click:Connect(function() setPublishMethod("community") end)
+RefreshMapBtn.MouseButton1Click:Connect(function()
+    local ok, err = pcall(detectCurrentMap)
+    if ok then
+        PublishStatus.Text = "Map saat ini berhasil dideteksi ulang."
+        PublishStatus.TextColor3 = Color3.fromRGB(120, 210, 150)
+    else
+        PublishStatus.Text = "Gagal mendeteksi map: " .. tostring(err)
+        PublishStatus.TextColor3 = Color3.fromRGB(240, 110, 110)
+    end
+end)
+
+PublishOpenBtn.MouseButton1Click:Connect(function()
+    PublishPanel.Visible = true
+    PublishPanel.ZIndex = 50
+    pcall(detectCurrentMap)
+    setPublishMethod(publishMethod)
+end)
+ppClose.MouseButton1Click:Connect(function()
+    PublishPanel.Visible = false
+end)
+
+PublishBtn.MouseButton1Click:Connect(function()
+    if publishing then return end
+    publishing = true
+    PublishBtn.Text = "PUBLISHING..."
+    PublishStatus.TextColor3 = Color3.fromRGB(210, 190, 240)
+
+    task.spawn(function()
+        local apiKey = tostring(PublishApiKey.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
+        local universeId, placeId, mapName
+
+        if apiKey == "" then
+            PublishStatus.Text = "API Key belum diisi."
+            PublishStatus.TextColor3 = Color3.fromRGB(240, 110, 110)
+            PublishBtn.Text = publishMethod == "current" and "PUBLISH MAP SAAT INI" or "PUBLISH MAP KOMUNITAS"
+            publishing = false
+            return
+        end
+
+        if publishMethod == "current" then
+            universeId, placeId, mapName = detectCurrentMap()
+            if universeId == "-" or placeId == "-" then
+                PublishStatus.Text = "Universe/Place ID tidak terdeteksi."
+                PublishStatus.TextColor3 = Color3.fromRGB(240, 110, 110)
+                PublishBtn.Text = "PUBLISH MAP SAAT INI"
+                publishing = false
+                return
+            end
+        else
+            universeId = tostring(CommunityUniverse.Text or ""):match("%d+")
+            mapName = tostring(CommunityName.Text or "")
+            if not universeId then
+                PublishStatus.Text = "Isi Universe ID map komunitas terlebih dahulu."
+                PublishStatus.TextColor3 = Color3.fromRGB(240, 110, 110)
+                PublishBtn.Text = "PUBLISH MAP KOMUNITAS"
+                publishing = false
+                return
+            end
+            PublishStatus.Text = "Mencari Root Place ID komunitas..."
+            local rootPlace, autoName, resolveErr = resolveUniverseRootPlace(apiKey, universeId)
+            if not rootPlace then
+                PublishStatus.Text = tostring(resolveErr or "Root Place tidak ditemukan.")
+                PublishStatus.TextColor3 = Color3.fromRGB(240, 110, 110)
+                PublishBtn.Text = "PUBLISH MAP KOMUNITAS"
+                publishing = false
+                return
+            end
+            placeId = rootPlace
+            if mapName:gsub("%s+", "") == "" then mapName = autoName or "" end
+        end
+
+        local filePath = tostring(PublishPath.Text or "NANG_PUBLISH.rbxl")
+        if filePath:gsub("%s+", "") == "" then filePath = "NANG_PUBLISH.rbxl" end
+
+        PublishStatus.Text = "Map: " .. tostring(mapName) .. "\nMembuat snapshot..."
+        local placeBytes, saveErr = saveCurrentPlaceBinary(filePath)
+        if not placeBytes then
+            PublishStatus.Text = tostring(saveErr)
+            PublishStatus.TextColor3 = Color3.fromRGB(240, 110, 110)
+            PublishBtn.Text = publishMethod == "current" and "PUBLISH MAP SAAT INI" or "PUBLISH MAP KOMUNITAS"
+            publishing = false
+            return
+        end
+
+        PublishStatus.Text = "Mengunggah map ke Roblox..."
+        local body, status = publishPlaceBinary(apiKey, universeId, placeId, placeBytes)
+        if not status or status < 200 or status >= 300 then
+            PublishStatus.Text = "Publish gagal. HTTP " .. tostring(status) .. "\n" .. tostring(body or "")
+            PublishStatus.TextColor3 = Color3.fromRGB(240, 110, 110)
+            PublishBtn.Text = publishMethod == "current" and "PUBLISH MAP SAAT INI" or "PUBLISH MAP KOMUNITAS"
+            publishing = false
+            return
+        end
+
+        local version = ""
+        local okJson, decoded = pcall(function() return HttpService:JSONDecode(body or "") end)
+        if okJson and type(decoded) == "table" and decoded.versionNumber then
+            version = " v" .. tostring(decoded.versionNumber)
+        end
+
+        -- Optional display-name update for community mode.
+        local nameMsg = ""
+        if publishMethod == "community" and mapName:gsub("%s+", "") ~= "" then
+            local nameOk, nameStatus = updateUniverseDisplayName(apiKey, universeId, mapName)
+            if nameOk then
+                nameMsg = " • Nama diperbarui"
+            else
+                nameMsg = " • Publish sukses, nama gagal (HTTP " .. tostring(nameStatus) .. ")"
+            end
+        end
+
+        PublishStatus.Text = "BERHASIL!" .. version .. nameMsg
+        PublishStatus.TextColor3 = Color3.fromRGB(120, 230, 135)
+        notify("Publish Berhasil", "Map berhasil dipublikasikan" .. version .. nameMsg, Color3.fromRGB(120, 230, 135))
+        PublishBtn.Text = publishMethod == "current" and "PUBLISH MAP SAAT INI" or "PUBLISH MAP KOMUNITAS"
+        publishing = false
+    end)
+end)
+
+pcall(detectCurrentMap)
+setPublishMethod("current")
+showMenu("rbxm")
+
 -- MINIMIZE / CLOSE
 -- Close only hides the panel; the toggle below the Roblox menu stays available.
-CloseClick.Activated:Connect(function()
+CloseClick.MouseButton1Click:Connect(function()
     if Main.Visible then
         toggleMain()
     end
 end)
 
 local minimized = false
-MinClick.Activated:Connect(function()
+MinClick.MouseButton1Click:Connect(function()
     minimized = not minimized
     if minimized then
         Content.Visible = false
@@ -1612,7 +2182,7 @@ MinClick.Activated:Connect(function()
     else
         Content.Visible = true
         StatsBar.Visible = true
-        Main.Size = UDim2.new(0, 320, 0, 410)
+        Main.Size = UDim2.new(0, 320, 0, 430)
     end
 end)
 
