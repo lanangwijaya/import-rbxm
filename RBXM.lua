@@ -467,8 +467,205 @@ end
 
 local function safeReadFile(p) if not readfile then return nil end; local ok, d = pcall(readfile, p); return ok and d or nil end
 
+-- ═══════════════════════════════════════════════════════════════════════
+-- RBXMX XML LOADER
+-- Supports common Roblox XML property types and preserves hierarchy.
+-- ═══════════════════════════════════════════════════════════════════════
+local function xmlUnescape(s)
+    s = tostring(s or "")
+    s = s:gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", '"'):gsub("&apos;", "'"):gsub("&amp;", "&")
+    s = s:gsub("&#(%d+);", function(n) return utf8.char(tonumber(n)) end)
+    s = s:gsub("&#x([%da-fA-F]+);", function(n) return utf8.char(tonumber(n, 16)) end)
+    return s
+end
+
+local function xmlTagValue(xml, tag, attrs)
+    local pat = "<" .. tag .. attrs .. ">(.-)</" .. tag .. ">"
+    return xml:match(pat)
+end
+
+local function xmlAttr(attrs, key)
+    return attrs:match(key .. '%s*=%s*"([^"]*)"') or attrs:match(key .. "%s*=%s*'([^']*)'")
+end
+
+local function xmlNumberList(s)
+    local out = {}
+    for n in tostring(s or ""):gmatch("[-+]?[%d%.]+[eE]?[-+]?%d*") do
+        table.insert(out, tonumber(n) or 0)
+    end
+    return out
+end
+
+local function xmlColor3(s)
+    local v = xmlNumberList(s)
+    if #v >= 3 then return Color3.new(v[1], v[2], v[3]) end
+end
+
+local function xmlVector2(s)
+    local v = xmlNumberList(s)
+    if #v >= 2 then return Vector2.new(v[1], v[2]) end
+end
+
+local function xmlVector3(s)
+    local v = xmlNumberList(s)
+    if #v >= 3 then return Vector3.new(v[1], v[2], v[3]) end
+end
+
+local function xmlCFrame(s)
+    local v = xmlNumberList(s)
+    if #v >= 12 then
+        return CFrame.new(
+            v[1],v[2],v[3],
+            v[4],v[5],v[6],
+            v[7],v[8],v[9],
+            v[10],v[11],v[12]
+        )
+    elseif #v >= 3 then
+        return CFrame.new(v[1], v[2], v[3])
+    end
+end
+
+local function xmlContentId(s)
+    s = xmlUnescape(s):gsub("^%s+", ""):gsub("%s+$", "")
+    if s == "" then return "" end
+    return s
+end
+
+local function setRBXMXProperty(obj, typeName, propName, raw)
+    raw = xmlUnescape(raw or "")
+    local value
+
+    if typeName == "string" or typeName == "ProtectedString" or typeName == "BinaryString" then
+        value = raw
+    elseif typeName == "bool" then
+        value = (raw == "true" or raw == "1")
+    elseif typeName == "int" or typeName == "int64" or typeName == "token" then
+        value = tonumber(raw)
+    elseif typeName == "float" or typeName == "double" then
+        value = tonumber(raw)
+    elseif typeName == "Vector2" then
+        value = xmlVector2(raw)
+    elseif typeName == "Vector3" then
+        value = xmlVector3(raw)
+    elseif typeName == "Color3" then
+        value = xmlColor3(raw)
+    elseif typeName == "BrickColor" then
+        local n = tonumber(raw)
+        if n then value = BrickColor.new(n) end
+    elseif typeName == "CFrame" or typeName == "CoordinateFrame" then
+        value = xmlCFrame(raw)
+    elseif typeName == "Content" or typeName == "ContentId" then
+        value = Content.fromUri(xmlContentId(raw))
+    elseif typeName == "Ref" then
+        -- Reference resolution is handled separately when possible.
+        return true, raw
+    elseif typeName == "UDim" then
+        local v = xmlNumberList(raw); if #v >= 2 then value = UDim.new(v[2], v[1]) end
+    elseif typeName == "UDim2" then
+        local v = xmlNumberList(raw); if #v >= 4 then value = UDim2.new(v[2], v[1], v[4], v[3]) end
+    elseif typeName == "Ray" then
+        local v = xmlNumberList(raw); if #v >= 6 then value = Ray.new(Vector3.new(v[1],v[2],v[3]), Vector3.new(v[4],v[5],v[6])) end
+    elseif typeName == "PhysicalProperties" then
+        local v = xmlNumberList(raw); if #v >= 5 then value = PhysicalProperties.new(v[1],v[2],v[3],v[4],v[5]) end
+    elseif typeName == "NumberSequence" then
+        -- Best-effort: Roblox XML commonly stores keypoints as number/time pairs.
+        local v = xmlNumberList(raw)
+        if #v >= 2 then
+            local kp = {}
+            for i = 1, #v - 1, 2 do table.insert(kp, NumberSequenceKeypoint.new(v[i], v[i+1])) end
+            if #kp > 0 then value = NumberSequence.new(kp) end
+        end
+    elseif typeName == "ColorSequence" then
+        local v = xmlNumberList(raw)
+        if #v >= 4 then
+            local kp = {}
+            for i = 1, #v - 4, 4 do
+                table.insert(kp, ColorSequenceKeypoint.new(v[i], Color3.new(v[i+1],v[i+2],v[i+3])))
+            end
+            if #kp > 0 then value = ColorSequence.new(kp) end
+        end
+    end
+
+    if value ~= nil then
+        local ok = pcall(function() obj[propName] = value end)
+        return ok, value
+    end
+    return false, nil
+end
+
+local function parseRBXMX(data)
+    if type(data) ~= "string" or not data:find("<roblox", 1, true) then
+        return nil, "Bukan RBXMX/XML Roblox"
+    end
+
+    -- Remove comments and XML declarations while keeping Item/Properties structure.
+    data = data:gsub("<!%-%-.-%-%->", "")
+    data = data:gsub("<!%[CDATA%[(.-)%]%]>", function(v)
+        return xmlUnescape(v)
+    end)
+
+    local roots = {}
+    local stack = {}
+    local pendingRefs = {}
+
+    local pos = 1
+    while true do
+        local a,b,slash,tag,attrs,body = data:find("<(%/?)([%w_:%-]+)(.-)>", pos)
+        if not a then break end
+
+        if tag ~= "roblox" and tag ~= "Item" and tag ~= "Properties" then
+            -- Property elements are handled when their complete tag is found below.
+        end
+
+        if slash == "" and tag == "Item" then
+            local className = xmlAttr(attrs, "class") or "Folder"
+            local ok, obj = pcall(Instance.new, className)
+            if not ok or not obj then
+                obj = Instance.new("Folder")
+                obj:SetAttribute("NANG_OriginalClass", className)
+            end
+            table.insert(stack, {obj=obj, refs={}, props={}})
+        elseif slash == "/" and tag == "Item" then
+            local node = table.remove(stack)
+            if node then
+                if #stack > 0 then
+                    node.obj.Parent = stack[#stack].obj
+                else
+                    table.insert(roots, node.obj)
+                end
+                for refName, refId in pairs(node.refs) do
+                    table.insert(pendingRefs, {obj=node.obj, prop=refName, ref=refId})
+                end
+            end
+        elseif #stack > 0 and tag ~= "roblox" and tag ~= "Properties" and slash == "" then
+            -- Parse a property element as <type name="Property">value</type>.
+            local name = xmlAttr(attrs, "name")
+            if name then
+                local closePat = "</" .. tag .. ">"
+                local cb, ce = data:find(closePat, b + 1, true)
+                if cb then
+                    local raw = data:sub(b + 1, cb - 1)
+                    local ok, refOrValue = setRBXMXProperty(stack[#stack].obj, tag, name, raw)
+                    if tag == "Ref" and ok then
+                        stack[#stack].refs[name] = refOrValue
+                    end
+                    pos = ce + 1
+                else
+                    pos = b + 1
+                end
+            else
+                pos = b + 1
+            end
+        else
+            pos = b + 1
+        end
+    end
+
+    return roots, nil
+end
+
 local function loadFile(fileInfo)
-    if fileInfo.ftype ~= "RBXM" then
+    if fileInfo.ftype ~= "RBXM" and fileInfo.ftype ~= "RBXMX" then
         return false, "Format file tidak didukung"
     end
 
@@ -477,18 +674,43 @@ local function loadFile(fileInfo)
         return false, "readfile gagal"
     end
 
+    -- RBXMX: parse XML directly first, so it does not depend on executor
+    -- custom-asset behavior.
+    if fileInfo.ftype == "RBXMX" then
+        local okXml, objs, err = pcall(function()
+            local roots, parseErr = parseRBXMX(data)
+            if not roots or #roots == 0 then
+                error(parseErr or "RBXMX kosong")
+            end
+            return roots
+        end)
+        if okXml and objs and #objs > 0 then
+            local loaded = insertObjects(objs, {})
+            return loaded > 0, loaded > 0 and (loaded .. " object(s) loaded") or "Tidak ada object yang bisa dibuat"
+        end
+
+        -- Fallback for environments that can mount local XML as a custom asset.
+        if getcustomasset then
+            local ok1, aid = pcall(getcustomasset, fileInfo.path)
+            if ok1 and aid then
+                local ok2, loaded = pcall(function() return game:GetObjects(aid) end)
+                if ok2 and loaded and #loaded > 0 then
+                    return true, insertObjects(loaded, {}) .. " object(s) loaded"
+                end
+            end
+        end
+        return false, "RBXMX tidak dapat diparse di environment ini"
+    end
+
+    -- RBXM binary path.
     local sourceMap = {}
     local ok, sources = pcall(parseRBXMForSources, data)
-    if ok and sources then
-        sourceMap = sources
-    end
+    if ok and sources then sourceMap = sources end
 
     if getcustomasset then
         local ok1, aid = pcall(getcustomasset, fileInfo.path)
         if ok1 and aid then
-            local ok2, objs = pcall(function()
-                return game:GetObjects(aid)
-            end)
+            local ok2, objs = pcall(function() return game:GetObjects(aid) end)
             if ok2 and objs and #objs > 0 then
                 return true, insertObjects(objs, sourceMap) .. " object(s) loaded"
             end
@@ -502,7 +724,7 @@ local function loadFile(fileInfo)
         return true, insertObjects(o3, sourceMap) .. " object(s) loaded"
     end
 
-    return false, "Semua metode load gagal"
+    return false, "RBXM gagal dimuat"
 end
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -512,8 +734,10 @@ local function safeListFiles(p) if not listfiles then return nil end; local ok, 
 local function getFileName(p) return p:match("([^/]+)$") or p end
 local function getFileType(n)
     n = n:lower()
-    if n:match("%.rbxm$") or n:match("%.rbxmx$") then
+    if n:match("%.rbxm$") then
         return "RBXM"
+    elseif n:match("%.rbxmx$") then
+        return "RBXMX"
     end
     return nil
 end
@@ -697,7 +921,7 @@ local BootMarker = Instance.new("TextLabel", CenterContainer)
 BootMarker.Size = UDim2.new(1, 0, 0, 38)
 BootMarker.Position = UDim2.new(0, 0, 0, 22)
 BootMarker.BackgroundTransparency = 1
-BootMarker.Text = "[ SECURE BOOT // NANG RBXM ]"
+BootMarker.Text = "[ SECURE BOOT // NANG RBXM + RBXMX ]"
 BootMarker.TextColor3 = Color3.fromRGB(215, 180, 255)
 BootMarker.Font = Enum.Font.Code
 BootMarker.TextSize = 12
@@ -708,7 +932,7 @@ local KingText = Instance.new("TextLabel", CenterContainer)
 KingText.Size = UDim2.new(1, 0, 0, 62)
 KingText.Position = UDim2.new(0, 0, 0, 62)
 KingText.BackgroundTransparency = 1
-KingText.Text = "NANG RBXM"
+KingText.Text = "NANG RBXM + RBXMX"
 KingText.TextColor3 = Color3.fromRGB(195, 105, 255)
 KingText.Font = Enum.Font.GothamBold
 KingText.TextSize = 54
@@ -719,7 +943,7 @@ local TagLine = Instance.new("TextLabel", CenterContainer)
 TagLine.Size = UDim2.new(1, 0, 0, 22)
 TagLine.Position = UDim2.new(0, 0, 0, 126)
 TagLine.BackgroundTransparency = 1
-TagLine.Text = "[ RBXM IMPORTER SYSTEM READY ]"
+TagLine.Text = "[ RBXM + RBXMX IMPORTER SYSTEM READY ]"
 TagLine.TextColor3 = Color3.fromRGB(145, 75, 220)
 TagLine.Font = Enum.Font.Code
 TagLine.TextSize = 13
@@ -947,7 +1171,7 @@ local TitleText = Instance.new("TextLabel", TitleBar)
 TitleText.Size = UDim2.new(1, -90, 1, 0)
 TitleText.Position = UDim2.new(0, 34, 0, 0)
 TitleText.BackgroundTransparency = 1
-TitleText.Text = "NANG RBXM  •  IMPORTER + TOOLBOX"
+TitleText.Text = "NANG  •  RBXM + RBXMX + TOOLBOX"
 TitleText.TextColor3 = Color3.fromRGB(245, 235, 255)
 TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 12
@@ -1140,7 +1364,7 @@ local EmptyLabel = Instance.new("TextLabel", EmptyFrame)
 EmptyLabel.Size = UDim2.new(1, -20, 0, 36)
 EmptyLabel.Position = UDim2.new(0, 10, 0, 48)
 EmptyLabel.BackgroundTransparency = 1
-EmptyLabel.Text = "Belum ada file terdeteksi.\nTekan 'SCAN FILES' untuk mencari file RBXM/RBXMX."
+EmptyLabel.Text = "Belum ada file terdeteksi.\nTekan 'SCAN FILES' untuk mencari file RBXM atau RBXMX."
 EmptyLabel.TextColor3 = Color3.fromRGB(170, 150, 195)
 EmptyLabel.Font = Enum.Font.Gotham
 EmptyLabel.TextSize = 10
@@ -1363,7 +1587,7 @@ ScanClick.Activated:Connect(function()
         ScanIcon.Image = ICONS.SEARCH
 
         if #foundFiles == 0 then
-            EmptyLabel.Text = "Tidak ada file RBXM/RBXMX terdeteksi.\nPeriksa folder workspace executor."
+            EmptyLabel.Text = "Tidak ada file RBXM atau RBXMX terdeteksi.\nPeriksa folder workspace executor."
         else
             notify("Scan Selesai", #foundFiles .. " file terdeteksi", Color3.fromRGB(220, 220, 230))
         end
