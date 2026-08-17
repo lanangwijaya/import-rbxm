@@ -1,22 +1,8 @@
-
---// NANG RBXM TOOLBOX - WHITELIST CONFIG
---// Semua whitelist ada di SATU tempat agar mudah diedit.
---// Isi UserId yang boleh memakai toolbox.
-local NANG_WHITELIST = {
-    -- [10370966620] = true,
-    -- [8236629801] = true,
-}
-
-local function NANG_IsWhitelisted(player)
-    if not player then return false end
-    return NANG_WHITELIST[player.UserId] == true
-end
-
 --[[
     ╔══════════════════════════════════════════════════════════════════════╗
-    ║  NANG RBXM TOOLBOX v64.0 - USERID WHITELIST    ║
+    ║  NANG RBXM v63.0 - Modern UI Edition    ║
     ║  Features: Modern UI, Smooth Animations, Verified Asset Mapping           ║
-    ║  Supports: RBXM, RBXM                                                ║
+    ║  Supports: RBXM, RBXMX                                                ║
     ╚══════════════════════════════════════════════════════════════════════╝
 ]]
 
@@ -24,96 +10,34 @@ if not game:IsLoaded() then game.Loaded:Wait() end
 
 -- ═══════════════════════════════════════════════════════════════════════
 -- ═══════════════════════════════════════════════════════════════════════
--- Tidak ada daftar UserId pembeli di dalam file ini.
---
--- {
---   "product": "NANG_RBXM",
---   }
--- }
---
--- GANTI URL DI BAWAH dengan URL RAW milikmu.
-local NANG_PRODUCT = "NANG_RBXM"
-local NANG_CONTACT = "081252425581"
+-- NANG USERID WHITELIST — LOCAL / SINGLE FILE
+-- ═══════════════════════════════════════════════════════════════════════
+-- Masukkan UserId yang diizinkan di bawah.
+-- Contoh:
+-- [123456789] = true,
 
-local NANG_Players = game:GetService("Players")
-local NANG_HttpService = game:GetService("HttpService")
-local NANG_LocalPlayer = NANG_Players.LocalPlayer
+local NANG_WHITELIST = {
+    -- [10370966620] = true,
+    -- [8236629801] = true,
+}
 
-local function NANG_httpGet(url)
-    local funcs = {
-        function()
-            if syn and syn.request then
-                return r.Body, r.StatusCode
-            end
-        end,
-        function()
-            if request then
-                return r.Body, r.StatusCode
-            end
-        end,
-        function()
-            if http_request then
-                return r.Body, r.StatusCode
-            end
-        end,
-        function()
-            return game:HttpGet(url, true), 200
-        end,
-    }
-    for _, fn in ipairs(funcs) do
-        local ok, body, status = pcall(fn)
-        if ok and type(body) == "string" and #body > 0 then
-            return body, status or 200
-        end
-    end
-    return nil, nil
+local function NANG_IsWhitelisted(player)
+    return player and NANG_WHITELIST[player.UserId] == true
 end
 
-local function NANG_reject(reason)
-    warn("[NANG] UserId: " .. tostring(NANG_LocalPlayer and NANG_LocalPlayer.UserId or "unknown"))
-    if NANG_LocalPlayer then
-        pcall(function()
-        end)
-    end
-end
+local NANG_LocalPlayer = game:GetService("Players").LocalPlayer
 
-    if not NANG_LocalPlayer then
-        return false, "LocalPlayer tidak ditemukan"
-    end
-    end
-
-    if not body or (status and status >= 400) then
-        return false, "server whitelist tidak dapat diakses"
-    end
-
-    local ok, data = pcall(function()
-        return NANG_HttpService:JSONDecode(body)
-    end)
-    if not ok or type(data) ~= "table" then
-    end
-
-    if data.product and data.product ~= NANG_PRODUCT then
-        return false, "product tidak cocok"
-    end
-
-    end
-
-    if type(entry) ~= "table" then
-        return false, "UserId belum di-whitelist"
-    end
-    if entry.active ~= true then
-    end
-    if entry.product and entry.product ~= NANG_PRODUCT then
-    end
-
-    return true, entry
-end
-
-if not _allowed then
+if not NANG_LocalPlayer then
+    warn("[NANG] LocalPlayer tidak ditemukan.")
     return
 end
 
--- Validasi berhasil. Tidak ada UserId pembeli yang disimpan di source lokal.
+if not NANG_IsWhitelisted(NANG_LocalPlayer) then
+    warn("[NANG] UserId belum di-whitelist: " .. tostring(NANG_LocalPlayer.UserId))
+    return
+end
+
+
 
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -440,9 +364,8 @@ local function injectStudioLiteUI(scr, sourceMap)
 
     _G.NANG_RAW_SOURCES[scr] = realSource
 
-    -- Keep the complete source and its original multiline formatting.
-    -- No artificial character limit/truncation is applied here.
     local UI_TEXT = realSource
+    if #UI_TEXT > 150000 then UI_TEXT = "-- [NANG Warning] Source terlalu panjang.\n\n" .. string.sub(UI_TEXT, 1, 150000) .. "\n\n... [TERPOTONG]" end
 
     local existingTB = scr:FindFirstChild("SL_CodeTextBox")
     if existingTB then
@@ -603,8 +526,8 @@ end
 local function safeListFiles(p) if not listfiles then return nil end; local ok, f = pcall(listfiles, p); return ok and f or nil end
 local function getFileName(p) return p:match("([^/]+)$") or p end
 local function getFileType(n)
-    n = tostring(n or ""):lower()
-    if n:match("%.rbxm$") then
+    n = n:lower()
+    if n:match("%.rbxm$") or n:match("%.rbxmx$") then
         return "RBXM"
     end
     return nil
@@ -627,20 +550,11 @@ local function scanDeep(folder, depth, results, seen)
 end
 
 local function scanAll()
-    local results, seen = {}, {}
-    for _, p in ipairs(SCAN_PATHS) do
-        if safeListFiles(p) then
-            scanDeep(p, 0, results, seen)
-        end
+    local results, seen = {}, {}; 
+    for _, p in ipairs(SCAN_PATHS) do 
+        if safeListFiles(p) then scanDeep(p, 0, results, seen) end 
     end
-
-    local onlyRBXM = {}
-    for _, info in ipairs(results) do
-        if info.ftype == "RBXM" and tostring(info.name):lower():match("%.rbxm$") then
-            table.insert(onlyRBXM, info)
-        end
-    end
-    return onlyRBXM
+    return results
 end
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -795,7 +709,7 @@ local TagLine = Instance.new("TextLabel", CenterContainer)
 TagLine.Size = UDim2.new(1, 0, 0, 22)
 TagLine.Position = UDim2.new(0, 0, 0, 126)
 TagLine.BackgroundTransparency = 1
-TagLine.Text = "[ RBXM TOOLBOX SYSTEM READY ]"
+TagLine.Text = "[ RBXM IMPORTER SYSTEM READY ]"
 TagLine.TextColor3 = Color3.fromRGB(145, 75, 220)
 TagLine.Font = Enum.Font.Code
 TagLine.TextSize = 13
