@@ -1175,11 +1175,15 @@ local function NANG_SearchToolbox()
 
     local req = request or http_request or (syn and syn.request)
     if not req then
-        notify("Toolbox", "Search membutuhkan HTTP request executor.", Color3.fromRGB(240, 100, 120))
+        if NANG_OpenCreatorStoreSearch(keyword) then
+            notify("Toolbox", "Creator Store dibuka.", Color3.fromRGB(120, 230, 140))
+        else
+            notify("Toolbox", "Search membutuhkan HTTP request executor.", Color3.fromRGB(240, 100, 120))
+        end
         return
     end
 
-    local url = "https://search.roblox.com/catalog/json?Category=Models&Keyword="
+    local url = "https://create.roblox.com/store/models?keyword="
         .. HttpService:UrlEncode(keyword) .. "&ResultsPerPage=20"
 
     task.spawn(function()
@@ -1611,3 +1615,22 @@ task.spawn(function()
 end)
 
 print("[NANG] IMPORTER LOADED")
+-- =========================================================
+-- NANG CREATOR STORE SEARCH FALLBACK
+-- Resmi Creator Store: create.roblox.com/store/models
+-- =========================================================
+local function NANG_OpenCreatorStoreSearch(keyword)
+    keyword = tostring(keyword or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if keyword == "" then return false end
+
+    local url = "https://create.roblox.com/store/models?keyword="
+        .. HttpService:UrlEncode(keyword)
+
+    local openFn = (open_url or openurl or openbrowser or open_url_in_browser)
+    if openFn then
+        local ok = pcall(openFn, url)
+        return ok
+    end
+
+    return false
+end
