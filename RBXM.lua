@@ -1,6 +1,20 @@
+
+--// NANG RBXM TOOLBOX - WHITELIST CONFIG
+--// Semua whitelist ada di SATU tempat agar mudah diedit.
+--// Isi UserId yang boleh memakai toolbox.
+local NANG_WHITELIST = {
+    -- [10370966620] = true,
+    -- [8236629801] = true,
+}
+
+local function NANG_IsWhitelisted(player)
+    if not player then return false end
+    return NANG_WHITELIST[player.UserId] == true
+end
+
 --[[
     ╔══════════════════════════════════════════════════════════════════════╗
-    ║  NANG RBXM TOOLBOX v64.0 - Final    ║
+    ║  NANG RBXM TOOLBOX v64.0 - USERID WHITELIST    ║
     ║  Features: Modern UI, Smooth Animations, Verified Asset Mapping           ║
     ║  Supports: RBXM, RBXM                                                ║
     ╚══════════════════════════════════════════════════════════════════════╝
@@ -9,21 +23,15 @@
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 -- ═══════════════════════════════════════════════════════════════════════
--- NANG PAID LICENSE GATE — EXTERNAL WHITELIST
 -- ═══════════════════════════════════════════════════════════════════════
 -- Tidak ada daftar UserId pembeli di dalam file ini.
--- Kelola akses hanya dari licenses.json di server/GitHub kamu.
 --
--- Format licenses.json:
 -- {
 --   "product": "NANG_RBXM",
---   "licenses": {
---      "123456789": {"license":"NANG-XXXX", "active":true}
 --   }
 -- }
 --
 -- GANTI URL DI BAWAH dengan URL RAW milikmu.
-local NANG_LICENSE_URL = "https://raw.githubusercontent.com/lanangwijaya/import-rbxm/refs/heads/main/licenses.json"
 local NANG_PRODUCT = "NANG_RBXM"
 local NANG_CONTACT = "081252425581"
 
@@ -35,19 +43,16 @@ local function NANG_httpGet(url)
     local funcs = {
         function()
             if syn and syn.request then
-                local r = syn.request({Url=url, Method="GET", Headers={['User-Agent']='NANG-License-Client'}})
                 return r.Body, r.StatusCode
             end
         end,
         function()
             if request then
-                local r = request({Url=url, Method="GET", Headers={['User-Agent']='NANG-License-Client'}})
                 return r.Body, r.StatusCode
             end
         end,
         function()
             if http_request then
-                local r = http_request({Url=url, Method="GET", Headers={['User-Agent']='NANG-License-Client'}})
                 return r.Body, r.StatusCode
             end
         end,
@@ -65,24 +70,18 @@ local function NANG_httpGet(url)
 end
 
 local function NANG_reject(reason)
-    warn("[NANG] License ditolak: " .. tostring(reason))
     warn("[NANG] UserId: " .. tostring(NANG_LocalPlayer and NANG_LocalPlayer.UserId or "unknown"))
     if NANG_LocalPlayer then
         pcall(function()
-            NANG_LocalPlayer:Kick("NANG\nLicense tidak valid / belum aktif.\nHubungi NANG: " .. NANG_CONTACT)
         end)
     end
 end
 
-local function NANG_checkLicense()
     if not NANG_LocalPlayer then
         return false, "LocalPlayer tidak ditemukan"
     end
-    if NANG_LICENSE_URL:find("USERNAME/NANG%-License", 1, false) then
-        return false, "NANG_LICENSE_URL belum dikonfigurasi"
     end
 
-    local body, status = NANG_httpGet(NANG_LICENSE_URL)
     if not body or (status and status >= 400) then
         return false, "server whitelist tidak dapat diakses"
     end
@@ -91,35 +90,26 @@ local function NANG_checkLicense()
         return NANG_HttpService:JSONDecode(body)
     end)
     if not ok or type(data) ~= "table" then
-        return false, "licenses.json tidak valid"
     end
 
     if data.product and data.product ~= NANG_PRODUCT then
         return false, "product tidak cocok"
     end
 
-    local licenses = data.licenses
-    if type(licenses) ~= "table" then
-        return false, "data licenses tidak ditemukan"
     end
 
-    local entry = licenses[tostring(NANG_LocalPlayer.UserId)]
     if type(entry) ~= "table" then
         return false, "UserId belum di-whitelist"
     end
     if entry.active ~= true then
-        return false, "license tidak aktif"
     end
     if entry.product and entry.product ~= NANG_PRODUCT then
-        return false, "license product tidak cocok"
     end
 
     return true, entry
 end
 
-local _allowed, _license = NANG_checkLicense()
 if not _allowed then
-    NANG_reject(_license)
     return
 end
 
