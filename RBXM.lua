@@ -2,42 +2,32 @@
     ╔══════════════════════════════════════════════════════════════════════╗
     ║  NANG RBXM v63.0 - Modern UI Edition    ║
     ║  Features: Modern UI, Smooth Animations, Verified Asset Mapping           ║
-    ║  Supports: RBXM, RBXMX                                                ║
+    ║  Supports: RBXM, RBXMX                                  ║
     ╚══════════════════════════════════════════════════════════════════════╝
 ]]
 
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 -- ═══════════════════════════════════════════════════════════════════════
+-- WHITELIST GATE — NANG PAID SCRIPT
 -- ═══════════════════════════════════════════════════════════════════════
--- NANG USERID WHITELIST — LOCAL / SINGLE FILE
--- ═══════════════════════════════════════════════════════════════════════
--- Masukkan UserId yang diizinkan di bawah.
--- Contoh:
--- [123456789] = true,
-
-local NANG_WHITELIST = {
-    -- [10370966620] = true,
-    -- [8236629801] = true,
+local _WHITELIST = {
+    -- Masukkan UserId yang boleh akses di sini
+    8236629801,
+    10370966620
 }
 
-local function NANG_IsWhitelisted(player)
-    return player and NANG_WHITELIST[player.UserId] == true
+local _userId = game:GetService("Players").LocalPlayer.UserId
+local _allowed = false
+for _, id in ipairs(_WHITELIST) do
+    if id == _userId then _allowed = true; break end
 end
 
-local NANG_LocalPlayer = game:GetService("Players").LocalPlayer
-
-if not NANG_LocalPlayer then
-    warn("[NANG] LocalPlayer tidak ditemukan.")
+if not _allowed then
+    warn("have you tried opening this script it's not easy my friend 😈😈😈😈")
+    warn("KALO KALIAN MAU BELI IMPORT RBXM NYA LANGSUNG AJA HUBUNGI NANG DI NOMOR INI, 081252425581 NANG 👑")
     return
 end
-
-if not NANG_IsWhitelisted(NANG_LocalPlayer) then
-    warn("[NANG] UserId belum di-whitelist: " .. tostring(NANG_LocalPlayer.UserId))
-    return
-end
-
-
 
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -461,33 +451,15 @@ local SVC_MAP = {
     Chat = ReplicatedStorage 
 }
 
-local function insertObjects(objects, isRbxl, sourceMap)
+local function insertObjects(objects, sourceMap)
     local count = 0
     for _, obj in ipairs(objects) do
         pcall(function()
-            local target = (isRbxl and (SVC_MAP[obj.ClassName] or SVC_MAP[obj.Name])) or workspace
-            if target == workspace and obj:IsA("Service") then target = ReplicatedStorage end
-
-            if isRbxl and target ~= workspace then
-                for _, ch in ipairs(obj:GetChildren()) do
-                    pcall(function() 
-                        ch.Parent = target; 
-                        pcall(function() ch:SetAttribute("NANG_IMPORTED", true) end)
-                        injectAllScripts(ch, sourceMap); 
-                        ApplyStudioLiteProperties(ch); 
-                        LoadAssetsToSLServer(ch); 
-                        count = count + 1 
-                    end)
-                    task.wait(0.01)
-                end
-            else
-                obj.Parent = target; 
-                pcall(function() obj:SetAttribute("NANG_IMPORTED", true) end)
-                injectAllScripts(obj, sourceMap); 
-                ApplyStudioLiteProperties(obj); 
-                LoadAssetsToSLServer(obj); 
-                count = count + 1
-            end
+            obj.Parent = workspace
+            injectAllScripts(obj, sourceMap)
+            ApplyStudioLiteProperties(obj)
+            LoadAssetsToSLServer(obj)
+            count = count + 1
         end)
     end
     return count
@@ -496,26 +468,39 @@ end
 local function safeReadFile(p) if not readfile then return nil end; local ok, d = pcall(readfile, p); return ok and d or nil end
 
 local function loadFile(fileInfo)
-    local isRbxl = false
+    if fileInfo.ftype ~= "RBXM" then
+        return false, "Format file tidak didukung"
+    end
+
     local data = safeReadFile(fileInfo.path)
-    if not data or #data == 0 then return false, "readfile gagal" end
+    if not data or #data == 0 then
+        return false, "readfile gagal"
+    end
 
     local sourceMap = {}
-    if not isRbxl then
-        local ok, sources, err = pcall(parseRBXMForSources, data)
-        if ok and sources then sourceMap = sources end
+    local ok, sources = pcall(parseRBXMForSources, data)
+    if ok and sources then
+        sourceMap = sources
     end
 
     if getcustomasset then
         local ok1, aid = pcall(getcustomasset, fileInfo.path)
         if ok1 and aid then
-            local ok2, objs = pcall(function() return game:GetObjects(aid) end)
-            if ok2 and objs and #objs > 0 then return true, insertObjects(objs, isRbxl, sourceMap) .. " object(s) loaded" end
+            local ok2, objs = pcall(function()
+                return game:GetObjects(aid)
+            end)
+            if ok2 and objs and #objs > 0 then
+                return true, insertObjects(objs, sourceMap) .. " object(s) loaded"
+            end
         end
     end
 
-    local ok3, o3 = pcall(function() return game:GetObjects("rbxasset://" .. fileInfo.path) end)
-    if ok3 and o3 and #o3 > 0 then return true, insertObjects(o3, isRbxl, sourceMap) .. " object(s) loaded" end
+    local ok3, o3 = pcall(function()
+        return game:GetObjects("rbxasset://" .. fileInfo.path)
+    end)
+    if ok3 and o3 and #o3 > 0 then
+        return true, insertObjects(o3, sourceMap) .. " object(s) loaded"
+    end
 
     return false, "Semua metode load gagal"
 end
@@ -555,6 +540,31 @@ local function scanAll()
         if safeListFiles(p) then scanDeep(p, 0, results, seen) end 
     end
     return results
+end
+
+
+-- TOOLBOX MODEL INSERT
+local function extractAssetId(value)
+    value=tostring(value or '')
+    return tonumber(value:match('(%d+)'))
+end
+local function insertToolboxModel(value)
+    local assetId=extractAssetId(value)
+    if not assetId then return false,'Asset ID tidak valid' end
+    local inserted
+    local ok,result=pcall(function() return InsertService:LoadAsset(assetId) end)
+    if ok and result then inserted=result end
+    if not inserted and game.GetObjects then
+        local ok2,result2=pcall(function() return game:GetObjects('rbxassetid://'..assetId) end)
+        if ok2 and result2 and #result2>0 then
+            inserted=Instance.new('Folder'); inserted.Name='Toolbox_'..assetId; inserted.Parent=workspace
+            for _,obj in ipairs(result2) do obj.Parent=inserted end
+        end
+    end
+    if not inserted then return false,'Model gagal dimuat. Pastikan Asset ID model publik/diizinkan.' end
+    if inserted.Parent==nil then inserted.Parent=workspace end
+    pcall(function() injectAllScripts(inserted,{}); ApplyStudioLiteProperties(inserted); LoadAssetsToSLServer(inserted) end)
+    return true,inserted.Name
 end
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -891,7 +901,7 @@ end)
 -- MAIN CONTAINER
 local Main = Instance.new("Frame", UI)
 Main.Name = "MainFrame"
-Main.Size = UDim2.new(0, 320, 0, 360)
+Main.Size = UDim2.new(0, 320, 0, 410)
 Main.Position = UDim2.new(0.5, -160, 0.5, -180)
 Main.BackgroundColor3 = Color3.fromRGB(12, 10, 24)
 Main.BackgroundTransparency = 0.05
@@ -937,7 +947,7 @@ local TitleText = Instance.new("TextLabel", TitleBar)
 TitleText.Size = UDim2.new(1, -90, 1, 0)
 TitleText.Position = UDim2.new(0, 34, 0, 0)
 TitleText.BackgroundTransparency = 1
-TitleText.Text = "NANG RBXM  •  IMPORTER"
+TitleText.Text = "NANG RBXM  •  IMPORTER + TOOLBOX"
 TitleText.TextColor3 = Color3.fromRGB(245, 235, 255)
 TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 12
@@ -1008,13 +1018,12 @@ local function toggleMain()
     ToggleIcon.Image = Main.Visible and ICONS.CHEVRON_RIGHT or ICONS.CHEVRON_LEFT
 end
 
-ToggleBtn.MouseButton1Click:Connect(toggleMain)
+ToggleBtn.Activated:Connect(toggleMain)
 
 -- CONTENT AREA
 local Content = Instance.new("Frame", Main)
-Content.Size = UDim2.new(1, -16, 1, -110)
-Content.Position = UDim2.new(0, 8, 0, 78)
-Content.Name = "ImporterPage"
+Content.Size = UDim2.new(1, -16, 1, -124)
+Content.Position = UDim2.new(0, 8, 0, 42)
 Content.BackgroundColor3 = Color3.fromRGB(18, 14, 34)
 Content.BorderSizePixel = 0
 Instance.new("UICorner", Content).CornerRadius = UDim.new(0, 8)
@@ -1060,10 +1069,52 @@ ScanClick.Size = UDim2.new(1, 0, 1, 0)
 ScanClick.BackgroundTransparency = 1
 ScanClick.Text = ""
 
+local ToolboxBox=Instance.new("TextBox",Content)
+ToolboxBox.Size=UDim2.new(1,-92,0,30)
+ToolboxBox.Position=UDim2.new(0,6,0,42)
+ToolboxBox.BackgroundColor3=Color3.fromRGB(25,19,45)
+ToolboxBox.BorderSizePixel=0
+ToolboxBox.ClearTextOnFocus=false
+ToolboxBox.PlaceholderText="Toolbox Asset ID / URL..."
+ToolboxBox.Text=""
+ToolboxBox.TextColor3=Color3.fromRGB(225,215,240)
+ToolboxBox.PlaceholderColor3=Color3.fromRGB(125,110,150)
+ToolboxBox.Font=Enum.Font.Gotham
+ToolboxBox.TextSize=10
+Instance.new("UICorner",ToolboxBox).CornerRadius=UDim.new(0,6)
+local ToolboxInsert=Instance.new("TextButton",Content)
+ToolboxInsert.Size=UDim2.new(0,78,0,30)
+ToolboxInsert.Position=UDim2.new(1,-84,0,42)
+ToolboxInsert.BackgroundColor3=Color3.fromRGB(18,58,27)
+ToolboxInsert.BorderSizePixel=0
+ToolboxInsert.Text="INSERT"
+ToolboxInsert.TextColor3=Color3.fromRGB(190,255,180)
+ToolboxInsert.Font=Enum.Font.GothamBold
+ToolboxInsert.TextSize=9
+Instance.new("UICorner",ToolboxInsert).CornerRadius=UDim.new(0,6)
+local SearchBox = Instance.new("TextBox", Content)
+SearchBox.Size = UDim2.new(1, -12, 0, 28)
+SearchBox.Position = UDim2.new(0, 6, 0, 76)
+SearchBox.BackgroundColor3 = Color3.fromRGB(25, 19, 45)
+SearchBox.BorderSizePixel = 0
+SearchBox.ClearTextOnFocus = false
+SearchBox.PlaceholderText = "Search file RBXM / RBXMX..."
+SearchBox.Text = ""
+SearchBox.TextColor3 = Color3.fromRGB(225, 215, 240)
+SearchBox.PlaceholderColor3 = Color3.fromRGB(125, 110, 150)
+SearchBox.Font = Enum.Font.Gotham
+SearchBox.TextSize = 10
+SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 6)
+
+local SearchPadding = Instance.new("UIPadding", SearchBox)
+SearchPadding.PaddingLeft = UDim.new(0, 10)
+
+
 -- SCROLL LIST
 local Scroll = Instance.new("ScrollingFrame", Content)
-Scroll.Size = UDim2.new(1, -12, 1, -48)
-Scroll.Position = UDim2.new(0, 6, 0, 42)
+Scroll.Size = UDim2.new(1, -12, 1, -160)
+Scroll.Position = UDim2.new(0, 6, 0, 110)
 Scroll.BackgroundTransparency = 1
 Scroll.ScrollBarThickness = 3
 Scroll.ScrollBarImageColor3 = Color3.fromRGB(160, 95, 225)
@@ -1089,7 +1140,7 @@ local EmptyLabel = Instance.new("TextLabel", EmptyFrame)
 EmptyLabel.Size = UDim2.new(1, -20, 0, 36)
 EmptyLabel.Position = UDim2.new(0, 10, 0, 48)
 EmptyLabel.BackgroundTransparency = 1
-EmptyLabel.Text = "Belum ada file terdeteksi.\nTekan 'SCAN FILES' untuk mencari file RBXM."
+EmptyLabel.Text = "Belum ada file terdeteksi.\nTekan 'SCAN FILES' untuk mencari file RBXM/RBXMX."
 EmptyLabel.TextColor3 = Color3.fromRGB(170, 150, 195)
 EmptyLabel.Font = Enum.Font.Gotham
 EmptyLabel.TextSize = 10
@@ -1167,6 +1218,7 @@ local function buildFileCard(fileInfo)
     EmptyFrame.Visible = false
 
     local card = Instance.new("Frame", Scroll)
+    card:SetAttribute("FileName", string.lower(fileInfo.name))
     card.Size = UDim2.new(1, 0, 0, 44)
     card.BackgroundColor3 = Color3.fromRGB(24, 18, 42)
     card.BorderSizePixel = 0
@@ -1176,11 +1228,9 @@ local function buildFileCard(fileInfo)
     cardStroke.Thickness = 1
     cardStroke.Color = Color3.fromRGB(70, 42, 100)
 
-    local isRbxl = false
-
     local typeBadge = Instance.new("Frame", card)
     typeBadge.Size = UDim2.new(0, 48, 0, 16); typeBadge.Position = UDim2.new(0, 6, 0, 6)
-    typeBadge.BackgroundColor3 = isRbxl and Color3.fromRGB(115, 220, 120) or Color3.fromRGB(43, 110, 55)
+    typeBadge.BackgroundColor3 = Color3.fromRGB(43, 110, 55)
     typeBadge.BorderSizePixel = 0
     Instance.new("UICorner", typeBadge).CornerRadius = UDim.new(0, 4)
 
@@ -1188,7 +1238,7 @@ local function buildFileCard(fileInfo)
     badgeIcon.Size = UDim2.new(0, 10, 0, 10)
     badgeIcon.Position = UDim2.new(0, 4, 0.5, -5)
     badgeIcon.BackgroundTransparency = 1
-    badgeIcon.Image = isRbxl and ICONS.GAMEPAD or ICONS.FILE
+    badgeIcon.Image = ICONS.FILE
     badgeIcon.ImageColor3 = Color3.fromRGB(4, 30, 13)
 
     local typeText = Instance.new("TextLabel", typeBadge)
@@ -1242,7 +1292,7 @@ local function buildFileCard(fileInfo)
     insertBtn.MouseEnter:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 100, 42)}):Play() end)
     insertBtn.MouseLeave:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 58, 27)}):Play() end)
 
-    insertBtn.MouseButton1Click:Connect(function()
+    insertBtn.Activated:Connect(function()
         if insertText.Text == "LOADING" then return end
         insertText.Text = "LOADING"; insertIcon.Image = ICONS.REFRESH
         insertFrame.BackgroundColor3 = Color3.fromRGB(20, 76, 30)
@@ -1267,8 +1317,33 @@ local function buildFileCard(fileInfo)
     end)
 end
 
+
+ToolboxInsert.Activated:Connect(function()
+    if ToolboxInsert.Text=="LOAD..." then return end
+    ToolboxInsert.Text="LOAD..."
+    task.spawn(function()
+        local ok,msg=insertToolboxModel(ToolboxBox.Text)
+        if ok then notify("Toolbox","Model berhasil diinsert: "..tostring(msg),Color3.fromRGB(120,230,135)); ToolboxInsert.Text="DONE" else notify("Toolbox Gagal",tostring(msg),Color3.fromRGB(240,90,90)); ToolboxInsert.Text="FAIL" end
+        task.wait(1.5)
+        ToolboxInsert.Text="INSERT"
+    end)
+end)
+
+
+local function applyFileSearch()
+    local query = string.lower(SearchBox.Text or "")
+    for _, child in ipairs(Scroll:GetChildren()) do
+        if child:IsA("Frame") and child ~= EmptyFrame then
+            local fileName = child:GetAttribute("FileName") or ""
+            child.Visible = (query == "" or string.find(fileName, query, 1, true) ~= nil)
+        end
+    end
+end
+
+SearchBox:GetPropertyChangedSignal("Text"):Connect(applyFileSearch)
+
 -- SCAN LOGIC
-ScanClick.MouseButton1Click:Connect(function()
+ScanClick.Activated:Connect(function()
     ScanText.Text = "SCANNING..."
     ScanIcon.Image = ICONS.REFRESH
 
@@ -1281,186 +1356,30 @@ ScanClick.MouseButton1Click:Connect(function()
     task.spawn(function()
         local foundFiles = scanAll()
         for _, f in ipairs(foundFiles) do buildFileCard(f) end
+        applyFileSearch()
 
         StatsText.Text = string.format("Status: Ready  |  Files: %d", #foundFiles)
         ScanText.Text = "SCAN FILES"
         ScanIcon.Image = ICONS.SEARCH
 
         if #foundFiles == 0 then
-            EmptyLabel.Text = "Tidak ada file RBXM terdeteksi.\nPeriksa folder workspace executor."
+            EmptyLabel.Text = "Tidak ada file RBXM/RBXMX terdeteksi.\nPeriksa folder workspace executor."
         else
             notify("Scan Selesai", #foundFiles .. " file terdeteksi", Color3.fromRGB(220, 220, 230))
         end
     end)
 end)
 
--- ═══════════════════════════════════════════════════════════════════════
--- TOOLBOX NAVIGATION + TOOLBOX PAGE
--- ═══════════════════════════════════════════════════════════════════════
-local Nav = Instance.new("Frame", Main)
-Nav.Name = "Navigation"
-Nav.Size = UDim2.new(1, -16, 0, 28)
-Nav.Position = UDim2.new(0, 8, 0, 42)
-Nav.BackgroundTransparency = 1
-
-local function makeTab(text, x, active)
-    local b = Instance.new("TextButton", Nav)
-    b.Size = UDim2.new(0.5, -3, 1, 0)
-    b.Position = UDim2.new(x, x == 0 and 0 or 3, 0, 0)
-    b.BackgroundColor3 = active and Color3.fromRGB(82, 42, 140) or Color3.fromRGB(25, 18, 44)
-    b.BorderSizePixel = 0
-    b.Text = text
-    b.TextColor3 = Color3.fromRGB(240, 230, 255)
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 9
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-    return b
-end
-
-local ImportTab = makeTab("IMPORTER", 0, true)
-local ToolboxTab = makeTab("TOOLBOX", 0.5, false)
-
-local ToolboxPage = Instance.new("Frame", Main)
-ToolboxPage.Name = "ToolboxPage"
-ToolboxPage.Size = UDim2.new(1, -16, 1, -110)
-ToolboxPage.Position = UDim2.new(0, 8, 0, 78)
-ToolboxPage.BackgroundColor3 = Color3.fromRGB(18, 14, 34)
-ToolboxPage.BorderSizePixel = 0
-ToolboxPage.Visible = false
-Instance.new("UICorner", ToolboxPage).CornerRadius = UDim.new(0, 8)
-local ToolboxStroke = Instance.new("UIStroke", ToolboxPage)
-ToolboxStroke.Thickness = 1
-ToolboxStroke.Color = Color3.fromRGB(70, 40, 105)
-
-local ToolTitle = Instance.new("TextLabel", ToolboxPage)
-ToolTitle.Size = UDim2.new(1, -20, 0, 24)
-ToolTitle.Position = UDim2.new(0, 10, 0, 8)
-ToolTitle.BackgroundTransparency = 1
-ToolTitle.Text = "NANG TOOLBOX"
-ToolTitle.TextColor3 = Color3.fromRGB(235, 215, 255)
-ToolTitle.Font = Enum.Font.GothamBold
-ToolTitle.TextSize = 13
-ToolTitle.TextXAlignment = Enum.TextXAlignment.Left
-
-local ToolSub = Instance.new("TextLabel", ToolboxPage)
-ToolSub.Size = UDim2.new(1, -20, 0, 20)
-ToolSub.Position = UDim2.new(0, 10, 0, 31)
-ToolSub.BackgroundTransparency = 1
-ToolSub.Text = "Quick tools untuk import dan workspace."
-ToolSub.TextColor3 = Color3.fromRGB(145, 120, 175)
-ToolSub.Font = Enum.Font.Gotham
-ToolSub.TextSize = 9
-ToolSub.TextXAlignment = Enum.TextXAlignment.Left
-
-local AssetBox = Instance.new("TextBox", ToolboxPage)
-AssetBox.Size = UDim2.new(1, -20, 0, 32)
-AssetBox.Position = UDim2.new(0, 10, 0, 58)
-AssetBox.BackgroundColor3 = Color3.fromRGB(25, 18, 44)
-AssetBox.BorderSizePixel = 0
-AssetBox.PlaceholderText = "Asset ID Roblox..."
-AssetBox.PlaceholderColor3 = Color3.fromRGB(110, 90, 135)
-AssetBox.Text = ""
-AssetBox.TextColor3 = Color3.fromRGB(240, 230, 255)
-AssetBox.Font = Enum.Font.Gotham
-AssetBox.TextSize = 10
-AssetBox.ClearTextOnFocus = false
-Instance.new("UICorner", AssetBox).CornerRadius = UDim.new(0, 6)
-local AssetStroke = Instance.new("UIStroke", AssetBox)
-AssetStroke.Color = Color3.fromRGB(75, 45, 110)
-
-local function toolButton(text, y, icon)
-    local f = Instance.new("Frame", ToolboxPage)
-    f.Size = UDim2.new(1, -20, 0, 32)
-    f.Position = UDim2.new(0, 10, 0, y)
-    f.BackgroundColor3 = Color3.fromRGB(30, 21, 52)
-    f.BorderSizePixel = 0
-    Instance.new("UICorner", f).CornerRadius = UDim.new(0, 6)
-    local st = Instance.new("UIStroke", f)
-    st.Color = Color3.fromRGB(75, 45, 110)
-    st.Thickness = 1
-    local lab = Instance.new("TextLabel", f)
-    lab.Size = UDim2.new(1, -12, 1, 0)
-    lab.Position = UDim2.new(0, 8, 0, 0)
-    lab.BackgroundTransparency = 1
-    lab.Text = (icon or "") .. text
-    lab.TextColor3 = Color3.fromRGB(225, 210, 245)
-    lab.Font = Enum.Font.GothamBold
-    lab.TextSize = 9
-    lab.TextXAlignment = Enum.TextXAlignment.Left
-    local btn = Instance.new("TextButton", f)
-    btn.Size = UDim2.new(1, 0, 1, 0)
-    btn.BackgroundTransparency = 1
-    btn.Text = ""
-    btn.MouseEnter:Connect(function() f.BackgroundColor3 = Color3.fromRGB(55, 34, 88) end)
-    btn.MouseLeave:Connect(function() f.BackgroundColor3 = Color3.fromRGB(30, 21, 52) end)
-    return f, btn, lab
-end
-
-local AssetFrame, AssetBtn, AssetLabel = toolButton("INSERT ASSET ID", 98, "▣  ")
-local RefreshFrame, RefreshBtn = toolButton("REFRESH SCAN", 136, "↻  ")
-local ClearFrame, ClearBtn = toolButton("CLEAR IMPORTED OBJECTS", 174, "×  ")
-local WorkspaceFrame, WorkspaceBtn = toolButton("OPEN WORKSPACE", 212, "⌂  ")
-local InfoFrame, InfoBtn = toolButton("SYSTEM INFO", 250, "i  ")
-
-local function setTab(importer)
-    Content.Visible = importer
-    ToolboxPage.Visible = not importer
-    ImportTab.BackgroundColor3 = importer and Color3.fromRGB(82, 42, 140) or Color3.fromRGB(25, 18, 44)
-    ToolboxTab.BackgroundColor3 = importer and Color3.fromRGB(25, 18, 44) or Color3.fromRGB(82, 42, 140)
-end
-ImportTab.MouseButton1Click:Connect(function() setTab(true) end)
-ToolboxTab.MouseButton1Click:Connect(function() setTab(false) end)
-
-AssetBtn.MouseButton1Click:Connect(function()
-    local id = tostring(AssetBox.Text):match("%d+")
-    if not id then notify("Toolbox", "Masukkan Asset ID yang valid.", Color3.fromRGB(230, 170, 80)); return end
-    AssetLabel.Text = "LOADING ASSET..."
-    task.spawn(function()
-        local ok, obj = pcall(function() return InsertService:LoadAsset(tonumber(id)) end)
-        if ok and obj then
-            local count = insertObjects({obj}, false, {})
-            AssetLabel.Text = "INSERT ASSET ID"
-            notify("Toolbox", tostring(count) .. " object(s) dimuat dari asset " .. id, Color3.fromRGB(180, 120, 255))
-        else
-            AssetLabel.Text = "INSERT ASSET ID"
-            notify("Toolbox", "Asset gagal dimuat.", Color3.fromRGB(220, 80, 80))
-        end
-    end)
-end)
-
-RefreshBtn.MouseButton1Click:Connect(function()
-    setTab(true)
-    notify("Toolbox", "Buka IMPORTER lalu tekan SCAN FILES untuk scan ulang.", Color3.fromRGB(190, 150, 255))
-end)
-
-ClearBtn.MouseButton1Click:Connect(function()
-    local removed = 0
-    for _, obj in ipairs(workspace:GetChildren()) do
-        if obj:GetAttribute("NANG_IMPORTED") == true then obj:Destroy(); removed += 1 end
-    end
-    notify("Toolbox", removed > 0 and ("%d object imported dihapus."):format(removed) or "Tidak ada object bertanda import.", Color3.fromRGB(200, 160, 255))
-end)
-
-WorkspaceBtn.MouseButton1Click:Connect(function()
-    setTab(true)
-    notify("Workspace", "Target import RBXM adalah Workspace atau service mapping.", Color3.fromRGB(190, 150, 255))
-end)
-
-InfoBtn.MouseButton1Click:Connect(function()
-    notify("NANG TOOLBOX", "RBXM Scanner + Toolbox aktif. Version 63 rebuilt.", Color3.fromRGB(190, 150, 255))
-end)
-
-
 -- MINIMIZE / CLOSE
 -- Close only hides the panel; the toggle below the Roblox menu stays available.
-CloseClick.MouseButton1Click:Connect(function()
+CloseClick.Activated:Connect(function()
     if Main.Visible then
         toggleMain()
     end
 end)
 
 local minimized = false
-MinClick.MouseButton1Click:Connect(function()
+MinClick.Activated:Connect(function()
     minimized = not minimized
     if minimized then
         Content.Visible = false
@@ -1469,7 +1388,7 @@ MinClick.MouseButton1Click:Connect(function()
     else
         Content.Visible = true
         StatsBar.Visible = true
-        Main.Size = UDim2.new(0, 320, 0, 360)
+        Main.Size = UDim2.new(0, 320, 0, 410)
     end
 end)
 
