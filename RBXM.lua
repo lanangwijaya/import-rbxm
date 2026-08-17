@@ -995,7 +995,7 @@ local function toggleMain()
     ToggleIcon.Image = Main.Visible and ICONS.CHEVRON_RIGHT or ICONS.CHEVRON_LEFT
 end
 
-ToggleBtn.Activated:Connect(toggleMain)
+ToggleBtn.MouseButton1Click:Connect(toggleMain)
 
 -- CONTENT AREA
 local Content = Instance.new("Frame", Main)
@@ -1046,243 +1046,10 @@ ScanClick.Size = UDim2.new(1, 0, 1, 0)
 ScanClick.BackgroundTransparency = 1
 ScanClick.Text = ""
 
-
--- =========================================================
--- NANG TOOLBOX: ID + SEARCH
--- Tambahan saja; RBXM importer lama tidak diubah.
--- =========================================================
-
-local ToolboxBar = Instance.new("Frame", Content)
-ToolboxBar.Name = "ToolboxBar"
-ToolboxBar.Size = UDim2.new(1, -12, 0, 68)
-ToolboxBar.Position = UDim2.new(0, 6, 0, 42)
-ToolboxBar.BackgroundColor3 = Color3.fromRGB(23, 17, 42)
-ToolboxBar.BorderSizePixel = 0
-Instance.new("UICorner", ToolboxBar).CornerRadius = UDim.new(0, 6)
-
-local ToolboxIdBox = Instance.new("TextBox", ToolboxBar)
-ToolboxIdBox.Name = "ToolboxId"
-ToolboxIdBox.Size = UDim2.new(0.62, -6, 0, 27)
-ToolboxIdBox.Position = UDim2.new(0, 6, 0, 6)
-ToolboxIdBox.BackgroundColor3 = Color3.fromRGB(34, 25, 55)
-ToolboxIdBox.BorderSizePixel = 0
-ToolboxIdBox.ClearTextOnFocus = false
-ToolboxIdBox.PlaceholderText = "Toolbox Asset ID..."
-ToolboxIdBox.Text = ""
-ToolboxIdBox.TextColor3 = Color3.fromRGB(235, 225, 250)
-ToolboxIdBox.PlaceholderColor3 = Color3.fromRGB(135, 115, 160)
-ToolboxIdBox.Font = Enum.Font.Gotham
-ToolboxIdBox.TextSize = 9
-ToolboxIdBox.TextXAlignment = Enum.TextXAlignment.Left
-ToolboxIdBox.Parent = ToolboxBar
-Instance.new("UICorner", ToolboxIdBox).CornerRadius = UDim.new(0, 5)
-
-local ToolboxInsertBtn = Instance.new("TextButton", ToolboxBar)
-ToolboxInsertBtn.Size = UDim2.new(0.38, -12, 0, 27)
-ToolboxInsertBtn.Position = UDim2.new(0.62, 0, 0, 6)
-ToolboxInsertBtn.BackgroundColor3 = Color3.fromRGB(62, 42, 88)
-ToolboxInsertBtn.BorderSizePixel = 0
-ToolboxInsertBtn.Text = "INSERT ID"
-ToolboxInsertBtn.TextColor3 = Color3.fromRGB(240, 225, 255)
-ToolboxInsertBtn.Font = Enum.Font.GothamBold
-ToolboxInsertBtn.TextSize = 9
-ToolboxInsertBtn.Parent = ToolboxBar
-Instance.new("UICorner", ToolboxInsertBtn).CornerRadius = UDim.new(0, 5)
-
-local ToolboxSearchBox = Instance.new("TextBox", ToolboxBar)
-ToolboxSearchBox.Name = "ToolboxSearch"
-ToolboxSearchBox.Size = UDim2.new(0.72, -6, 0, 27)
-ToolboxSearchBox.Position = UDim2.new(0, 6, 0, 36)
-ToolboxSearchBox.BackgroundColor3 = Color3.fromRGB(34, 25, 55)
-ToolboxSearchBox.BorderSizePixel = 0
-ToolboxSearchBox.ClearTextOnFocus = false
-ToolboxSearchBox.PlaceholderText = "Search nama model Toolbox..."
-ToolboxSearchBox.Text = ""
-ToolboxSearchBox.TextColor3 = Color3.fromRGB(235, 225, 250)
-ToolboxSearchBox.PlaceholderColor3 = Color3.fromRGB(135, 115, 160)
-ToolboxSearchBox.Font = Enum.Font.Gotham
-ToolboxSearchBox.TextSize = 9
-ToolboxSearchBox.TextXAlignment = Enum.TextXAlignment.Left
-ToolboxSearchBox.Parent = ToolboxBar
-Instance.new("UICorner", ToolboxSearchBox).CornerRadius = UDim.new(0, 5)
-
-local ToolboxSearchBtn = Instance.new("TextButton", ToolboxBar)
-ToolboxSearchBtn.Size = UDim2.new(0.28, -12, 0, 27)
-ToolboxSearchBtn.Position = UDim2.new(0.72, 0, 0, 36)
-ToolboxSearchBtn.BackgroundColor3 = Color3.fromRGB(62, 42, 88)
-ToolboxSearchBtn.BorderSizePixel = 0
-ToolboxSearchBtn.Text = "SEARCH"
-ToolboxSearchBtn.TextColor3 = Color3.fromRGB(240, 225, 255)
-ToolboxSearchBtn.Font = Enum.Font.GothamBold
-ToolboxSearchBtn.TextSize = 9
-ToolboxSearchBtn.Parent = ToolboxBar
-Instance.new("UICorner", ToolboxSearchBtn).CornerRadius = UDim.new(0, 5)
-
-local function NANG_ToolboxInsert(assetId)
-    local id = tonumber(tostring(assetId or ""):match("%d+"))
-    if not id then
-        notify("Toolbox", "Asset ID tidak valid.", Color3.fromRGB(240, 100, 120))
-        return
-    end
-
-    notify("Toolbox", "Loading model ID " .. id .. "...", Color3.fromRGB(220, 190, 255))
-
-    task.spawn(function()
-        -- Method 1: GetObjects, usually the most compatible in executor.
-        local ok, objects = pcall(function()
-            return game:GetObjects("rbxassetid://" .. tostring(id))
-        end)
-
-        if ok and type(objects) == "table" and #objects > 0 then
-            local count = 0
-            for _, obj in ipairs(objects) do
-                local parentOk = pcall(function()
-                    obj.Parent = workspace
-                end)
-                if parentOk then
-                    count += 1
-                end
-            end
-
-            if count > 0 then
-                notify("Toolbox", tostring(count) .. " object berhasil di-insert.", Color3.fromRGB(120, 230, 140))
-                return
-            end
-        end
-
-        -- Method 2: InsertService fallback.
-        local ok2, result = pcall(function()
-            return InsertService:LoadAsset(id)
-        end)
-
-        if ok2 and result then
-            pcall(function()
-                result.Parent = workspace
-            end)
-            notify("Toolbox", "Model ID " .. id .. " berhasil di-insert.", Color3.fromRGB(120, 230, 140))
-            return
-        end
-
-        notify("Toolbox", "ID tidak bisa di-load. Pastikan ID adalah Model Creator Store yang bisa diakses.", Color3.fromRGB(240, 100, 120))
-    end)
-end
-
-ToolboxInsertBtn.Activated:Connect(function()
-    NANG_ToolboxInsert(ToolboxIdBox.Text)
-end)
-
-ToolboxIdBox.FocusLost:Connect(function(enterPressed)
-    if enterPressed then
-        NANG_ToolboxInsert(ToolboxIdBox.Text)
-    end
-end)
-
-local function NANG_SearchToolbox()
-    local keyword = tostring(ToolboxSearchBox.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
-    if keyword == "" then
-        notify("Toolbox", "Masukkan nama model.", Color3.fromRGB(240, 180, 100))
-        return
-    end
-
-    local req = request or http_request or (syn and syn.request) or (http and http.request) or (fluxus and fluxus.request)
-    if not req then
-        if NANG_OpenCreatorStoreSearch(keyword) then
-            notify("Toolbox", "Creator Store dibuka.", Color3.fromRGB(120, 230, 140))
-        else
-            notify("Toolbox", "Search membutuhkan HTTP request executor.", Color3.fromRGB(240, 100, 120))
-        end
-        return
-    end
-
-    local url = "https://search.roblox.com/catalog/json?Category=Models&Keyword="
-        .. HttpService:UrlEncode(keyword) .. "&ResultsPerPage=30"
-
-    task.spawn(function()
-        local ok, response = pcall(req, {Url = url, Method = "GET"})
-        if not ok or not response then
-            notify("Toolbox", "Search gagal.", Color3.fromRGB(240, 100, 120))
-            return
-        end
-
-        local body = response.Body or response.body
-        local okJson, data = pcall(function()
-            return HttpService:JSONDecode(body)
-        end)
-
-        if not okJson or type(data) ~= "table" then
-            notify("Toolbox", "Hasil search tidak valid.", Color3.fromRGB(240, 100, 120))
-            return
-        end
-
-        local items = data.Data or data.data or data
-        if type(items) ~= "table" or #items == 0 then
-            notify("Toolbox", "Model tidak ditemukan.", Color3.fromRGB(240, 180, 100))
-            return
-        end
-
-        -- Search results are shown as small buttons above the RBXM list.
-        for _, child in ipairs(Content:GetChildren()) do
-            if child.Name == "NANGToolboxResults" then
-                child:Destroy()
-            end
-        end
-
-        local results = Instance.new("ScrollingFrame", Content)
-        results.Name = "NANGToolboxResults"
-        results.Size = UDim2.new(1, -12, 0, 90)
-        results.Position = UDim2.new(0, 6, 0, 114)
-        results.BackgroundColor3 = Color3.fromRGB(17, 13, 30)
-        results.BorderSizePixel = 0
-        results.ScrollBarThickness = 3
-        results.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        Instance.new("UICorner", results).CornerRadius = UDim.new(0, 6)
-
-        local rl = Instance.new("UIListLayout", results)
-        rl.Padding = UDim.new(0, 3)
-
-        local shown = 0
-        for _, item in ipairs(items) do
-            local id = tonumber(item.AssetId or item.id or item.Id)
-            local name = item.Name or item.name
-            if id and name then
-                shown += 1
-
-                local b = Instance.new("TextButton", results)
-                b.Size = UDim2.new(1, -6, 0, 25)
-                b.BackgroundColor3 = Color3.fromRGB(37, 27, 58)
-                b.BorderSizePixel = 0
-                b.Text = tostring(name) .. "  [" .. tostring(id) .. "]"
-                b.TextColor3 = Color3.fromRGB(225, 210, 245)
-                b.Font = Enum.Font.Gotham
-                b.TextSize = 8
-                b.TextXAlignment = Enum.TextXAlignment.Left
-                b.TextTruncate = Enum.TextTruncate.AtEnd
-                b.Parent = results
-                Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
-
-                b.Activated:Connect(function()
-                    ToolboxIdBox.Text = tostring(id)
-                    NANG_ToolboxInsert(id)
-                end)
-            end
-
-            if shown >= 20 then break end
-        end
-
-        notify("Toolbox", tostring(shown) .. " hasil ditemukan.", Color3.fromRGB(120, 230, 140))
-    end)
-end
-
-ToolboxSearchBtn.Activated:Connect(NANG_SearchToolbox)
-ToolboxSearchBox.FocusLost:Connect(function(enterPressed)
-    if enterPressed then NANG_SearchToolbox() end
-end)
-
-
 -- SCROLL LIST
 local Scroll = Instance.new("ScrollingFrame", Content)
-Scroll.Size = UDim2.new(1, -12, 1, -124)
-Scroll.Position = UDim2.new(0, 6, 0, 118)
+Scroll.Size = UDim2.new(1, -12, 1, -48)
+Scroll.Position = UDim2.new(0, 6, 0, 42)
 Scroll.BackgroundTransparency = 1
 Scroll.ScrollBarThickness = 3
 Scroll.ScrollBarImageColor3 = Color3.fromRGB(160, 95, 225)
@@ -1308,7 +1075,7 @@ local EmptyLabel = Instance.new("TextLabel", EmptyFrame)
 EmptyLabel.Size = UDim2.new(1, -20, 0, 36)
 EmptyLabel.Position = UDim2.new(0, 10, 0, 48)
 EmptyLabel.BackgroundTransparency = 1
-EmptyLabel.Text = "Belum ada file terdeteksi.\nTekan 'SCAN FILES' untuk mencari file RBXM."
+EmptyLabel.Text = "Belum ada file terdeteksi.\nTekan 'SCAN FILES' untuk mencari file RBXM/RBXL."
 EmptyLabel.TextColor3 = Color3.fromRGB(170, 150, 195)
 EmptyLabel.Font = Enum.Font.Gotham
 EmptyLabel.TextSize = 10
@@ -1461,7 +1228,7 @@ local function buildFileCard(fileInfo)
     insertBtn.MouseEnter:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 100, 42)}):Play() end)
     insertBtn.MouseLeave:Connect(function() TweenService:Create(insertFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(18, 58, 27)}):Play() end)
 
-    insertBtn.Activated:Connect(function()
+    insertBtn.MouseButton1Click:Connect(function()
         if insertText.Text == "LOADING" then return end
         insertText.Text = "LOADING"; insertIcon.Image = ICONS.REFRESH
         insertFrame.BackgroundColor3 = Color3.fromRGB(20, 76, 30)
@@ -1487,7 +1254,7 @@ local function buildFileCard(fileInfo)
 end
 
 -- SCAN LOGIC
-ScanClick.Activated:Connect(function()
+ScanClick.MouseButton1Click:Connect(function()
     ScanText.Text = "SCANNING..."
     ScanIcon.Image = ICONS.REFRESH
 
@@ -1515,14 +1282,14 @@ end)
 
 -- MINIMIZE / CLOSE
 -- Close only hides the panel; the toggle below the Roblox menu stays available.
-CloseClick.Activated:Connect(function()
+CloseClick.MouseButton1Click:Connect(function()
     if Main.Visible then
         toggleMain()
     end
 end)
 
 local minimized = false
-MinClick.Activated:Connect(function()
+MinClick.MouseButton1Click:Connect(function()
     minimized = not minimized
     if minimized then
         Content.Visible = false
@@ -1535,11 +1302,226 @@ MinClick.Activated:Connect(function()
     end
 end)
 
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- NANG TOOLBOX ADD-ON
+-- Hanya Toolbox ID + Search Model. Import RBXM lama tetap.
+-- ═══════════════════════════════════════════════════════════════════════
+
+local NANG_ToolboxFrame = Instance.new("Frame", Content)
+NANG_ToolboxFrame.Name = "NANGToolbox"
+NANG_ToolboxFrame.Size = UDim2.new(1, -12, 0, 70)
+NANG_ToolboxFrame.Position = UDim2.new(0, 6, 0, 40)
+NANG_ToolboxFrame.BackgroundColor3 = Color3.fromRGB(23, 17, 42)
+NANG_ToolboxFrame.BorderSizePixel = 0
+Instance.new("UICorner", NANG_ToolboxFrame).CornerRadius = UDim.new(0, 6)
+
+local NANG_IDBox = Instance.new("TextBox", NANG_ToolboxFrame)
+NANG_IDBox.Size = UDim2.new(0.62, -6, 0, 28)
+NANG_IDBox.Position = UDim2.new(0, 6, 0, 6)
+NANG_IDBox.BackgroundColor3 = Color3.fromRGB(34, 25, 55)
+NANG_IDBox.BorderSizePixel = 0
+NANG_IDBox.ClearTextOnFocus = false
+NANG_IDBox.PlaceholderText = "Toolbox Asset ID..."
+NANG_IDBox.Text = ""
+NANG_IDBox.TextColor3 = Color3.fromRGB(235, 225, 250)
+NANG_IDBox.PlaceholderColor3 = Color3.fromRGB(135, 115, 160)
+NANG_IDBox.Font = Enum.Font.Gotham
+NANG_IDBox.TextSize = 9
+NANG_IDBox.TextXAlignment = Enum.TextXAlignment.Left
+NANG_IDBox.Parent = NANG_ToolboxFrame
+Instance.new("UICorner", NANG_IDBox).CornerRadius = UDim.new(0, 5)
+
+local NANG_IDButton = Instance.new("TextButton", NANG_ToolboxFrame)
+NANG_IDButton.Size = UDim2.new(0.38, -12, 0, 28)
+NANG_IDButton.Position = UDim2.new(0.62, 0, 0, 6)
+NANG_IDButton.BackgroundColor3 = Color3.fromRGB(62, 42, 88)
+NANG_IDButton.BorderSizePixel = 0
+NANG_IDButton.Text = "INSERT ID"
+NANG_IDButton.TextColor3 = Color3.fromRGB(240, 225, 255)
+NANG_IDButton.Font = Enum.Font.GothamBold
+NANG_IDButton.TextSize = 9
+NANG_IDButton.Parent = NANG_ToolboxFrame
+Instance.new("UICorner", NANG_IDButton).CornerRadius = UDim.new(0, 5)
+
+local NANG_SearchBox = Instance.new("TextBox", NANG_ToolboxFrame)
+NANG_SearchBox.Size = UDim2.new(0.72, -6, 0, 28)
+NANG_SearchBox.Position = UDim2.new(0, 6, 0, 36)
+NANG_SearchBox.BackgroundColor3 = Color3.fromRGB(34, 25, 55)
+NANG_SearchBox.BorderSizePixel = 0
+NANG_SearchBox.ClearTextOnFocus = false
+NANG_SearchBox.PlaceholderText = "Search nama model..."
+NANG_SearchBox.Text = ""
+NANG_SearchBox.TextColor3 = Color3.fromRGB(235, 225, 250)
+NANG_SearchBox.PlaceholderColor3 = Color3.fromRGB(135, 115, 160)
+NANG_SearchBox.Font = Enum.Font.Gotham
+NANG_SearchBox.TextSize = 9
+NANG_SearchBox.TextXAlignment = Enum.TextXAlignment.Left
+NANG_SearchBox.Parent = NANG_ToolboxFrame
+Instance.new("UICorner", NANG_SearchBox).CornerRadius = UDim.new(0, 5)
+
+local NANG_SearchButton = Instance.new("TextButton", NANG_ToolboxFrame)
+NANG_SearchButton.Size = UDim2.new(0.28, -12, 0, 28)
+NANG_SearchButton.Position = UDim2.new(0.72, 0, 0, 36)
+NANG_SearchButton.BackgroundColor3 = Color3.fromRGB(62, 42, 88)
+NANG_SearchButton.BorderSizePixel = 0
+NANG_SearchButton.Text = "SEARCH"
+NANG_SearchButton.TextColor3 = Color3.fromRGB(240, 225, 255)
+NANG_SearchButton.Font = Enum.Font.GothamBold
+NANG_SearchButton.TextSize = 9
+NANG_SearchButton.Parent = NANG_ToolboxFrame
+Instance.new("UICorner", NANG_SearchButton).CornerRadius = UDim.new(0, 5)
+
+-- Move the existing file list down slightly so the add-on doesn't cover it.
+local NANG_OldScroll = Content:FindFirstChild("Scroll")
+if NANG_OldScroll then
+    NANG_OldScroll.Position = UDim2.new(0, 6, 0, 116)
+    NANG_OldScroll.Size = UDim2.new(1, -12, 1, -122)
+end
+
+local function NANG_InsertToolboxID(value)
+    local id = tonumber(tostring(value or ""):match("%d+"))
+    if not id then
+        notify("Toolbox", "Asset ID tidak valid.", Color3.fromRGB(240, 100, 120))
+        return
+    end
+
+    task.spawn(function()
+        -- Use GetObjects first; the original script already has its
+        -- Studio-Lite asset processing hook for this path.
+        local ok, objects = pcall(function()
+            return game:GetObjects("rbxassetid://" .. tostring(id))
+        end)
+
+        if ok and type(objects) == "table" and #objects > 0 then
+            local count = 0
+            for _, obj in ipairs(objects) do
+                local placed = pcall(function()
+                    obj.Parent = workspace
+                end)
+                if placed then count = count + 1 end
+            end
+            if count > 0 then
+                notify("Toolbox", count .. " object berhasil di-insert.", Color3.fromRGB(120, 230, 140))
+                return
+            end
+        end
+
+        local ok2, model = pcall(function()
+            return InsertService:LoadAsset(id)
+        end)
+
+        if ok2 and model then
+            pcall(function() model.Parent = workspace end)
+            notify("Toolbox", "Model ID " .. id .. " berhasil di-insert.", Color3.fromRGB(120, 230, 140))
+            return
+        end
+
+        notify("Toolbox", "Model ID " .. id .. " gagal di-load.", Color3.fromRGB(240, 100, 120))
+    end)
+end
+
+NANG_IDButton.MouseButton1Click:Connect(function()
+    NANG_InsertToolboxID(NANG_IDBox.Text)
+end)
+
+NANG_IDBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        NANG_InsertToolboxID(NANG_IDBox.Text)
+    end
+end)
+
+local function NANG_SearchModels()
+    local keyword = tostring(NANG_SearchBox.Text or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if keyword == "" then
+        notify("Toolbox", "Masukkan nama model.", Color3.fromRGB(240, 180, 100))
+        return
+    end
+
+    task.spawn(function()
+        local url = "https://search.roblox.com/catalog/json?Category=Models&Keyword="
+            .. HttpService:UrlEncode(keyword) .. "&ResultsPerPage=20"
+
+        local body = httpRequest(url, "GET")
+        if not body then
+            notify("Toolbox", "Search tidak didukung executor ini.", Color3.fromRGB(240, 100, 120))
+            return
+        end
+
+        local ok, data = pcall(function()
+            return HttpService:JSONDecode(body)
+        end)
+
+        if not ok or type(data) ~= "table" then
+            notify("Toolbox", "Hasil search tidak valid.", Color3.fromRGB(240, 100, 120))
+            return
+        end
+
+        local items = data.Data or data.data or data
+        if type(items) ~= "table" or #items == 0 then
+            notify("Toolbox", "Model tidak ditemukan.", Color3.fromRGB(240, 180, 100))
+            return
+        end
+
+        local old = Content:FindFirstChild("NANGSearchResults")
+        if old then old:Destroy() end
+
+        local results = Instance.new("ScrollingFrame", Content)
+        results.Name = "NANGSearchResults"
+        results.Size = UDim2.new(1, -12, 0, 88)
+        results.Position = UDim2.new(0, 6, 0, 188)
+        results.BackgroundColor3 = Color3.fromRGB(17, 13, 30)
+        results.BorderSizePixel = 0
+        results.ScrollBarThickness = 3
+        results.CanvasSize = UDim2.new()
+        Instance.new("UICorner", results).CornerRadius = UDim.new(0, 6)
+
+        local layout = Instance.new("UIListLayout", results)
+        layout.Padding = UDim.new(0, 3)
+
+        local shown = 0
+        for _, item in ipairs(items) do
+            local id = tonumber(item.AssetId or item.id or item.Id)
+            local name = item.Name or item.name
+            if id and name then
+                shown = shown + 1
+
+                local b = Instance.new("TextButton", results)
+                b.Size = UDim2.new(1, -6, 0, 25)
+                b.BackgroundColor3 = Color3.fromRGB(37, 27, 58)
+                b.BorderSizePixel = 0
+                b.Text = tostring(name) .. " [" .. tostring(id) .. "]"
+                b.TextColor3 = Color3.fromRGB(225, 210, 245)
+                b.Font = Enum.Font.Gotham
+                b.TextSize = 8
+                b.TextXAlignment = Enum.TextXAlignment.Left
+                b.Parent = results
+                Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+
+                b.MouseButton1Click:Connect(function()
+                    NANG_IDBox.Text = tostring(id)
+                    NANG_InsertToolboxID(id)
+                end)
+            end
+            if shown >= 20 then break end
+        end
+
+        results.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 6)
+        notify("Toolbox", shown .. " hasil ditemukan.", Color3.fromRGB(120, 230, 140))
+    end)
+end
+
+NANG_SearchButton.MouseButton1Click:Connect(NANG_SearchModels)
+NANG_SearchBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then NANG_SearchModels() end
+end)
+
+
 -- ═══════════════════════════════════════════════════════════════════════
 -- HOOKS (Anti-Putus Studio Lite)
 -- ═══════════════════════════════════════════════════════════════════════
 task.spawn(function()
-    if hookmetamethod then
+    if hookmetamethod and checkcaller then
         local oldNamecall
         oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
             local method = getnamecallmethod()
@@ -1580,9 +1562,11 @@ task.spawn(function()
         end)
     end
 
-    if hookfunction then
+    if hookfunction and getrenv then
         local oldRequire
-        oldRequire = hookfunction(getrenv().require or require, function(module)
+        local env = getrenv()
+        if not env then return end
+        oldRequire = hookfunction(env.require or require, function(module)
             if typeof(module) == "Instance" and module:IsA("ModuleScript") then
                 local src = _G.NANG_RAW_SOURCES[module]
                 if src and src ~= "" then
@@ -1626,32 +1610,3 @@ task.spawn(function()
 end)
 
 print("[NANG] IMPORTER LOADED")
--- =========================================================
--- NANG CREATOR STORE SEARCH FALLBACK
--- Resmi Creator Store: create.roblox.com/store/models
--- =========================================================
-local function NANG_OpenCreatorStoreSearch(keyword)
-    keyword = tostring(keyword or ""):gsub("^%s+", ""):gsub("%s+$", "")
-    if keyword == "" then return false end
-
-    local url = "https://create.roblox.com/store/models?keyword="
-        .. HttpService:UrlEncode(keyword)
-
-    local openFn = open_url or openurl or openbrowser or open_url_in_browser
-    if openFn then
-        return pcall(openFn, url)
-    end
-    return false
-end
-
-    local url = "https://create.roblox.com/store/models?keyword="
-        .. HttpService:UrlEncode(keyword)
-
-    local openFn = (open_url or openurl or openbrowser or open_url_in_browser)
-    if openFn then
-        local ok = pcall(openFn, url)
-        return ok
-    end
-
-    return false
-end
