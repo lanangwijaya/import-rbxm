@@ -301,10 +301,27 @@ local function parseRBXMForSources(data)
         end
     end
 
+    local function addSourceAlias(key, src)
+        if not key or key == "" or not src or type(src) ~= "string" or #src == 0 then return end
+        local bucketKey = "__ALIAS__" .. key
+        local bucket = sources[bucketKey]
+        if type(bucket) ~= "table" then bucket = {}; sources[bucketKey] = bucket end
+        table.insert(bucket, src)
+    end
+
     local function buildSourceMap(node, path)
         local src = node.Properties["Source"] or node.Properties["ContentText"]
-        if src and type(src) == "string" and #src > 0 then sources[path] = src end
-        for _, child in ipairs(node.Children or {}) do buildSourceMap(child, path .. "." .. child.ClassName .. ":" .. (child.Properties["Name"] or "unnamed")) end
+        if src and type(src) == "string" and #src > 0 then
+            src = src:gsub(string.char(0) .. "*$", "")
+            sources[path] = src
+            local className = tostring(node.ClassName or "")
+            local name = tostring(node.Properties["Name"] or "")
+            if className ~= "" and name ~= "" then addSourceAlias(className .. ":" .. name, src) end
+            if name ~= "" then addSourceAlias(name, src) end
+        end
+        for _, child in ipairs(node.Children or {}) do
+            buildSourceMap(child, path .. "." .. child.ClassName .. ":" .. (child.Properties["Name"] or "unnamed"))
+        end
     end
 
     for _, chunk in ipairs(chunkInfo["PRNT"] or {}) do
@@ -345,13 +362,68 @@ local function triggerServerLoad(idStr)
 end
 
 local SL_CACHE = {}
-local function injectStudioLiteUI(scr, sourceMap)
-    if not scr:IsA("LuaSourceContainer") then return end
-    local path = scr.ClassName .. ":" .. scr.Name
-    local realSource = sourceMap and sourceMap[path]
-    if not realSource then pcall(function() realSource = scr.Source end) end
-    if realSource and #realSource > 0 then realSource = (realSource:gsub(string.char(0).."*$", "")) else realSource = "-- [LANGZ] Source tidak ditemukan." end
 
+local function getInstancePath(obj)
+    local parts, cur, guard = {}, obj, 0
+    while cur and guard < 100 do
+        guard = guard + 1
+        table.insert(parts, 1, tostring(cur.ClassName) .. ":" .. tostring(cur.Name))
+        cur = cur.Parent
+    end
+    return table.concat(parts, ".")
+end
+
+local function readLiveSource(scr)
+    local source
+    pcall(function() source = scr.Source end)
+    if not source or #tostring(source) == 0 then pcall(function() source = scr.ContentText end) end
+    if source and type(source) == "string" and #source > 0 then
+        return source:gsub(string.char(0) .. "*$", "")
+    end
+    return nil
+end
+
+local function captureLiveSources(root)
+    if not root then return 0 end
+    local captured = 0
+    local function capture(scr)
+        if not scr or not scr:IsA("LuaSourceContainer") then return end
+        local src = readLiveSource(scr)
+        if src and #src > 0 then _G.LANGZ_RAW_SOURCES[scr] = src; captured = captured + 1 end
+    end
+    capture(root)
+    for _, d in ipairs(root:GetDescendants()) do capture(d) end
+    return captured
+end
+
+local function resolveSource(scr, sourceMap)
+    if not scr then return nil end
+    local live = readLiveSource(scr)
+    if live then return live end
+    if type(sourceMap) ~= "table" then return nil end
+
+    local fullPath = getInstancePath(scr)
+    local direct = sourceMap[fullPath]
+    if type(direct) == "string" and #direct > 0 then return direct end
+
+    for key, value in pairs(sourceMap) do
+        if type(key) == "string" and key:sub(1, 9) ~= "__ALIAS__" and type(value) == "string" then
+            if #key <= #fullPath and fullPath:sub(-#key) == key then return value end
+        end
+    end
+
+    local bucket = sourceMap["__ALIAS__" .. tostring(scr.ClassName) .. ":" .. tostring(scr.Name)]
+    if type(bucket) == "table" and #bucket == 1 then return bucket[1] end
+    bucket = sourceMap["__ALIAS__" .. tostring(scr.Name)]
+    if type(bucket) == "table" and #bucket == 1 then return bucket[1] end
+    return nil
+end
+
+local function injectStudioLiteUI(scr, sourceMap)
+    if not scr:IsA("LuaSourceContainer") then return false end
+    local realSource = resolveSource(scr, sourceMap) or _G.LANGZ_RAW_SOURCES[scr]
+    if not realSource or #realSource == 0 then realSource = "-- [LANGZ] Source tidak ditemukan." end
+    realSource = realSource:gsub(string.char(0) .. "*$", "")
     _G.LANGZ_RAW_SOURCES[scr] = realSource
 
     local UI_TEXT = realSource
@@ -364,13 +436,13 @@ local function injectStudioLiteUI(scr, sourceMap)
             local ro = scr:FindFirstChild("SL_1ReadOnly")
             if ro then ro.ContentText = UI_TEXT; ro.Text = UI_TEXT end
         end
-        return
+        return true
     end
 
-    if not serverFuncs then return end
+    if not serverFuncs then return false end
     local map = { Script = "InsertScriptScript", LocalScript = "InsertLocalScriptLocalScript", ModuleScript = "InsertModuleScriptModuleScript" }
     local assetName = map[scr.ClassName]
-    if not assetName then return end
+    if not assetName then return false end
 
     if not SL_CACHE[assetName] then
         pcall(function()
@@ -383,9 +455,9 @@ local function injectStudioLiteUI(scr, sourceMap)
             end
         end)
     end
-    if not SL_CACHE[assetName] then return end
+    if not SL_CACHE[assetName] then return false end
 
-    pcall(function()
+    local ok = pcall(function()
         for _, c in ipairs(SL_CACHE[assetName]) do c:Clone().Parent = scr end
         local tb = scr:FindFirstChild("SL_CodeTextBox")
         if tb then
@@ -396,16 +468,21 @@ local function injectStudioLiteUI(scr, sourceMap)
             end
         end
     end)
+    return ok
 end
 
 local function injectAllScripts(root, sourceMap)
-    if not root then return 0 end
+    if not root then return 0, 0 end
     local list = {}
     if root:IsA("LuaSourceContainer") then table.insert(list, root) end
     for _, d in ipairs(root:GetDescendants()) do if d:IsA("LuaSourceContainer") then table.insert(list, d) end end
-    local count = 0
-    for _, s in ipairs(list) do pcall(injectStudioLiteUI, s, sourceMap); count = count + 1; task.wait(0.02) end
-    return count
+    local okCount, failCount = 0, 0
+    for _, scr in ipairs(list) do
+        local ok, result = pcall(injectStudioLiteUI, scr, sourceMap)
+        if ok and result then okCount = okCount + 1 else failCount = failCount + 1 end
+        task.wait(0.02)
+    end
+    return okCount, failCount
 end
 
 local function ApplyStudioLiteProperties(obj)
@@ -498,12 +575,18 @@ local function loadFile(fileInfo)
         local ok1, aid = pcall(getcustomasset, fileInfo.path)
         if ok1 and aid then
             local ok2, objs = pcall(function() return game:GetObjects(aid) end)
-            if ok2 and objs and #objs > 0 then return true, insertObjects(objs, isRbxl, sourceMap) .. " object(s) loaded" end
+            if ok2 and objs and #objs > 0 then
+                for _, obj in ipairs(objs) do captureLiveSources(obj) end
+                return true, insertObjects(objs, isRbxl, sourceMap) .. " object(s) loaded"
+            end
         end
     end
 
     local ok3, o3 = pcall(function() return game:GetObjects("rbxasset://" .. fileInfo.path) end)
-    if ok3 and o3 and #o3 > 0 then return true, insertObjects(o3, isRbxl, sourceMap) .. " object(s) loaded" end
+    if ok3 and o3 and #o3 > 0 then
+        for _, obj in ipairs(o3) do captureLiveSources(obj) end
+        return true, insertObjects(o3, isRbxl, sourceMap) .. " object(s) loaded"
+    end
 
     return false, "Semua metode load gagal"
 end
@@ -565,8 +648,20 @@ local function insertToolboxModel(value)
     end
     if not inserted then return false,'Model gagal dimuat. Pastikan Asset ID model publik/diizinkan.' end
     if inserted.Parent==nil then inserted.Parent=workspace end
-    pcall(function() injectAllScripts(inserted,{}); ApplyStudioLiteProperties(inserted); LoadAssetsToSLServer(inserted) end)
-    return true,inserted.Name
+
+    local captured = captureLiveSources(inserted)
+    local injected = injectAllScripts(inserted,{})
+    ApplyStudioLiteProperties(inserted)
+    LoadAssetsToSLServer(inserted)
+
+    local scriptCount = 0
+    if inserted:IsA("LuaSourceContainer") then scriptCount = 1 end
+    for _, d in ipairs(inserted:GetDescendants()) do if d:IsA("LuaSourceContainer") then scriptCount = scriptCount + 1 end end
+
+    if scriptCount > 0 and injected == 0 then
+        return true, tostring(inserted.Name) .. " (model masuk, tetapi script belum berhasil dipasang)"
+    end
+    return true,tostring(inserted.Name) .. " (script " .. tostring(injected) .. "/" .. tostring(scriptCount) .. ", source " .. tostring(captured) .. ")"
 end
 
 
@@ -1642,6 +1737,7 @@ task.spawn(function()
             local objects = oldGetObjects(self, url, ...)
             if objects then
                 for _, obj in ipairs(objects) do
+                    pcall(function() captureLiveSources(obj) end)
                     pcall(function() injectAllScripts(obj, {}) end)
                     pcall(function() ApplyStudioLiteProperties(obj) end)
                     pcall(function() LoadAssetsToSLServer(obj) end)
@@ -1655,6 +1751,7 @@ task.spawn(function()
             triggerServerLoad(tostring(assetId))
             local obj = oldLoadAsset(self, assetId, ...)
             if obj then
+                pcall(function() captureLiveSources(obj) end)
                 pcall(function() injectAllScripts(obj, {}) end)
                 pcall(function() ApplyStudioLiteProperties(obj) end)
                 pcall(function() LoadAssetsToSLServer(obj) end)
