@@ -14,7 +14,8 @@ if not game:IsLoaded() then game.Loaded:Wait() end
 local _WHITELIST = {
     -- Masukkan UserId yang boleh akses di sini
     8236629801,
-    10370966620
+    10370966620,
+    8153244285,
 }
 
 local _userId = game:GetService("Players").LocalPlayer.UserId
