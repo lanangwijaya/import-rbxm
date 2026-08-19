@@ -16,7 +16,8 @@ local _WHITELIST = {
     8236629801,
     10370966620,
     8153244285,
-    9218615280
+    9218615280,
+    
 }
 
 local _userId = game:GetService("Players").LocalPlayer.UserId
